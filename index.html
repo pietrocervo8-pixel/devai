@@ -15,9 +15,70 @@
             flex-direction: column;
             align-items: center;
         }
+        /* Pantalla de Login */
+        #loginOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0d1117;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .login-card {
+            background: #161b22;
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+        }
+        .login-card h2 {
+            color: #58a6ff;
+            margin-bottom: 20px;
+        }
+        .login-card input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: white;
+            box-sizing: border-box;
+        }
+        .login-card button {
+            width: 100%;
+            padding: 12px;
+            background-color: #238636;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .login-card button:hover {
+            background-color: #2ea043;
+        }
+
+        /* App Principal */
+        #appContainer {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+        }
         header {
             text-align: center;
             margin-bottom: 25px;
+            position: relative;
+            width: 100%;
+            max-width: 700px;
         }
         h1 {
             color: #58a6ff;
@@ -26,6 +87,17 @@
         .subtitle {
             color: #8b949e;
             font-size: 14px;
+        }
+        .pro-badge {
+            background: linear-gradient(45deg, #f85149, #d29922);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 5px;
+            cursor: pointer;
         }
         .chat-container {
             width: 100%;
@@ -39,7 +111,7 @@
             box-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
         .chat-box {
-            height: 380px;
+            height: 350px;
             overflow-y: auto;
             padding: 20px;
             display: flex;
@@ -71,7 +143,7 @@
             border-top: 1px solid #30363d;
             gap: 10px;
         }
-        input {
+        .input-area input {
             flex: 1;
             padding: 12px;
             background-color: #161b22;
@@ -80,11 +152,11 @@
             color: white;
             font-size: 14px;
         }
-        input:focus {
+        .input-area input:focus, .login-card input:focus {
             outline: none;
             border-color: #58a6ff;
         }
-        button {
+        .input-area button {
             padding: 0 20px;
             background-color: #238636;
             color: white;
@@ -93,7 +165,7 @@
             font-weight: bold;
             cursor: pointer;
         }
-        button:hover {
+        .input-area button:hover {
             background-color: #2ea043;
         }
         pre {
@@ -104,28 +176,113 @@
             border: 1px solid #30363d;
             color: #79c0ff;
         }
+
+        /* Modal de Suscripción Pro */
+        #proModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: #161b22;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content h2 {
+            color: #f85149;
+        }
+        .price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #58a6ff;
+            margin: 15px 0;
+        }
+        .close-btn {
+            background: #30363d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>⚡ DevAI Master Pro</h1>
-        <p class="subtitle">Motor Híbrido de Programación (GPT + Gemini + Grok)</p>
-    </header>
+    <!-- Pantalla de Inicio de Sesión -->
+    <div id="loginOverlay">
+        <div class="login-card">
+            <h2>🔐 Iniciar Sesión en DevAI</h2>
+            <input type="text" id="usernameInput" placeholder="Tu Nombre o Usuario">
+            <input type="password" placeholder="Contraseña">
+            <button onclick="login()">Entrar al Sistema</button>
+        </div>
+    </div>
 
-    <div class="chat-container">
-        <div class="chat-box" id="chatBox">
-            <div class="message ai-message">
-                ¡Hola, Pietro! Soy DevAI, tu núcleo de programación definitivo. ¿Qué script, motor de juegos o depuración de código quieres que resolvamos hoy?
+    <!-- Aplicación Principal -->
+    <div id="appContainer">
+        <header>
+            <h1>⚡ DevAI Master Pro</h1>
+            <p class="subtitle">Motor Híbrido de Programación (GPT + Gemini + Grok)</p>
+            <div class="pro-badge" onclick="openProModal()">⭐ Actualizar a Plan PRO ($9.99/mes)</div>
+        </header>
+
+        <div class="chat-container">
+            <div class="chat-box" id="chatBox">
+                <div class="message ai-message">
+                    ¡Bienvenido al sistema, <span id="displayName">Coder</span>! Soy DevAI. ¿Qué script o estructura de código resolveremos hoy?
+                </div>
+            </div>
+            <div class="input-area">
+                <input type="text" id="userInput" placeholder="Escribe tu duda de código o script aquí..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">Enviar</button>
             </div>
         </div>
-        <div class="input-area">
-            <input type="text" id="userInput" placeholder="Escribe tu duda de código o script aquí..." onkeypress="handleKeyPress(event)">
-            <button onclick="sendMessage()">Enviar</button>
+    </div>
+
+    <!-- Modal Pro -->
+    <div id="proModal">
+        <div class="modal-content">
+            <h2>🚀 DevAI PRO</h2>
+            <p>Desbloquea modelos ilimitados, velocidad extrema de compilación y soporte prioritario para tus motores de juegos y scripts.</p>
+            <div class="price">$9.99 USD / mes</div>
+            <button style="background:#238636; color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="alert('¡Gracias por tu interés! Próximamente pasarela de pagos activa.')">Suscribirme Ahora</button>
+            <br>
+            <button class="close-btn" onclick="closeProModal()">Cerrar</button>
         </div>
     </div>
 
     <script>
+        function login() {
+            const name = document.getElementById('usernameInput').value.trim();
+            if(name === '') {
+                alert('Por favor ingresa tu nombre de usuario');
+                return;
+            }
+            document.getElementById('displayName').textContent = name;
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'flex';
+        }
+
+        function openProModal() {
+            document.getElementById('proModal').style.display = 'flex';
+        }
+
+        function closeProModal() {
+            document.getElementById('proModal').style.display = 'none';
+        }
+
         function sendMessage() {
             const input = document.getElementById('userInput');
             const chatBox = document.getElementById('chatBox');
@@ -133,7 +290,6 @@
 
             if (text === '') return;
 
-            // Mensaje del usuario
             const userDiv = document.createElement('div');
             userDiv.className = 'message user-message';
             userDiv.textContent = text;
@@ -142,18 +298,17 @@
             input.value = '';
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            // Simulación de respuesta experta de programación
             setTimeout(() => {
                 const aiDiv = document.createElement('div');
                 aiDiv.className = 'message ai-message';
                 
-                let responseText = "Analizando tu solicitud de código... Aquí tienes la estructura optimizada para tu proyecto:";
+                let responseText = "Analizando tu código en el núcleo híbrido...";
                 if(text.toLowerCase().includes('roblox') || text.toLowerCase().includes('lua')) {
-                    responseText = "Procesando motor Luau (Estilo Grok/Roblox):<br><pre>local part = script.Parent\nwhile true do\n    part.Color = Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255))\n    task.wait(1)\nend</pre>";
-                } else if(text.toLowerCase().includes('python') || text.toLowerCase().includes('memoria') || text.toLowerCase().includes('temperatura')) {
-                    responseText = "Generando script en Python (Modo Analítico):<br><pre>import psutil\nprint('CPU Usage:', psutil.cpu_percent())\nprint('RAM Used:', psutil.virtual_memory().percent, '%')</pre>";
+                    responseText = "Motor Luau Pro Activado:<br><pre>local part = script.Parent\nwhile true do\n    part.Transparency = math.random()\n    task.wait(0.5)\nend</pre>";
+                } else if(text.toLowerCase().includes('python')) {
+                    responseText = "Script Python optimizado:<br><pre>import os\nprint('Directorio activo:', os.getcwd())</pre>";
                 } else {
-                    responseText = "Entendido, Pietro. Configurando el entorno de desarrollo para compilar limpio y sin errores.";
+                    responseText = "Código procesado con éxito. Sin errores de sintaxis detectados.";
                 }
 
                 aiDiv.innerHTML = responseText;
