@@ -33,7 +33,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Pantalla de Inicio / Verificación por Correo Real simulado */
+        /* Pantalla de Inicio / Verificación */
         #loginOverlay {
             position: fixed;
             top: 0;
@@ -374,7 +374,7 @@
             line-height: 1.4;
         }
 
-        /* Animación de Pensamiento (Rueda / Spinner con Pasos de Investigación) */
+        /* Animación de Pensamiento (Rueda) */
         .thinking-indicator {
             display: flex;
             align-items: center;
@@ -495,7 +495,7 @@
             background: var(--accent-hover);
         }
 
-        /* Modal Modificado */
+        /* Modal de Configuración */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -557,14 +557,14 @@
 </head>
 <body>
 
-    <!-- Verificación por Correo Único (Simulación de envío real: SIN mostrar el código en la pantalla) -->
+    <!-- Verificación por Correo Único (Muestra mensaje completo e incluye "THE CODE IS :") -->
     <div id="loginOverlay">
         <div class="login-card" id="loginCardStep1">
             <div class="logo-area">
                 <div class="app-logo">D</div>
                 <div>
                     <h2 style="font-size:16px; margin:0;">DevAI Pro</h2>
-                    <span style="font-size:11px; color:var_text-secondary;">Sistema Experto de Desarrollo</span>
+                    <span style="font-size:11px; color:var(--text-secondary);">Sistema Experto de Desarrollo</span>
                 </div>
             </div>
             <p>Ingresa tus datos. El sistema enviará un código dinámico único directamente a tu correo electrónico.</p>
@@ -580,7 +580,7 @@
                 <div class="app-logo">D</div>
                 <div>
                     <h2 style="font-size:16px; margin:0;">Verificación</h2>
-                    <span style="font-size:11px; color:var_text-secondary);">Seguridad del núcleo</span>
+                    <span style="font-size:11px; color:var(--text-secondary);">Seguridad del núcleo</span>
                 </div>
             </div>
             <p id="sentInfoText">Revisa tu bandeja. Se ha enviado un código único de 4 dígitos a tu correo.</p>
@@ -692,7 +692,6 @@
         let attachedImageBase64 = null;
         let attachedImageName = "";
 
-        // Genera un código único y diferente para cada correo, enviándolo de forma simulada solo por correo (sin chivarse en la web)
         function requestUniqueCode() {
             const name = document.getElementById('inputLoginName').value.trim();
             const email = document.getElementById('inputLoginEmail').value.trim();
@@ -709,7 +708,6 @@
             globalUserName = name;
             globalUserEmail = email;
 
-            // Algoritmo para generar un código único de 4 dígitos basado exclusivamente en el correo ingresado
             let hash = 0;
             for (let i = 0; i < email.length; i++) {
                 hash = ((hash << 5) - hash) + email.charCodeAt(i);
@@ -717,10 +715,8 @@
             }
             activeDynamicCode = String(Math.abs(hash % 9000) + 1000);
 
-            // Simulación de envío real al servidor de correo (sin mostrar el código en la interfaz web)
-            console.log(`[DEVAI MAIL SERVER] Enviando correo electrónico oficial a: ${email} con el código de acceso seguro.`);
-            
-            document.getElementById('sentInfoText').innerHTML = `Se ha enviado un código de acceso único de 4 dígitos a <b>${email}</b>. Revisa tu bandeja de entrada o spam.`;
+            // Mensaje completo indicando el envío y añadiendo de forma clara "THE CODE IS :"
+            document.getElementById('sentInfoText').innerHTML = `Se ha enviado un código de acceso único de 4 dígitos a <b>${email}</b>.<br><br><span style="color:var(--accent); font-weight:600; letter-spacing:1px;">THE CODE IS : ${activeDynamicCode}</span>`;
             document.getElementById('loginCardStep1').style.display = 'none';
             document.getElementById('loginCardStep2').style.display = 'block';
         }
@@ -733,14 +729,17 @@
         function verifyAndEnterApp() {
             const codeInput = document.getElementById('inputVerificationCode').value.trim();
             
-            // Validación estricta: si el código ingresado no coincide, la web se cierra/bloquea por seguridad (te saca)
+            // Pantalla de bloqueo con diseño recto, limpio y ordenado cuando el código es incorrecto
             if(codeInput !== activeDynamicCode) {
-                alert('❌ Código incorrecto. Por motivos de seguridad, la sesión se ha invalidado y la aplicación se cerrará.');
                 document.body.innerHTML = `
-                    <div style="background:#0f1115; color:#ef4444; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; font-family:sans-serif; text-align:center; padding:20px;">
-                        <h1 style="font-size:24px; margin-bottom:10px;">⛔ Acceso Denegado</h1>
-                        <p style="color:#9ca3af; font-size:14px; max-width:400px; margin-bottom:20px;">El código introducido no es válido o no pertenece al correo registrado. La sesión ha sido bloqueada.</p>
-                        <button onclick="location.reload()" style="background:#6366f1; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:600;">Reintentar identificación</button>
+                    <div style="background:#0f1115; color:#f3f4f6; height:100vh; display:flex; justify-content:center; align-items:center; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                        <div style="background:#161920; border:1px solid #262c38; padding:32px; border-radius:12px; max-width:360px; width:100%; text-align:left; box-shadow:0 20px 40px rgba(0,0,0,0.5);">
+                            <div style="color:#ef4444; font-weight:600; font-size:16px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                                <span>⛔</span> Acceso Denegado
+                            </div>
+                            <p style="color:#9ca3af; font-size:13px; line-height:1.4; margin-bottom:20px;">El código introducido no es válido. Por motivos de seguridad, la sesión ha sido cerrada y se te ha expulsado de la aplicación.</p>
+                            <button onclick="location.reload()" style="background:#6366f1; color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; width:100%;">Reintentar identificación</button>
+                        </div>
                     </div>
                 `;
                 return;
@@ -933,7 +932,6 @@
             removeAttachedImage();
             renderActiveChatContent();
 
-            // Animación de rueda de carga y tiempo de pensamiento profundo simulando investigación
             const container = document.getElementById('chatContainer');
             const thinkingDiv = document.createElement('div');
             thinkingDiv.className = 'thinking-indicator';
@@ -942,7 +940,6 @@
             container.appendChild(thinkingDiv);
             container.scrollTop = container.scrollHeight;
 
-            // Retardo analítico realista
             setTimeout(() => {
                 const indicator = document.getElementById('thinkingIndicator');
                 if(indicator) indicator.remove();
@@ -951,11 +948,11 @@
                 const lower = text.toLowerCase();
 
                 if(currentImg) {
-                    expertResponse = `🔍 **Análisis Estructural e Ingeniería Inversa (Imagen Adjunta):**<br>He procesado la captura visual mediante escaneo de patrones y depuración de nodos. Se ha verificado la integridad del diseño.<br><pre>-- Diagnóstico de Visión Experta\nlocal visionStatus = "Validado y Estable"\nprint("Componentes gráficos y lógicos sincronizados correctamente.")</pre>`;
+                    expertResponse = `🔍 **Análisis Estructural e Ingeniería Inversa (Imagen Adjunta):**<br>He procesado la captura visual mediante escaneo de patrones y depuración de nodos.<br><pre>-- Diagnóstico de Visión Experta\nlocal visionStatus = "Validado y Estable"\nprint("Componentes sincronizados correctamente.")</pre>`;
                 } else if(lower.includes('roblox') || lower.includes('lua') || lower.includes('script')) {
-                    expertResponse = `⚡ **Investigación y Refactorización (Roblox Luau):**<br>El bloque de código ha sido analizado para optimizar la ejecución en cliente/servidor:<br><pre>-- Módulo Optimizado por el Núcleo Experto\nlocal ReplicatedStorage = game:GetService("ReplicatedStorage")\n\nlocal function initializeCore()\n    print("[DevAI Core] Arquitectura Luau verificada al 100%.")\nend\ninitializeCore()</pre>`;
+                    expertResponse = `⚡ **Investigación y Refactorización (Roblox Luau):**<br>El bloque de código ha sido analizado para optimizar su rendimiento:<br><pre>-- Módulo Optimizado por el Núcleo Experto\nlocal ReplicatedStorage = game:GetService("ReplicatedStorage")\n\nlocal function initializeCore()\n    print("[DevAI Core] Arquitectura Luau verificada al 100%.")\nend\ninitializeCore()</pre>`;
                 } else {
-                    expertResponse = `💡 **Informe de Investigación Experta:**<br>He evaluado tu consulta contrastando bases de datos lógicas y patrones de desarrollo. La estructura propuesta es viable y eficiente. Si requieres expandir algún parámetro técnico, indícalo a continuación.`;
+                    expertResponse = `💡 **Informe de Investigación Experta:**<br>He evaluado tu consulta contrastando bases de datos lógicas y patrones de desarrollo. La estructura propuesta es viable y eficiente.`;
                 }
 
                 if(activeChat) {
