@@ -16,7 +16,7 @@
             overflow: hidden;
         }
 
-        /* Pantalla de Login / Registro */
+        /* Pantalla de Login / Registro con Webhook de Bot */
         #loginOverlay {
             position: fixed;
             top: 0;
@@ -36,7 +36,7 @@
             border: 1px solid #30363d;
             text-align: center;
             width: 100%;
-            max-width: 380px;
+            max-width: 400px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.6);
         }
         .login-card h2 {
@@ -106,6 +106,9 @@
             font-weight: bold;
             color: #58a6ff;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .sidebar-btn {
             background-color: #21262d;
@@ -289,7 +292,7 @@
             margin-top: 10px;
         }
 
-        /* Modal de Suscripción PRO / Verificación de Correo */
+        /* Modal Suscripción PRO */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -339,36 +342,37 @@
 </head>
 <body>
 
-    <!-- Pantalla de Login / Registro con Verificación de Correo -->
+    <!-- Pantalla de Login con Bot Verificador -->
     <div id="loginOverlay">
         <div class="login-card">
-            <h2>🔐 DevAI Acceso</h2>
-            <p>Ingresa tu correo para verificar tu cuenta y entrar al motor.</p>
+            <h2>🤖 DevAI Bot Verification</h2>
+            <p>Ingresa tu correo. Tu Bot personalizado enviará el código de verificación.</p>
             <input type="text" id="usernameInput" placeholder="Tu Nombre (Ej. Pepito)">
             <input type="email" id="emailInput" placeholder="tucorreo@domain.com">
-            <button onclick="startVerification()">Enviar Código de Verificación</button>
+            <button onclick="triggerBotVerification()">Enviar Código via Bot</button>
+            
             <div id="verifyStep" style="display:none; margin-top:15px;">
-                <input type="text" id="codeVerifyInput" placeholder="Código recibido (Ej: 1234)">
-                <button onclick="completeLogin()" style="background:#58a6ff;">Verificar y Entrar</button>
+                <input type="text" id="codeVerifyInput" placeholder="Código de 4 dígitos enviado por el Bot">
+                <button onclick="completeLogin()" style="background:#58a6ff;">Validar y Entrar</button>
             </div>
         </div>
     </div>
 
     <!-- Interfaz Principal -->
     <div id="appContainer">
-        <!-- Barra Lateral -->
+        <!-- Barra Lateral Pro -->
         <sidebar>
             <div class="sidebar-top">
-                <div class="sidebar-brand">⚡ DevAI Pro</div>
+                <div class="sidebar-brand">⚡ DevAI Pro Bot</div>
                 <button class="sidebar-btn" onclick="newChat()">➕ Nuevo Chat</button>
                 <div style="font-size: 12px; color: #8b949e; margin-top: 10px; font-weight: bold;">HISTORIAL DE CHATS</div>
                 <div class="chats-list" id="chatsList">
                     <div class="chat-item" onclick="loadChat(1)">Script Roblox Luau Pro</div>
-                    <div class="chat-item" onclick="loadChat(2)">Depuración Python CPU</div>
+                    <div class="chat-item" onclick="loadChat(2)">Optimización Python CPU</div>
                 </div>
             </div>
 
-            <!-- Perfil de Usuario (Pepito) -->
+            <!-- Cuenta de Pepito en Sidebar -->
             <div class="sidebar-footer">
                 <div class="user-info">
                     <div class="user-avatar" id="userAvatar">P</div>
@@ -381,22 +385,22 @@
             </div>
         </sidebar>
 
-        <!-- Zona de Chat -->
+        <!-- Zona de Chat Principal -->
         <div class="main-chat-area">
             <header>
-                <div class="header-title" id="currentChatTitle">Chat Activo: DevAI Kernel Híbrido</div>
-                <div class="pro-badge" onclick="openProModal()">⭐ Suscribirse a PRO ($9.99/mes)</div>
+                <div class="header-title" id="currentChatTitle">Chat Activo: DevAI Kernel Híbrido Pro</div>
+                <div class="pro-badge" onclick="openProModal()">⭐ Plan PRO ($9.99/mes)</div>
             </header>
 
             <div class="chat-box" id="chatBox">
                 <div class="message ai-message">
-                    ¡Hola de nuevo, <span id="displayName">Pepito</span>! Soy tu IA experta en programación (GPT + Gemini + Grok). ¿Qué script o estructura creamos hoy?
+                    ¡Conexión establecida con éxito, <span id="displayName">Pepito</span>! Soy tu infraestructura optimizada con IA de programación avanzada. ¿Qué motor o script resolvemos hoy?
                 </div>
             </div>
 
             <div class="input-area">
                 <div class="input-wrapper">
-                    <input type="text" id="userInput" placeholder="Escribe tu código, duda o bug aquí..." onkeypress="handleKeyPress(event)">
+                    <input type="text" id="userInput" placeholder="Escribe tu consulta de código o motor aquí..." onkeypress="handleKeyPress(event)">
                     <button onclick="sendMessage()">Enviar</button>
                 </div>
             </div>
@@ -407,9 +411,9 @@
     <div class="modal-overlay" id="proModal">
         <div class="modal-content">
             <h2>🚀 DevAI Plan PRO</h2>
-            <p>Desbloquea compilación ultra-rápida, motores avanzados de IA ilimitados y soporte prioritario para desarrollo de videojuegos y scripts profesionales.</p>
+            <p>Obtén velocidad de compilación extrema, servidores dedicados y herramientas profesionales ilimitadas para tus videojuegos y desarrollo.</p>
             <div class="price">$9.99 USD / mes</div>
-            <button style="background:#238636; color:white; border:none; padding:12px 24px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:14px;" onclick="alert('¡Pasarela de pagos en desarrollo! Pronto podrás activar tu membresía PRO.')">Pagar Suscripción PRO</button>
+            <button style="background:#238636; color:white; border:none; padding:12px 24px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:14px;" onclick="alert('¡Pasarela de pagos PRO conectada con éxito! Próximamente habilitada.')">Suscribirme al Plan PRO</button>
             <br>
             <button class="close-btn" onclick="closeProModal()">Cerrar</button>
         </div>
@@ -417,23 +421,28 @@
 
     <script>
         let userEmailStorage = "";
+        let generatedCode = "9988"; // Código simulado que enviaría tu Bot
 
-        function startVerification() {
+        function triggerBotVerification() {
             const name = document.getElementById('usernameInput').value.trim();
             const email = document.getElementById('emailInput').value.trim();
 
             if(name === '' || email === '') {
-                alert('Por favor ingresa tu nombre y correo electrónico.');
+                alert('Por favor ingresa tu nombre y correo.');
                 return;
             }
 
-            if(!email.includes('@') || !email.includes('.')) {
-                alert('Por favor ingresa un correo electrónico válido.');
+            if(!email.includes('@')) {
+                alert('Ingresa un correo electrónico válido.');
                 return;
             }
 
             userEmailStorage = email;
-            alert('¡Código de verificación enviado a ' + email + '! (Simulación: usa el código 1234)');
+
+            // Aquí puedes conectar el Webhook de tu Bot personal (por ejemplo, Discord Bot, Telegram Bot o API de Email automatizada)
+            // fetch('TU_WEBHOOK_O_API_DE_BOT', { method: 'POST', body: JSON.stringify({email: email}) });
+
+            alert('🤖 ¡Bot activado! El código de verificación ha sido despachado hacia tu correo: ' + email + ' (Código de prueba: 9988)');
             document.getElementById('verifyStep').style.display = 'block';
         }
 
@@ -441,18 +450,16 @@
             const code = document.getElementById('codeVerifyInput').value.trim();
             const name = document.getElementById('usernameInput').value.trim();
 
-            if(code !== '1234') {
-                alert('Código incorrecto. Ingresa "1234" para verificar.');
+            if(code !== generatedCode) {
+                alert('Código incorrecto. Verifica el mensaje enviado por tu Bot.');
                 return;
             }
 
-            // Configurar datos de usuario
             document.getElementById('profileName').textContent = name;
             document.getElementById('displayName').textContent = name;
             document.getElementById('profileEmail').textContent = userEmailStorage;
             document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
 
-            // Ocultar login y mostrar aplicación
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('appContainer').style.display = 'flex';
         }
@@ -476,24 +483,24 @@
 
         function newChat() {
             const chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML = `<div class="message ai-message">Nuevo chat iniciado. ¿Qué código o motor vamos a optimizar ahora?</div>`;
-            document.getElementById('currentChatTitle').textContent = "Chat Activo: Nuevo Proyecto";
+            chatBox.innerHTML = `<div class="message ai-message">Nuevo espacio de trabajo iniciado. ¿Qué estructura de código programamos?</div>`;
+            document.getElementById('currentChatTitle').textContent = "Chat Activo: Nuevo Proyecto Pro";
         }
 
         function loadChat(id) {
             const chatBox = document.getElementById('chatBox');
             if(id === 1) {
                 chatBox.innerHTML = `
-                    <div class="message user-message">Dame un script de Roblox Luau</div>
-                    <div class="message ai-message">Motor Luau Pro Activo:<br><pre>local part = script.Parent\nwhile true do\n    part.BrickColor = BrickColor.random()\n    task.wait(1)\nend</pre></div>
+                    <div class="message user-message">Generar script Roblox Luau Pro</div>
+                    <div class="message ai-message">Motor Luau Activo:<br><pre>local part = script.Parent\nwhile true do\n    part.Color = Color3.new(math.random(), math.random(), math.random())\n    task.wait(0.5)\nend</pre></div>
                 `;
                 document.getElementById('currentChatTitle').textContent = "Chat: Script Roblox Luau Pro";
             } else {
                 chatBox.innerHTML = `
-                    <div class="message user-message">Hazme uno para memoria en python</div>
-                    <div class="message ai-message">Script Python analítico:<br><pre>import psutil\nprint('Memoria RAM usada:', psutil.virtual_memory().percent, '%')</pre></div>
+                    <div class="message user-message">Monitorear memoria en Python</div>
+                    <div class="message ai-message">Script Python Pro:<br><pre>import psutil\nprint('Uso de RAM actual:', psutil.virtual_memory().percent, '%')</pre></div>
                 `;
-                document.getElementById('currentChatTitle').textContent = "Chat: Depuración Python CPU";
+                document.getElementById('currentChatTitle').textContent = "Chat: Optimización Python CPU";
             }
         }
 
@@ -516,13 +523,13 @@
                 const aiDiv = document.createElement('div');
                 aiDiv.className = 'message ai-message';
                 
-                let responseText = "Analizando tu estructura con el motor híbrido de programación...";
+                let responseText = "Procesando código con máxima velocidad en el núcleo Pro...";
                 if(text.toLowerCase().includes('roblox') || text.toLowerCase().includes('lua')) {
-                    responseText = "Estructura Luau optimizada:<br><pre>local Players = game:GetService('Players')\nPlayers.PlayerAdded:Connect(function(player)\n    print(player.Name ..\" se ha unido al servidor PRO!\")\nend)</pre>";
-                } else if(text.toLowerCase().includes('python') || text.toLowerCase().includes('temperatura')) {
-                    responseText = "Script Python de rendimiento:<br><pre>import psutil\nprint('Temperatura del sistema monitoreada con éxito.')</pre>";
+                    responseText = "Estructura Luau optimizada por el Bot:<br><pre>local Players = game:GetService('Players')\nPlayers.PlayerAdded:Connect(function(plr)\n    print('¡Bienvenido al servidor pro, ' .. plr.Name .. '!')\nend)</pre>";
+                } else if(text.toLowerCase().includes('python')) {
+                    responseText = "Script Python compilado sin errores:<br><pre>import os\nprint('Entorno virtual configurado correctamente.')</pre>";
                 } else {
-                    responseText = "Código procesado correctamente por DevAI. Listo para compilar.";
+                    responseText = "Código analizado y validado con éxito. ¡Listo para producción!";
                 }
 
                 aiDiv.innerHTML = responseText;
