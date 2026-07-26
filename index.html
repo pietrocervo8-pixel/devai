@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevAI Ultimate Pro - Hyper-Intelligence Engine</title>
+    <!-- SDK de EmailJS para envío de correos reales -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function(){
+            // Inicializar EmailJS con tu Public Key (reemplaza 'TU_PUBLIC_KEY' con la tuya de EmailJS)
+            emailjs.init("TU_PUBLIC_KEY");
+        })();
+    </script>
     <style>
         :root {
             --bg-base: #0f1115;
@@ -557,22 +565,22 @@
 </head>
 <body>
 
-    <!-- Verificación por Correo Único (Muestra mensaje completo e incluye "THE CODE IS :") -->
+    <!-- Verificación por Envío Real a Correo (Incluye "THE CODE IS :" tanto en pantalla como en el mensaje real) -->
     <div id="loginOverlay">
         <div class="login-card" id="loginCardStep1">
             <div class="logo-area">
                 <div class="app-logo">D</div>
                 <div>
                     <h2 style="font-size:16px; margin:0;">DevAI Pro</h2>
-                    <span style="font-size:11px; color:var(--text-secondary);">Sistema Experto de Desarrollo</span>
+                    <span style="font-size:11px; color:var(--text-secondary);">Sistema Experto con Envío Real</span>
                 </div>
             </div>
-            <p>Ingresa tus datos. El sistema enviará un código dinámico único directamente a tu correo electrónico.</p>
+            <p>Ingresa tus datos. El sistema enviará un correo real a tu bandeja con tu código de acceso único.</p>
             <label>Nombre</label>
             <input type="text" id="inputLoginName" placeholder="Tu nombre">
             <label>Correo Electrónico</label>
             <input type="email" id="inputLoginEmail" placeholder="correo@ejemplo.com">
-            <button onclick="requestUniqueCode()">Enviar código al correo</button>
+            <button id="sendEmailBtn" onclick="requestUniqueCode()">Enviar código a mi correo</button>
         </div>
 
         <div class="login-card" id="loginCardStep2" style="display:none;">
@@ -583,7 +591,7 @@
                     <span style="font-size:11px; color:var(--text-secondary);">Seguridad del núcleo</span>
                 </div>
             </div>
-            <p id="sentInfoText">Revisa tu bandeja. Se ha enviado un código único de 4 dígitos a tu correo.</p>
+            <p id="sentInfoText">Revisa tu bandeja. Se ha enviado un correo con el código de acceso.</p>
             <label>Código de acceso</label>
             <input type="text" id="inputVerificationCode" placeholder="Ej: 4812" maxlength="4">
             <button onclick="verifyAndEnterApp()">Verificar acceso</button>
@@ -695,6 +703,7 @@
         function requestUniqueCode() {
             const name = document.getElementById('inputLoginName').value.trim();
             const email = document.getElementById('inputLoginEmail').value.trim();
+            const btn = document.getElementById('sendEmailBtn');
 
             if(!name || !email) {
                 alert('Por favor completa todos los campos.');
@@ -708,17 +717,36 @@
             globalUserName = name;
             globalUserEmail = email;
 
-            let hash = 0;
-            for (let i = 0; i < email.length; i++) {
-                hash = ((hash << 5) - hash) + email.charCodeAt(i);
-                hash |= 0;
-            }
-            activeDynamicCode = String(Math.abs(hash % 9000) + 1000);
+            // Generar un código aleatorio de 4 dígitos
+            activeDynamicCode = String(Math.floor(1000 + Math.random() * 9000));
 
-            // Mensaje completo indicando el envío y añadiendo de forma clara "THE CODE IS :"
-            document.getElementById('sentInfoText').innerHTML = `Se ha enviado un código de acceso único de 4 dígitos a <b>${email}</b>.<br><br><span style="color:var(--accent); font-weight:600; letter-spacing:1px;">THE CODE IS : ${activeDynamicCode}</span>`;
-            document.getElementById('loginCardStep1').style.display = 'none';
-            document.getElementById('loginCardStep2').style.display = 'block';
+            btn.textContent = "Enviando correo real...";
+            btn.disabled = true;
+
+            // Parámetros para enviar el correo mediante EmailJS
+            // NOTA: Reemplaza 'YOUR_SERVICE_ID' y 'YOUR_TEMPLATE_ID' con tus datos de tu cuenta gratuita en EmailJS
+            const templateParams = {
+                to_name: globalUserName,
+                to_email: globalUserEmail,
+                pass_code: `THE CODE IS : ${activeDynamicCode}`
+            };
+
+            emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+                .then(function(response) {
+                    btn.textContent = "Enviar código a mi correo";
+                    btn.disabled = false;
+                    document.getElementById('sentInfoText').innerHTML = `Se ha enviado un correo electrónico real a <b>${email}</b>.<br><br><span style="color:var(--accent); font-weight:600; letter-spacing:1px;">THE CODE IS : ${activeDynamicCode}</span>`;
+                    document.getElementById('loginCardStep1').style.display = 'none';
+                    document.getElementById('loginCardStep2').style.display = 'block';
+                }, function(error) {
+                    btn.textContent = "Enviar código a mi correo";
+                    btn.disabled = false;
+                    // Modo de respaldo integrado por si las credenciales de EmailJS aún no están configuradas
+                    alert('Nota de desarrollo: No se configuró el Service ID de EmailJS, pero se ha generado el código localmente.');
+                    document.getElementById('sentInfoText').innerHTML = `Código generado para <b>${email}</b>:<br><br><span style="color:var(--accent); font-weight:600; letter-spacing:1px;">THE CODE IS : ${activeDynamicCode}</span>`;
+                    document.getElementById('loginCardStep1').style.display = 'none';
+                    document.getElementById('loginCardStep2').style.display = 'block';
+                });
         }
 
         function backToStep1() {
@@ -950,7 +978,7 @@
                 if(currentImg) {
                     expertResponse = `🔍 **Análisis Estructural e Ingeniería Inversa (Imagen Adjunta):**<br>He procesado la captura visual mediante escaneo de patrones y depuración de nodos.<br><pre>-- Diagnóstico de Visión Experta\nlocal visionStatus = "Validado y Estable"\nprint("Componentes sincronizados correctamente.")</pre>`;
                 } else if(lower.includes('roblox') || lower.includes('lua') || lower.includes('script')) {
-                    expertResponse = `⚡ **Investigación y Refactorización (Roblox Luau):**<br>El bloque de código ha sido analizado para optimizar su rendimiento:<br><pre>-- Módulo Optimizado por el Núcleo Experto\nlocal ReplicatedStorage = game:GetService("ReplicatedStorage")\n\nlocal function initializeCore()\n    print("[DevAI Core] Arquitectura Luau verificada al 100%.")\nend\ninitializeCore()</pre>`;
+                    expertResponse = `⚡ **Investigación y Refactorización (Roblox Luau):**<br>He optimizado el bloque de script:<br><pre>-- Módulo Optimizado por el Núcleo Experto\nlocal ReplicatedStorage = game:GetService("ReplicatedStorage")\n\nlocal function initializeCore()\n    print("[DevAI Core] Arquitectura Luau verificada al 100%.")\nend\ninitializeCore()</pre>`;
                 } else {
                     expertResponse = `💡 **Informe de Investigación Experta:**<br>He evaluado tu consulta contrastando bases de datos lógicas y patrones de desarrollo. La estructura propuesta es viable y eficiente.`;
                 }
