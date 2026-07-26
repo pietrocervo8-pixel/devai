@@ -134,7 +134,7 @@
             background-color: var(--accent-hover);
         }
 
-        /* Widget reCAPTCHA idéntico a la imagen de referencia ("I'm not a robot") */
+        /* Widget de verificación personalizado con el diseño exacto solicitado */
         .recaptcha-box {
             background: #f9f9f9;
             border: 1px solid #d3d3d3;
@@ -195,7 +195,7 @@
         .recaptcha-logo {
             width: 32px;
             height: 32px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path fill="%231a73e8" d="M32 6a26 26 0 0 1 26 26h-8A18 18 0 0 0 32 14V6z"/><path fill="%231a73e8" d="M58 32a26 26 0 0 1-26 26v8a34 34 0 0 0 34-34h-8z"/><path fill="%23b0c4de" d="M32 58a26 26 0 0 1-26-26h8a18 18 0 0 0 18 18v8z"/><path fill="%230d47a1" d="M6 32a26 26 0 0 1 26-26v8A18 18 0 0 0 14 32H6z"/></svg>');
+            /* Se eliminó el logo y el texto de la marca según lo solicitado */
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
@@ -206,13 +206,6 @@
         @keyframes spinRecap {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
-        .recaptcha-brand-text {
-            font-size: 9px;
-            color: #555;
-            margin-top: 1px;
-            font-family: Roboto, sans-serif;
-            text-align: center;
         }
 
         /* Estructura Principal */
@@ -624,7 +617,7 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
         .modal-card h3 {
-            color: var::text-main;
+            color: var(--text-main);
             margin-top: 0;
             font-size: 16px;
             margin-bottom: 14px;
@@ -661,7 +654,7 @@
 </head>
 <body>
 
-    <!-- Pantalla de Inicio / Verificación con Correo Real y reCAPTCHA idéntico a la imagen (Sin persistencia temporal) -->
+    <!-- Pantalla de Inicio / Verificación (Sin menciones ni logos de reCAPTCHA) -->
     <div id="loginOverlay">
         <div class="login-card" id="loginCardStep1">
             <div class="logo-area">
@@ -677,8 +670,8 @@
             <label>Correo Electrónico</label>
             <input type="email" id="inputLoginEmail" placeholder="correo@ejemplo.com">
             
-            <!-- Widget reCAPTCHA exacto al de la imagen proporcionada ("I'm not a robot") -->
-            <div class="recaptcha-box" id="recaptchaBox" onclick="triggerRecaptcha()">
+            <!-- Widget de verificación adaptado con la misma forma y animación de rotación solicitada, sin textos ni logos de reCAPTCHA -->
+            <div class="recaptcha-box" id="recaptchaBox" onclick="triggerVerification()">
                 <div class="recaptcha-left">
                     <div class="recaptcha-checkbox">
                         <div class="recaptcha-checkmark">✓</div>
@@ -687,7 +680,6 @@
                 </div>
                 <div class="recaptcha-right">
                     <div class="recaptcha-logo" id="recaptchaLogo"></div>
-                    <div class="recaptcha-brand-text">reCAPTCHA</div>
                 </div>
             </div>
 
@@ -812,14 +804,12 @@
         let attachedImageName = "";
         let isRobotVerified = false;
 
-        // Nota: Sin persistencia automática al recargar o salir de la web (se limpia al refrescar).
         window.onload = function() {
-            // Inicialización limpia en memoria volátil
             createNewChat();
         };
 
-        // Simulación interactiva del reCAPTCHA idéntico a la imagen ("I'm not a robot")
-        function triggerRecaptcha() {
+        // Simulación interactiva del botón de verificación personalizado con el mismo estilo y animación de rotación
+        function triggerVerification() {
             if(isRobotVerified) return;
             const box = document.getElementById('recaptchaBox');
 
@@ -846,14 +836,13 @@
                 return;
             }
             if(!isRobotVerified) {
-                alert('Por favor completa la verificación reCAPTCHA haciendo clic en la casilla.');
+                alert('Por favor completa la verificación haciendo clic en la casilla.');
                 return;
             }
 
             globalUserName = name;
             globalUserEmail = email;
 
-            // Generar código de 4 dígitos enviado al correo real (sin mostrarse en pantalla)
             activeDynamicCode = String(Math.floor(1000 + Math.random() * 9000));
 
             btn.textContent = "Enviando correo real...";
