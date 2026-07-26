@@ -134,37 +134,85 @@
             background-color: var(--accent-hover);
         }
 
-        /* Estilo para el widget de verificación de robot */
-        .captcha-box {
-            background: var(--bg-base);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
+        /* Widget reCAPTCHA idéntico a la imagen de referencia ("I'm not a robot") */
+        .recaptcha-box {
+            background: #f9f9f9;
+            border: 1px solid #d3d3d3;
+            border-radius: 3px;
+            padding: 12px 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            user-select: none;
+            width: 100%;
+            box-sizing: border-box;
         }
-        .captcha-left {
+        .recaptcha-left {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 12px;
-            color: var(--text-main);
+            gap: 12px;
             cursor: pointer;
         }
-        .captcha-left input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--accent);
-            margin: 0;
-            cursor: pointer;
+        .recaptcha-checkbox {
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border: 2px solid #c1c1c1;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
         }
-        .captcha-brand {
-            font-size: 10px;
-            color: var(--text-muted);
-            text-align: right;
-            line-height: 1.2;
+        .recaptcha-box.verified .recaptcha-checkbox {
+            border-color: #f9f9f9;
+            background: #f9f9f9;
+        }
+        .recaptcha-checkmark {
+            display: none;
+            color: #0b8043;
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 1;
+        }
+        .recaptcha-box.verified .recaptcha-checkmark {
+            display: block;
+        }
+        .recaptcha-text {
+            font-size: 13px;
+            color: #000;
+            font-family: Roboto, helvetica, arial, sans-serif;
+            font-weight: 500;
+        }
+        .recaptcha-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .recaptcha-logo {
+            width: 32px;
+            height: 32px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path fill="%231a73e8" d="M32 6a26 26 0 0 1 26 26h-8A18 18 0 0 0 32 14V6z"/><path fill="%231a73e8" d="M58 32a26 26 0 0 1-26 26v8a34 34 0 0 0 34-34h-8z"/><path fill="%23b0c4de" d="M32 58a26 26 0 0 1-26-26h8a18 18 0 0 0 18 18v8z"/><path fill="%230d47a1" d="M6 32a26 26 0 0 1 26-26v8A18 18 0 0 0 14 32H6z"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        .recaptcha-box.verifying .recaptcha-logo {
+            animation: spinRecap 0.8s linear infinite;
+        }
+        @keyframes spinRecap {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .recaptcha-brand-text {
+            font-size: 9px;
+            color: #555;
+            margin-top: 1px;
+            font-family: Roboto, sans-serif;
+            text-align: center;
         }
 
         /* Estructura Principal */
@@ -415,18 +463,27 @@
             line-height: 1.4;
         }
 
-        /* Animación de Pensamiento (Rueda) */
+        /* Animación de Pensamiento Avanzada */
         .thinking-indicator {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-direction: column;
+            gap: 6px;
             background-color: var(--bg-surface);
-            padding: 10px 16px;
+            padding: 12px 16px;
             border-radius: 10px;
             border: 1px solid var(--border);
             align-self: flex-start;
             font-size: 12px;
             color: var(--text-secondary);
+            max-width: 420px;
+            width: 100%;
+        }
+        .thinking-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+            font-weight: 500;
         }
         .spinner {
             width: 16px;
@@ -439,6 +496,12 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        .thinking-steps {
+            font-size: 11px;
+            color: var(--text-muted);
+            padding-left: 26px;
+            font-family: monospace;
         }
 
         /* Área de Input */
@@ -561,7 +624,7 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
         .modal-card h3 {
-            color: var(--text-main);
+            color: var::text-main;
             margin-top: 0;
             font-size: 16px;
             margin-bottom: 14px;
@@ -598,7 +661,7 @@
 </head>
 <body>
 
-    <!-- Pantalla de Inicio / Verificación con Correo Real y Captcha -->
+    <!-- Pantalla de Inicio / Verificación con Correo Real y reCAPTCHA idéntico a la imagen (Sin persistencia temporal) -->
     <div id="loginOverlay">
         <div class="login-card" id="loginCardStep1">
             <div class="logo-area">
@@ -614,15 +677,17 @@
             <label>Correo Electrónico</label>
             <input type="email" id="inputLoginEmail" placeholder="correo@ejemplo.com">
             
-            <!-- Verificación de robot integrada -->
-            <div class="captcha-box">
-                <label class="captcha-left">
-                    <input type="checkbox" id="robotCheckbox">
-                    <span>No soy un robot</span>
-                </label>
-                <div class="captcha-brand">
-                    <span style="font-size:13px;">🔒</span><br>
-                    reCAPTCHA
+            <!-- Widget reCAPTCHA exacto al de la imagen proporcionada ("I'm not a robot") -->
+            <div class="recaptcha-box" id="recaptchaBox" onclick="triggerRecaptcha()">
+                <div class="recaptcha-left">
+                    <div class="recaptcha-checkbox">
+                        <div class="recaptcha-checkmark">✓</div>
+                    </div>
+                    <span class="recaptcha-text" id="recaptchaText">I'm not a robot</span>
+                </div>
+                <div class="recaptcha-right">
+                    <div class="recaptcha-logo" id="recaptchaLogo"></div>
+                    <div class="recaptcha-brand-text">reCAPTCHA</div>
                 </div>
             </div>
 
@@ -686,13 +751,13 @@
                 </div>
                 <div style="font-size: 11px; color: var(--text-secondary); display:flex; align-items:center; gap:6px;">
                     <div style="width:6px; height:6px; background:var(--success); border-radius:50%;"></div>
-                    Núcleo Experto v5.0 (Análisis Profundo)
+                    Hiper-Inteligencia v6.0 (Razonamiento Profundo)
                 </div>
             </header>
 
             <div class="chat-container" id="chatContainer">
                 <div class="message ai-message">
-                    Hola, <span id="welcomeUserName">Pietro</span>. El núcleo de investigación experta está activo. Indícame tus requerimientos, pega código o adjunta una captura de error para proceder al análisis e ingeniería inversa profunda.
+                    Hola, <span id="welcomeUserName">Pietro</span>. El motor de hiper-inteligencia analítica está en línea. Indícame tus requerimientos de desarrollo, lógica de scripts avanzados o ingeniería inversa profunda para comenzar.
                 </div>
             </div>
 
@@ -715,7 +780,7 @@
                             </div>
                         </div>
 
-                        <button class="send-btn" onclick="sendMessage()">Analizar</button>
+                        <button class="send-btn" onclick="sendMessage()">Procesar</button>
                     </div>
                 </div>
             </div>
@@ -745,56 +810,31 @@
         let activeChatId = null;
         let attachedImageBase64 = null;
         let attachedImageName = "";
+        let isRobotVerified = false;
 
-        // Cargar datos guardados automáticamente al iniciar la página (Persistencia LocalStorage)
+        // Nota: Sin persistencia automática al recargar o salir de la web (se limpia al refrescar).
         window.onload = function() {
-            const savedData = localStorage.getItem('devai_user_session');
-            if(savedData) {
-                try {
-                    const sessionData = JSON.parse(savedData);
-                    globalUserName = sessionData.name;
-                    globalUserEmail = sessionData.email;
-                    chatSessions = sessionData.chats;
-                    activeChatId = sessionData.activeId;
-
-                    document.getElementById('sidebarName').textContent = globalUserName;
-                    document.getElementById('welcomeUserName').textContent = globalUserName;
-                    document.getElementById('sidebarEmail').textContent = globalUserEmail;
-                    document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
-
-                    document.getElementById('loginOverlay').style.display = 'none';
-                    document.getElementById('appContainer').style.display = 'flex';
-
-                    if(chatSessions.length > 0) {
-                        if(!chatSessions.some(c => c.id === activeChatId)) {
-                            activeChatId = chatSessions[0].id;
-                        }
-                        renderChatList();
-                        renderActiveChatContent();
-                    } else {
-                        createNewChat();
-                    }
-                } catch(e) {
-                    console.error("Error al cargar la sesión guardada", e);
-                }
-            }
+            // Inicialización limpia en memoria volátil
+            createNewChat();
         };
 
-        // Guardar estado completo en LocalStorage cada vez que cambie algo
-        function saveAppData() {
-            const sessionData = {
-                name: globalUserName,
-                email: globalUserEmail,
-                chats: chatSessions,
-                activeId: activeChatId
-            };
-            localStorage.setItem('devai_user_session', JSON.stringify(sessionData));
+        // Simulación interactiva del reCAPTCHA idéntico a la imagen ("I'm not a robot")
+        function triggerRecaptcha() {
+            if(isRobotVerified) return;
+            const box = document.getElementById('recaptchaBox');
+
+            box.classList.add('verifying');
+
+            setTimeout(() => {
+                box.classList.remove('verifying');
+                box.classList.add('verified');
+                isRobotVerified = true;
+            }, 1200);
         }
 
         function requestUniqueCode() {
             const name = document.getElementById('inputLoginName').value.trim();
             const email = document.getElementById('inputLoginEmail').value.trim();
-            const isRobotChecked = document.getElementById('robotCheckbox').checked;
             const btn = document.getElementById('sendEmailBtn');
 
             if(!name || !email) {
@@ -805,21 +845,20 @@
                 alert('Introduce un correo electrónico válido.');
                 return;
             }
-            if(!isRobotChecked) {
-                alert('Por favor completa la verificación "No soy un robot".');
+            if(!isRobotVerified) {
+                alert('Por favor completa la verificación reCAPTCHA haciendo clic en la casilla.');
                 return;
             }
 
             globalUserName = name;
             globalUserEmail = email;
 
-            // Generar código de 4 dígitos (se envía únicamente al correo real y se oculta de pantalla)
+            // Generar código de 4 dígitos enviado al correo real (sin mostrarse en pantalla)
             activeDynamicCode = String(Math.floor(1000 + Math.random() * 9000));
 
             btn.textContent = "Enviando correo real...";
             btn.disabled = true;
 
-            // Parámetros para EmailJS (Reemplaza 'YOUR_SERVICE_ID' y 'YOUR_TEMPLATE_ID' con tus datos de EmailJS)
             const templateParams = {
                 to_name: globalUserName,
                 to_email: globalUserEmail,
@@ -836,7 +875,6 @@
                 }, function(error) {
                     btn.textContent = "Enviar código a mi correo";
                     btn.disabled = false;
-                    // Respaldo por si no se han configurado las claves de EmailJS todavía
                     alert('Nota: No se configuraron las credenciales de EmailJS, pero simulará el flujo de correo.');
                     document.getElementById('sentInfoText').innerHTML = `Código enviado a <b>${email}</b>.<br><span style="font-size:11px; color:var(--text-secondary);">(Modo prueba: tu código es ${activeDynamicCode})</span>`;
                     document.getElementById('loginCardStep1').style.display = 'none';
@@ -852,7 +890,6 @@
         function verifyAndEnterApp() {
             const codeInput = document.getElementById('inputVerificationCode').value.trim();
             
-            // Pantalla de bloqueo con diseño recto, limpio y ordenado cuando el código es incorrecto
             if(codeInput !== activeDynamicCode) {
                 document.body.innerHTML = `
                     <div style="background:#0f1115; color:#f3f4f6; height:100vh; display:flex; justify-content:center; align-items:center; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
@@ -860,7 +897,7 @@
                             <div style="color:#ef4444; font-weight:600; font-size:16px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
                                 <span>⛔</span> Acceso Denegado
                             </div>
-                            <p style="color:#9ca3af; font-size:13px; line-height:1.4; margin-bottom:20px;">El código introducido no es válido. Por motivos de seguridad, la sesión ha sido cerrada y se te ha expulsado de la aplicación.</p>
+                            <p style="color:#9ca3af; font-size:13px; line-height:1.4; margin-bottom:20px;">El código introducido no es válido. Por motivos de seguridad, la sesión ha sido cerrada y se ha bloqueado el acceso.</p>
                             <button onclick="location.reload()" style="background:#6366f1; color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; width:100%;">Reintentar identificación</button>
                         </div>
                     </div>
@@ -876,25 +913,12 @@
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('appContainer').style.display = 'flex';
 
-            if(chatSessions.length === 0) {
-                createNewChat();
-            } else {
-                renderChatList();
-                renderActiveChatContent();
-            }
-            saveAppData();
+            renderChatList();
+            renderActiveChatContent();
         }
 
         function logoutSession() {
-            localStorage.removeItem('devai_user_session');
-            document.getElementById('appContainer').style.display = 'none';
-            document.getElementById('loginOverlay').style.display = 'flex';
-            document.getElementById('loginCardStep2').style.display = 'none';
-            document.getElementById('loginCardStep1').style.display = 'block';
-            document.getElementById('inputVerificationCode').value = '';
-            document.getElementById('robotCheckbox').checked = false;
-            chatSessions = [];
-            activeChatId = null;
+            location.reload();
         }
 
         function openAccountModal() {
@@ -925,7 +949,6 @@
             document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
 
             closeAccountModal();
-            saveAppData();
         }
 
         function autoResize(textarea) {
@@ -939,14 +962,13 @@
                 id: newId,
                 title: "Nuevo chat",
                 messages: [
-                    { sender: 'ai', text: `Entorno experto inicializado para ${globalUserName}. El núcleo de investigación está preparado para procesar consultas complejas.` }
+                    { sender: 'ai', text: `Entorno de hiper-inteligencia inicializado para ${globalUserName}. El núcleo cognitivo está listo para procesar consultas complejas.` }
                 ]
             };
             chatSessions.unshift(chatObj);
             activeChatId = newId;
             renderChatList();
             renderActiveChatContent();
-            saveAppData();
         }
 
         function renderChatList() {
@@ -966,7 +988,6 @@
                     activeChatId = chat.id;
                     renderChatList();
                     renderActiveChatContent();
-                    saveAppData();
                 };
                 list.appendChild(item);
             });
@@ -1000,10 +1021,9 @@
             const currentChat = chatSessions.find(c => c.id === activeChatId);
             if(currentChat) {
                 currentChat.messages = [
-                    { sender: 'ai', text: "Historial restablecido. ¿Qué deseas investigar o estructurar?" }
+                    { sender: 'ai', text: "Historial cognitivo restablecido. ¿Qué proyecto o script deseas estructurar?" }
                 ];
                 renderActiveChatContent();
-                saveAppData();
             }
         }
 
@@ -1011,7 +1031,7 @@
             const currentChat = chatSessions.find(c => c.id === activeChatId);
             if(!currentChat) return;
 
-            let exportText = `--- REGISTRO TÉCNICO DEVAI: ${currentChat.title} ---\n\n`;
+            let exportText = `--- REGISTRO COGNITIVO DEVAI: ${currentChat.title} ---\n\n`;
             currentChat.messages.forEach(m => {
                 exportText += `[${m.sender.toUpperCase()}]: ${m.text}\n\n`;
             });
@@ -1020,7 +1040,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `DevAI_Analisis_${Date.now()}.txt`;
+            a.download = `DevAI_HiperInteligencia_${Date.now()}.txt`;
             a.click();
         }
 
@@ -1066,15 +1086,29 @@
             input.style.height = 'auto';
             removeAttachedImage();
             renderActiveChatContent();
-            saveAppData();
 
             const container = document.getElementById('chatContainer');
             const thinkingDiv = document.createElement('div');
             thinkingDiv.className = 'thinking-indicator';
             thinkingDiv.id = 'thinkingIndicator';
-            thinkingDiv.innerHTML = `<div class="spinner"></div> <span>Investigando referencias, analizando sintaxis y procesando lógica...</span>`;
+            thinkingDiv.innerHTML = `
+                <div class="thinking-header">
+                    <div class="spinner"></div> <span>Procesando hiper-inteligencia analítica...</span>
+                </div>
+                <div class="thinking-steps" id="thinkingStepText">Analizando patrones de sintaxis y arquitectura...</div>
+            `;
             container.appendChild(thinkingDiv);
             container.scrollTop = container.scrollHeight;
+
+            setTimeout(() => {
+                const stepEl = document.getElementById('thinkingStepText');
+                if(stepEl) stepEl.textContent = "Realizando ingeniería inversa y optimización de nodos...";
+            }, 900);
+
+            setTimeout(() => {
+                const stepEl = document.getElementById('thinkingStepText');
+                if(stepEl) stepEl.textContent = "Sintetizando bloques de código de alto rendimiento...";
+            }, 1800);
 
             setTimeout(() => {
                 const indicator = document.getElementById('thinkingIndicator');
@@ -1084,19 +1118,20 @@
                 const lower = text.toLowerCase();
 
                 if(currentImg) {
-                    expertResponse = `🔍 **Análisis Estructural e Ingeniería Inversa (Imagen Adjunta):**<br>He procesado la captura visual mediante escaneo de patrones y depuración de nodos.<br><pre>-- Diagnóstico de Visión Experta\nlocal visionStatus = "Validado y Estable"\nprint("Componentes sincronizados correctamente.")</pre>`;
+                    expertResponse = `🧠 **Análisis Cognitivo y Visión Computacional Avanzada:**<br>He decodificado la estructura visual proporcionada y evaluado sus dependencias lógicas con precisión absoluta.<br><pre>-- Módulo de Diagnóstico Avanzado\nlocal visionNode = script.Parent\nlocal confidenceLevel = 0.998\nprint("[Hiper-Inteligencia]: Estructura validada con éxito.")</pre>`;
                 } else if(lower.includes('roblox') || lower.includes('lua') || lower.includes('script')) {
-                    expertResponse = `⚡ **Investigación y Refactorización (Roblox Luau):**<br>He optimizado el bloque de script:<br><pre>-- Módulo Optimizado por el Núcleo Experto\nlocal ReplicatedStorage = game:GetService("ReplicatedStorage")\n\nlocal function initializeCore()\n    print("[DevAI Core] Arquitectura Luau verificada al 100%.")\nend\ninitializeCore()</pre>`;
+                    expertResponse = `⚡ **Refactorización Experta de Hiper-Inteligencia (Luau Avanzado):**<br>He optimizado el rendimiento y la seguridad del algoritmo para evitar fugas de memoria:<br><pre>-- Arquitectura Optimizada por IA Pro\nlocal ReplicatedStorage = game:GetService("ReplicatedStorage")\nlocal Players = game:GetService("Players")\n\nlocal function executeAdvancedCore()\n    print("[DevAI Hiper-Inteligencia]: Sistema Luau sincronizado sin latencia.")\nend\nexecuteAdvancedCore()</pre>`;
+                } else if(lower.includes('python') || lower.includes('codigo') || lower.includes('programar')) {
+                    expertResponse = `🚀 **Generación de Código de Alto Rendimiento:**<br>He estructurado una solución escalable basada en tus parámetros:<br><pre># Módulo de Control Inteligente\nimport sys\n\ndef run_core_diagnostics():\n    print("[DevAI]: Núcleo operativo funcionando al máximo rendimiento.")\n\nif __name__ == "__main__":\n    run_core_diagnostics()</pre>`;
                 } else {
-                    expertResponse = `💡 **Informe de Investigación Experta:**<br>He evaluado tu consulta contrastando bases de datos lógicas y patrones de desarrollo. La estructura propuesta es viable y eficiente.`;
+                    expertResponse = `💡 **Informe Analítico de Hiper-Inteligencia:**<br>He procesado tu consulta cruzando bases de datos lógicas multivariable. La estrategia sugerida maximiza la eficiencia y minimiza los errores de ejecución en tu entorno de desarrollo.`;
                 }
 
                 if(activeChat) {
                     activeChat.messages.push({ sender: 'ai', text: expertResponse, image: null });
                 }
                 renderActiveChatContent();
-                saveAppData();
-            }, 2600);
+            }, 2700);
         }
 
         function handleKeyPress(e) {
