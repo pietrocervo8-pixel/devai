@@ -10,12 +10,13 @@
             color: #c9d1d9;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            height: 100vh;
+            overflow: hidden;
         }
-        /* Pantalla de Login */
+
+        /* Pantalla de Login / Registro */
         #loginOverlay {
             position: fixed;
             top: 0;
@@ -26,7 +27,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 2000;
         }
         .login-card {
             background: #161b22;
@@ -35,11 +36,16 @@
             border: 1px solid #30363d;
             text-align: center;
             width: 100%;
-            max-width: 350px;
+            max-width: 380px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.6);
         }
         .login-card h2 {
             color: #58a6ff;
+            margin-bottom: 10px;
+        }
+        .login-card p {
+            color: #8b949e;
+            font-size: 13px;
             margin-bottom: 20px;
         }
         .login-card input {
@@ -51,6 +57,11 @@
             border-radius: 6px;
             color: white;
             box-sizing: border-box;
+            font-size: 14px;
+        }
+        .login-card input:focus {
+            outline: none;
+            border-color: #58a6ff;
         }
         .login-card button {
             width: 100%;
@@ -61,74 +72,168 @@
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
+            font-size: 14px;
         }
         .login-card button:hover {
             background-color: #2ea043;
         }
 
-        /* App Principal */
+        /* Interfaz Principal con Barra Lateral */
         #appContainer {
             display: none;
             width: 100%;
-            flex-direction: column;
-            align-items: center;
+            height: 100%;
+            flex-direction: row;
         }
-        header {
-            text-align: center;
-            margin-bottom: 25px;
-            position: relative;
-            width: 100%;
-            max-width: 700px;
-        }
-        h1 {
-            color: #58a6ff;
-            margin-bottom: 5px;
-        }
-        .subtitle {
-            color: #8b949e;
-            font-size: 14px;
-        }
-        .pro-badge {
-            background: linear-gradient(45deg, #f85149, #d29922);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 5px;
-            cursor: pointer;
-        }
-        .chat-container {
-            width: 100%;
-            max-width: 700px;
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 12px;
+
+        /* Barra Lateral */
+        sidebar {
+            width: 260px;
+            background-color: #161b22;
+            border-right: 1px solid #30363d;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-        }
-        .chat-box {
-            height: 350px;
-            overflow-y: auto;
+            justify-content: space-between;
             padding: 20px;
+        }
+        .sidebar-top {
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
+        .sidebar-brand {
+            font-size: 18px;
+            font-weight: bold;
+            color: #58a6ff;
+            margin-bottom: 10px;
+        }
+        .sidebar-btn {
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            padding: 10px 14px;
+            border-radius: 6px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .sidebar-btn:hover {
+            background-color: #30363d;
+            color: white;
+        }
+        .chats-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        .chat-item {
+            font-size: 13px;
+            color: #8b949e;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .chat-item:hover {
+            background-color: #21262d;
+            color: #c9d1d9;
+        }
+
+        /* Perfil Pepito en Sidebar */
+        .sidebar-footer {
+            border-top: 1px solid #30363d;
+            padding-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background-color: #238636;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        .user-details {
+            font-size: 13px;
+        }
+        .user-name {
+            font-weight: bold;
+            color: white;
+        }
+        .user-email {
+            color: #8b949e;
+            font-size: 11px;
+        }
+
+        /* Área de Chat Principal */
+        .main-chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #0d1117;
+            height: 100%;
+        }
+        header {
+            padding: 15px 25px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #161b22;
+        }
+        .header-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #58a6ff;
+        }
+        .pro-badge {
+            background: linear-gradient(45deg, #f85149, #d29922);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(248,81,73,0.3);
+        }
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
         .message {
-            padding: 12px 16px;
+            padding: 14px 18px;
             border-radius: 8px;
             max-width: 85%;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
         .ai-message {
-            background-color: #21262d;
+            background-color: #161b22;
             color: #c9d1d9;
             align-self: flex-start;
+            border: 1px solid #30363d;
             border-left: 4px solid #58a6ff;
         }
         .user-message {
@@ -137,26 +242,32 @@
             align-self: flex-end;
         }
         .input-area {
-            display: flex;
-            padding: 15px;
+            padding: 20px;
             background-color: #0d1117;
             border-top: 1px solid #30363d;
-            gap: 10px;
+            display: flex;
+            justify-content: center;
         }
-        .input-area input {
-            flex: 1;
-            padding: 12px;
+        .input-wrapper {
+            max-width: 800px;
+            width: 100%;
+            display: flex;
             background-color: #161b22;
             border: 1px solid #30363d;
-            border-radius: 6px;
+            border-radius: 8px;
+            overflow: hidden;
+            padding: 5px;
+        }
+        .input-wrapper input {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
             color: white;
             font-size: 14px;
-        }
-        .input-area input:focus, .login-card input:focus {
             outline: none;
-            border-color: #58a6ff;
         }
-        .input-area button {
+        .input-wrapper button {
             padding: 0 20px;
             background-color: #238636;
             color: white;
@@ -165,20 +276,21 @@
             font-weight: bold;
             cursor: pointer;
         }
-        .input-area button:hover {
+        .input-wrapper button:hover {
             background-color: #2ea043;
         }
         pre {
             background: #0d1117;
-            padding: 10px;
+            padding: 12px;
             border-radius: 6px;
             overflow-x: auto;
             border: 1px solid #30363d;
             color: #79c0ff;
+            margin-top: 10px;
         }
 
-        /* Modal de Suscripción Pro */
-        #proModal {
+        /* Modal de Suscripción PRO / Verificación de Correo */
+        .modal-overlay {
             display: none;
             position: fixed;
             top: 0;
@@ -188,21 +300,24 @@
             background: rgba(0,0,0,0.8);
             justify-content: center;
             align-items: center;
-            z-index: 2000;
+            z-index: 3000;
         }
         .modal-content {
             background: #161b22;
-            padding: 30px;
+            padding: 35px;
             border-radius: 12px;
             border: 1px solid #30363d;
-            max-width: 400px;
+            max-width: 420px;
+            width: 100%;
             text-align: center;
+            box-sizing: border-box;
         }
         .modal-content h2 {
             color: #f85149;
+            margin-top: 0;
         }
         .price {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
             color: #58a6ff;
             margin: 15px 0;
@@ -211,68 +326,144 @@
             background: #30363d;
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 10px 20px;
             border-radius: 6px;
             cursor: pointer;
             margin-top: 15px;
+            font-weight: bold;
+        }
+        .close-btn:hover {
+            background: #484f58;
         }
     </style>
 </head>
 <body>
 
-    <!-- Pantalla de Inicio de Sesión -->
+    <!-- Pantalla de Login / Registro con Verificación de Correo -->
     <div id="loginOverlay">
         <div class="login-card">
-            <h2>🔐 Iniciar Sesión en DevAI</h2>
-            <input type="text" id="usernameInput" placeholder="Tu Nombre o Usuario">
-            <input type="password" placeholder="Contraseña">
-            <button onclick="login()">Entrar al Sistema</button>
+            <h2>🔐 DevAI Acceso</h2>
+            <p>Ingresa tu correo para verificar tu cuenta y entrar al motor.</p>
+            <input type="text" id="usernameInput" placeholder="Tu Nombre (Ej. Pepito)">
+            <input type="email" id="emailInput" placeholder="tucorreo@domain.com">
+            <button onclick="startVerification()">Enviar Código de Verificación</button>
+            <div id="verifyStep" style="display:none; margin-top:15px;">
+                <input type="text" id="codeVerifyInput" placeholder="Código recibido (Ej: 1234)">
+                <button onclick="completeLogin()" style="background:#58a6ff;">Verificar y Entrar</button>
+            </div>
         </div>
     </div>
 
-    <!-- Aplicación Principal -->
+    <!-- Interfaz Principal -->
     <div id="appContainer">
-        <header>
-            <h1>⚡ DevAI Master Pro</h1>
-            <p class="subtitle">Motor Híbrido de Programación (GPT + Gemini + Grok)</p>
-            <div class="pro-badge" onclick="openProModal()">⭐ Actualizar a Plan PRO ($9.99/mes)</div>
-        </header>
-
-        <div class="chat-container">
-            <div class="chat-box" id="chatBox">
-                <div class="message ai-message">
-                    ¡Bienvenido al sistema, <span id="displayName">Coder</span>! Soy DevAI. ¿Qué script o estructura de código resolveremos hoy?
+        <!-- Barra Lateral -->
+        <sidebar>
+            <div class="sidebar-top">
+                <div class="sidebar-brand">⚡ DevAI Pro</div>
+                <button class="sidebar-btn" onclick="newChat()">➕ Nuevo Chat</button>
+                <div style="font-size: 12px; color: #8b949e; margin-top: 10px; font-weight: bold;">HISTORIAL DE CHATS</div>
+                <div class="chats-list" id="chatsList">
+                    <div class="chat-item" onclick="loadChat(1)">Script Roblox Luau Pro</div>
+                    <div class="chat-item" onclick="loadChat(2)">Depuración Python CPU</div>
                 </div>
             </div>
+
+            <!-- Perfil de Usuario (Pepito) -->
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">P</div>
+                    <div class="user-details">
+                        <div class="user-name" id="profileName">Pepito</div>
+                        <div class="user-email" id="profileEmail">pepito@devai.com</div>
+                    </div>
+                </div>
+                <button onclick="logout()" style="background:transparent; border:none; color:#f85149; cursor:pointer; font-size:12px;" title="Cerrar sesión">Salir</button>
+            </div>
+        </sidebar>
+
+        <!-- Zona de Chat -->
+        <div class="main-chat-area">
+            <header>
+                <div class="header-title" id="currentChatTitle">Chat Activo: DevAI Kernel Híbrido</div>
+                <div class="pro-badge" onclick="openProModal()">⭐ Suscribirse a PRO ($9.99/mes)</div>
+            </header>
+
+            <div class="chat-box" id="chatBox">
+                <div class="message ai-message">
+                    ¡Hola de nuevo, <span id="displayName">Pepito</span>! Soy tu IA experta en programación (GPT + Gemini + Grok). ¿Qué script o estructura creamos hoy?
+                </div>
+            </div>
+
             <div class="input-area">
-                <input type="text" id="userInput" placeholder="Escribe tu duda de código o script aquí..." onkeypress="handleKeyPress(event)">
-                <button onclick="sendMessage()">Enviar</button>
+                <div class="input-wrapper">
+                    <input type="text" id="userInput" placeholder="Escribe tu código, duda o bug aquí..." onkeypress="handleKeyPress(event)">
+                    <button onclick="sendMessage()">Enviar</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Pro -->
-    <div id="proModal">
+    <!-- Modal Suscripción PRO -->
+    <div class="modal-overlay" id="proModal">
         <div class="modal-content">
-            <h2>🚀 DevAI PRO</h2>
-            <p>Desbloquea modelos ilimitados, velocidad extrema de compilación y soporte prioritario para tus motores de juegos y scripts.</p>
+            <h2>🚀 DevAI Plan PRO</h2>
+            <p>Desbloquea compilación ultra-rápida, motores avanzados de IA ilimitados y soporte prioritario para desarrollo de videojuegos y scripts profesionales.</p>
             <div class="price">$9.99 USD / mes</div>
-            <button style="background:#238636; color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="alert('¡Gracias por tu interés! Próximamente pasarela de pagos activa.')">Suscribirme Ahora</button>
+            <button style="background:#238636; color:white; border:none; padding:12px 24px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:14px;" onclick="alert('¡Pasarela de pagos en desarrollo! Pronto podrás activar tu membresía PRO.')">Pagar Suscripción PRO</button>
             <br>
             <button class="close-btn" onclick="closeProModal()">Cerrar</button>
         </div>
     </div>
 
     <script>
-        function login() {
+        let userEmailStorage = "";
+
+        function startVerification() {
             const name = document.getElementById('usernameInput').value.trim();
-            if(name === '') {
-                alert('Por favor ingresa tu nombre de usuario');
+            const email = document.getElementById('emailInput').value.trim();
+
+            if(name === '' || email === '') {
+                alert('Por favor ingresa tu nombre y correo electrónico.');
                 return;
             }
+
+            if(!email.includes('@') || !email.includes('.')) {
+                alert('Por favor ingresa un correo electrónico válido.');
+                return;
+            }
+
+            userEmailStorage = email;
+            alert('¡Código de verificación enviado a ' + email + '! (Simulación: usa el código 1234)');
+            document.getElementById('verifyStep').style.display = 'block';
+        }
+
+        function completeLogin() {
+            const code = document.getElementById('codeVerifyInput').value.trim();
+            const name = document.getElementById('usernameInput').value.trim();
+
+            if(code !== '1234') {
+                alert('Código incorrecto. Ingresa "1234" para verificar.');
+                return;
+            }
+
+            // Configurar datos de usuario
+            document.getElementById('profileName').textContent = name;
             document.getElementById('displayName').textContent = name;
+            document.getElementById('profileEmail').textContent = userEmailStorage;
+            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+
+            // Ocultar login y mostrar aplicación
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('appContainer').style.display = 'flex';
+        }
+
+        function logout() {
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('loginOverlay').style.display = 'flex';
+            document.getElementById('verifyStep').style.display = 'none';
+            document.getElementById('codeVerifyInput').value = '';
+            document.getElementById('emailInput').value = '';
+            document.getElementById('usernameInput').value = '';
         }
 
         function openProModal() {
@@ -281,6 +472,29 @@
 
         function closeProModal() {
             document.getElementById('proModal').style.display = 'none';
+        }
+
+        function newChat() {
+            const chatBox = document.getElementById('chatBox');
+            chatBox.innerHTML = `<div class="message ai-message">Nuevo chat iniciado. ¿Qué código o motor vamos a optimizar ahora?</div>`;
+            document.getElementById('currentChatTitle').textContent = "Chat Activo: Nuevo Proyecto";
+        }
+
+        function loadChat(id) {
+            const chatBox = document.getElementById('chatBox');
+            if(id === 1) {
+                chatBox.innerHTML = `
+                    <div class="message user-message">Dame un script de Roblox Luau</div>
+                    <div class="message ai-message">Motor Luau Pro Activo:<br><pre>local part = script.Parent\nwhile true do\n    part.BrickColor = BrickColor.random()\n    task.wait(1)\nend</pre></div>
+                `;
+                document.getElementById('currentChatTitle').textContent = "Chat: Script Roblox Luau Pro";
+            } else {
+                chatBox.innerHTML = `
+                    <div class="message user-message">Hazme uno para memoria en python</div>
+                    <div class="message ai-message">Script Python analítico:<br><pre>import psutil\nprint('Memoria RAM usada:', psutil.virtual_memory().percent, '%')</pre></div>
+                `;
+                document.getElementById('currentChatTitle').textContent = "Chat: Depuración Python CPU";
+            }
         }
 
         function sendMessage() {
@@ -302,13 +516,13 @@
                 const aiDiv = document.createElement('div');
                 aiDiv.className = 'message ai-message';
                 
-                let responseText = "Analizando tu código en el núcleo híbrido...";
+                let responseText = "Analizando tu estructura con el motor híbrido de programación...";
                 if(text.toLowerCase().includes('roblox') || text.toLowerCase().includes('lua')) {
-                    responseText = "Motor Luau Pro Activado:<br><pre>local part = script.Parent\nwhile true do\n    part.Transparency = math.random()\n    task.wait(0.5)\nend</pre>";
-                } else if(text.toLowerCase().includes('python')) {
-                    responseText = "Script Python optimizado:<br><pre>import os\nprint('Directorio activo:', os.getcwd())</pre>";
+                    responseText = "Estructura Luau optimizada:<br><pre>local Players = game:GetService('Players')\nPlayers.PlayerAdded:Connect(function(player)\n    print(player.Name ..\" se ha unido al servidor PRO!\")\nend)</pre>";
+                } else if(text.toLowerCase().includes('python') || text.toLowerCase().includes('temperatura')) {
+                    responseText = "Script Python de rendimiento:<br><pre>import psutil\nprint('Temperatura del sistema monitoreada con éxito.')</pre>";
                 } else {
-                    responseText = "Código procesado con éxito. Sin errores de sintaxis detectados.";
+                    responseText = "Código procesado correctamente por DevAI. Listo para compilar.";
                 }
 
                 aiDiv.innerHTML = responseText;
