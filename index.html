@@ -8,7 +8,7 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
         (function(){
-            // Inicializar EmailJS con tu Public Key (reemplaza 'TU_PUBLIC_KEY' con la tuya de EmailJS)
+            // Inicializa EmailJS con tu Public Key
             emailjs.init("TU_PUBLIC_KEY");
         })();
     </script>
@@ -132,6 +132,39 @@
         }
         .login-card button:hover {
             background-color: var(--accent-hover);
+        }
+
+        /* Estilo para el widget de verificación de robot */
+        .captcha-box {
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .captcha-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+        .captcha-left input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+            margin: 0;
+            cursor: pointer;
+        }
+        .captcha-brand {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-align: right;
+            line-height: 1.2;
         }
 
         /* Estructura Principal */
@@ -565,21 +598,34 @@
 </head>
 <body>
 
-    <!-- Verificación por Envío Real a Correo (Incluye "THE CODE IS :" tanto en pantalla como en el mensaje real) -->
+    <!-- Pantalla de Inicio / Verificación con Correo Real y Captcha -->
     <div id="loginOverlay">
         <div class="login-card" id="loginCardStep1">
             <div class="logo-area">
                 <div class="app-logo">D</div>
                 <div>
                     <h2 style="font-size:16px; margin:0;">DevAI Pro</h2>
-                    <span style="font-size:11px; color:var(--text-secondary);">Sistema Experto con Envío Real</span>
+                    <span style="font-size:11px; color:var(--text-secondary);">Sistema Seguro de Acceso</span>
                 </div>
             </div>
-            <p>Ingresa tus datos. El sistema enviará un correo real a tu bandeja con tu código de acceso único.</p>
+            <p>Ingresa tus datos para enviar un código de verificación real a tu bandeja de correo.</p>
             <label>Nombre</label>
             <input type="text" id="inputLoginName" placeholder="Tu nombre">
             <label>Correo Electrónico</label>
             <input type="email" id="inputLoginEmail" placeholder="correo@ejemplo.com">
+            
+            <!-- Verificación de robot integrada -->
+            <div class="captcha-box">
+                <label class="captcha-left">
+                    <input type="checkbox" id="robotCheckbox">
+                    <span>No soy un robot</span>
+                </label>
+                <div class="captcha-brand">
+                    <span style="font-size:13px;">🔒</span><br>
+                    reCAPTCHA
+                </div>
+            </div>
+
             <button id="sendEmailBtn" onclick="requestUniqueCode()">Enviar código a mi correo</button>
         </div>
 
@@ -591,7 +637,7 @@
                     <span style="font-size:11px; color:var(--text-secondary);">Seguridad del núcleo</span>
                 </div>
             </div>
-            <p id="sentInfoText">Revisa tu bandeja. Se ha enviado un correo con el código de acceso.</p>
+            <p id="sentInfoText">Revisa tu bandeja. Se ha enviado un correo con tu código de acceso.</p>
             <label>Código de acceso</label>
             <input type="text" id="inputVerificationCode" placeholder="Ej: 4812" maxlength="4">
             <button onclick="verifyAndEnterApp()">Verificar acceso</button>
@@ -700,9 +746,55 @@
         let attachedImageBase64 = null;
         let attachedImageName = "";
 
+        // Cargar datos guardados automáticamente al iniciar la página (Persistencia LocalStorage)
+        window.onload = function() {
+            const savedData = localStorage.getItem('devai_user_session');
+            if(savedData) {
+                try {
+                    const sessionData = JSON.parse(savedData);
+                    globalUserName = sessionData.name;
+                    globalUserEmail = sessionData.email;
+                    chatSessions = sessionData.chats;
+                    activeChatId = sessionData.activeId;
+
+                    document.getElementById('sidebarName').textContent = globalUserName;
+                    document.getElementById('welcomeUserName').textContent = globalUserName;
+                    document.getElementById('sidebarEmail').textContent = globalUserEmail;
+                    document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
+
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    document.getElementById('appContainer').style.display = 'flex';
+
+                    if(chatSessions.length > 0) {
+                        if(!chatSessions.some(c => c.id === activeChatId)) {
+                            activeChatId = chatSessions[0].id;
+                        }
+                        renderChatList();
+                        renderActiveChatContent();
+                    } else {
+                        createNewChat();
+                    }
+                } catch(e) {
+                    console.error("Error al cargar la sesión guardada", e);
+                }
+            }
+        };
+
+        // Guardar estado completo en LocalStorage cada vez que cambie algo
+        function saveAppData() {
+            const sessionData = {
+                name: globalUserName,
+                email: globalUserEmail,
+                chats: chatSessions,
+                activeId: activeChatId
+            };
+            localStorage.setItem('devai_user_session', JSON.stringify(sessionData));
+        }
+
         function requestUniqueCode() {
             const name = document.getElementById('inputLoginName').value.trim();
             const email = document.getElementById('inputLoginEmail').value.trim();
+            const isRobotChecked = document.getElementById('robotCheckbox').checked;
             const btn = document.getElementById('sendEmailBtn');
 
             if(!name || !email) {
@@ -713,37 +805,40 @@
                 alert('Introduce un correo electrónico válido.');
                 return;
             }
+            if(!isRobotChecked) {
+                alert('Por favor completa la verificación "No soy un robot".');
+                return;
+            }
 
             globalUserName = name;
             globalUserEmail = email;
 
-            // Generar un código aleatorio de 4 dígitos
+            // Generar código de 4 dígitos (se envía únicamente al correo real y se oculta de pantalla)
             activeDynamicCode = String(Math.floor(1000 + Math.random() * 9000));
 
             btn.textContent = "Enviando correo real...";
             btn.disabled = true;
 
-            // Parámetros para enviar el correo mediante EmailJS
-            // NOTA: Reemplaza 'YOUR_SERVICE_ID' y 'YOUR_TEMPLATE_ID' con tus datos de tu cuenta gratuita en EmailJS
+            // Parámetros para EmailJS (Reemplaza 'YOUR_SERVICE_ID' y 'YOUR_TEMPLATE_ID' con tus datos de EmailJS)
             const templateParams = {
                 to_name: globalUserName,
                 to_email: globalUserEmail,
-                pass_code: `THE CODE IS : ${activeDynamicCode}`
+                pass_code: activeDynamicCode
             };
 
             emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
                 .then(function(response) {
                     btn.textContent = "Enviar código a mi correo";
                     btn.disabled = false;
-                    document.getElementById('sentInfoText').innerHTML = `Se ha enviado un correo electrónico real a <b>${email}</b>.<br><br><span style="color:var(--accent); font-weight:600; letter-spacing:1px;">THE CODE IS : ${activeDynamicCode}</span>`;
+                    document.getElementById('sentInfoText').innerHTML = `Se ha enviado un código de acceso único a <b>${email}</b>. Revisa tu bandeja de entrada o spam.`;
                     document.getElementById('loginCardStep1').style.display = 'none';
                     document.getElementById('loginCardStep2').style.display = 'block';
                 }, function(error) {
                     btn.textContent = "Enviar código a mi correo";
                     btn.disabled = false;
-                    // Modo de respaldo integrado por si las credenciales de EmailJS aún no están configuradas
-                    alert('Nota de desarrollo: No se configuró el Service ID de EmailJS, pero se ha generado el código localmente.');
-                    document.getElementById('sentInfoText').innerHTML = `Código generado para <b>${email}</b>:<br><br><span style="color:var(--accent); font-weight:600; letter-spacing:1px;">THE CODE IS : ${activeDynamicCode}</span>`;
+                    // Respaldo por si no se han configurado las claves de EmailJS todavía
+                    alert('Nota: No se configuraron las credenciales de EmailJS, pero simulará el flujo de correo.');
+                    document.getElementById('sentInfoText').innerHTML = `Código enviado a <b>${email}</b>.<br><span style="font-size:11px; color:var(--text-secondary);">(Modo prueba: tu código es ${activeDynamicCode})</span>`;
                     document.getElementById('loginCardStep1').style.display = 'none';
                     document.getElementById('loginCardStep2').style.display = 'block';
                 });
@@ -781,15 +876,23 @@
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('appContainer').style.display = 'flex';
 
-            createNewChat();
+            if(chatSessions.length === 0) {
+                createNewChat();
+            } else {
+                renderChatList();
+                renderActiveChatContent();
+            }
+            saveAppData();
         }
 
         function logoutSession() {
+            localStorage.removeItem('devai_user_session');
             document.getElementById('appContainer').style.display = 'none';
             document.getElementById('loginOverlay').style.display = 'flex';
             document.getElementById('loginCardStep2').style.display = 'none';
             document.getElementById('loginCardStep1').style.display = 'block';
             document.getElementById('inputVerificationCode').value = '';
+            document.getElementById('robotCheckbox').checked = false;
             chatSessions = [];
             activeChatId = null;
         }
@@ -822,6 +925,7 @@
             document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
 
             closeAccountModal();
+            saveAppData();
         }
 
         function autoResize(textarea) {
@@ -842,6 +946,7 @@
             activeChatId = newId;
             renderChatList();
             renderActiveChatContent();
+            saveAppData();
         }
 
         function renderChatList() {
@@ -861,6 +966,7 @@
                     activeChatId = chat.id;
                     renderChatList();
                     renderActiveChatContent();
+                    saveAppData();
                 };
                 list.appendChild(item);
             });
@@ -897,6 +1003,7 @@
                     { sender: 'ai', text: "Historial restablecido. ¿Qué deseas investigar o estructurar?" }
                 ];
                 renderActiveChatContent();
+                saveAppData();
             }
         }
 
@@ -959,6 +1066,7 @@
             input.style.height = 'auto';
             removeAttachedImage();
             renderActiveChatContent();
+            saveAppData();
 
             const container = document.getElementById('chatContainer');
             const thinkingDiv = document.createElement('div');
@@ -987,6 +1095,7 @@
                     activeChat.messages.push({ sender: 'ai', text: expertResponse, image: null });
                 }
                 renderActiveChatContent();
+                saveAppData();
             }, 2600);
         }
 
