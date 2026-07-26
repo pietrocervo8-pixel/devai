@@ -3,24 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevAI Ultimate Pro - Next-Gen Intelligence Engine</title>
+    <title>DevAI Ultimate Pro - Neural Core & Vision</title>
     <style>
         :root {
-            --bg-primary: #131314;
-            --bg-secondary: #1e1f20;
-            --bg-tertiary: #2d2e30;
-            --accent-glow: #8ab4f8;
-            --text-main: #e3e3e3;
-            --text-muted: #8e918f;
-            --border-color: #333538;
-            --user-bubble: #2b2c2f;
-            --danger: #f28b82;
+            --bg-primary: #0b0f19;
+            --bg-secondary: #131b2e;
+            --bg-tertiary: #1e293b;
+            --accent-glow: #38bdf8;
+            --accent-purple: #a855f7;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --danger: #f43f5e;
+            --success: #10b981;
         }
 
         body {
             background-color: var(--bg-primary);
             color: var(--text-main);
-            font-family: 'Google Sans', 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
@@ -28,38 +29,40 @@
             overflow: hidden;
         }
 
-        /* Pantalla de Inicio / Verificación Estilo Portal IA */
+        /* Pantalla de Inicio / Verificación por Correo */
         #loginOverlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at center, #2b2c2f 0%, var(--bg-primary) 100%);
+            background: radial-gradient(circle at center, #1e293b 0%, var(--bg-primary) 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 2000;
         }
         .login-card {
-            background: var(--bg-secondary);
+            background: rgba(19, 27, 46, 0.95);
+            backdrop-filter: blur(16px);
             padding: 40px;
-            border-radius: 24px;
+            border-radius: 20px;
             border: 1px solid var(--border-color);
             text-align: center;
             width: 100%;
-            max-width: 400px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            max-width: 420px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.7), 0 0 30px rgba(56, 189, 248, 0.1);
         }
         .login-card h2 {
             color: var(--accent-glow);
             margin-bottom: 8px;
-            font-size: 26px;
+            font-size: 24px;
         }
         .login-card p {
             color: var(--text-muted);
             font-size: 13px;
             margin-bottom: 24px;
+            line-height: 1.5;
         }
         .login-card input {
             width: 100%;
@@ -67,7 +70,7 @@
             margin-bottom: 14px;
             background-color: var(--bg-primary);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 10px;
             color: white;
             box-sizing: border-box;
             font-size: 14px;
@@ -75,21 +78,22 @@
         .login-card input:focus {
             outline: none;
             border-color: var(--accent-glow);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
         }
         .login-card button {
             width: 100%;
             padding: 14px;
-            background: var(--accent-glow);
-            color: #131314;
+            background: linear-gradient(135deg, var(--accent-glow), #0284c7);
+            color: #0b0f19;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             font-weight: 700;
             cursor: pointer;
             font-size: 14px;
-            transition: opacity 0.2s;
+            transition: transform 0.2s;
         }
         .login-card button:hover {
-            opacity: 0.9;
+            transform: translateY(-1px);
         }
 
         /* Estructura Principal */
@@ -100,30 +104,39 @@
             flex-direction: row;
         }
 
-        /* Barra Lateral (Sidebar Estilo ChatGPT / Gemini) */
+        /* Barra Lateral Avanzada */
         sidebar {
-            width: 260px;
+            width: 280px;
             background-color: var(--bg-secondary);
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 12px;
+            padding: 16px;
             box-sizing: border-box;
         }
         .sidebar-top {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             flex: 1;
             overflow: hidden;
         }
-        .new-chat-btn {
+        .sidebar-brand {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--accent-glow);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sidebar-btn {
             background-color: var(--bg-tertiary);
             color: var(--text-main);
             border: 1px solid var(--border-color);
-            padding: 12px 14px;
-            border-radius: 12px;
+            padding: 11px 14px;
+            border-radius: 10px;
             text-align: left;
             cursor: pointer;
             font-size: 13px;
@@ -131,23 +144,24 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
-        .new-chat-btn:hover {
-            background-color: #38393c;
+        .sidebar-btn:hover {
+            background-color: #26334d;
+            border-color: var(--accent-glow);
         }
         .chats-title {
             font-size: 11px;
             color: var(--text-muted);
-            font-weight: 600;
-            padding: 10px 8px 4px 8px;
-            letter-spacing: 0.5px;
+            font-weight: 700;
+            padding: 12px 6px 4px 6px;
+            letter-spacing: 1px;
             text-transform: uppercase;
         }
         .chats-list {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 4px;
             overflow-y: auto;
             flex: 1;
         }
@@ -160,21 +174,23 @@
         }
         .chat-item {
             font-size: 13px;
-            color: var(--text-main);
+            color: var(--text-muted);
             padding: 10px 12px;
             border-radius: 8px;
             cursor: pointer;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
         .chat-item:hover {
             background-color: var(--bg-tertiary);
+            color: var(--text-main);
         }
         .chat-item.active {
             background-color: var(--bg-tertiary);
             color: var(--accent-glow);
+            border: 1px solid var(--border-color);
         }
         .no-chats {
             font-size: 12px;
@@ -183,191 +199,169 @@
             font-style: italic;
         }
 
-        /* Footer Sidebar (Perfil y Configs) */
+        /* Footer Sidebar (Perfil y Botón Configurar) */
         .sidebar-footer {
             border-top: 1px solid var(--border-color);
-            padding-top: 10px;
+            padding-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .user-profile-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        .user-profile {
+        .user-info {
             display: flex;
             align-items: center;
             gap: 10px;
         }
         .user-avatar {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #8ab4f8, #c58af9);
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, var(--accent-glow), var(--accent-purple));
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            color: #131314;
-            font-size: 13px;
-        }
-        .user-meta {
-            font-size: 12px;
+            color: #0b0f19;
+            font-size: 14px;
         }
         .user-meta-name {
             font-weight: 600;
             color: var(--text-main);
+            font-size: 13px;
         }
         .user-meta-email {
             color: var(--text-muted);
-            font-size: 10px;
-            max-width: 110px;
+            font-size: 11px;
+            max-width: 120px;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        /* Área de Chat Principal */
+        /* Área Principal de Chat */
         .main-area {
             flex: 1;
             display: flex;
             flex-direction: column;
             background-color: var(--bg-primary);
             height: 100%;
-            position: relative;
         }
         header {
-            padding: 12px 24px;
+            padding: 14px 24px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: var(--bg-primary);
+            background-color: var(--bg-secondary);
         }
-        .model-selector {
-            background: var(--bg-secondary);
-            color: var(--accent-glow);
-            border: 1px solid var(--border-color);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
+        .header-title {
+            font-size: 14px;
             font-weight: 600;
+            color: var(--accent-glow);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success);
         }
 
-        /* Contenedor de Mensajes */
         .chat-container {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 30px;
             display: flex;
             flex-direction: column;
-            gap: 24px;
-            max-width: 800px;
+            gap: 20px;
+            max-width: 900px;
             width: 100%;
             margin: 0 auto;
             box-sizing: border-box;
         }
-        .message-row {
-            display: flex;
-            gap: 14px;
-            max-width: 100%;
-        }
-        .message-row.user {
-            flex-direction: row-reverse;
-        }
-        .avatar-bubble {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            flex-shrink: 0;
-        }
-        .ai-avatar {
-            background: linear-gradient(135deg, #1a73e8, #9333ea);
-            color: white;
-        }
-        .user-avatar-msg {
-            background: var(--bg-tertiary);
-            color: var(--accent-glow);
-            border: 1px solid var(--border-color);
-        }
-        .message-content {
-            background-color: var(--bg-secondary);
-            color: var(--text-main);
-            padding: 14px 18px;
-            border-radius: 16px;
+        .message {
+            padding: 16px 20px;
+            border-radius: 12px;
+            max-width: 85%;
             font-size: 14px;
             line-height: 1.6;
-            max-width: 80%;
-            border: 1px solid var(--border-color);
-            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             word-break: break-word;
         }
-        .message-row.user .message-content {
-            background-color: var(--user-bubble);
-            border-color: #3d4044;
+        .ai-message {
+            background-color: var(--bg-secondary);
+            color: var(--text-main);
+            align-self: flex-start;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-glow);
+        }
+        .user-message {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+            align-self: flex-end;
         }
         .msg-img {
             max-width: 260px;
             max-height: 200px;
             border-radius: 8px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             display: block;
             border: 1px solid var(--border-color);
         }
         pre {
-            background: #090a0f;
-            padding: 14px;
+            background: #050811;
+            padding: 16px;
             border-radius: 8px;
             overflow-x: auto;
             border: 1px solid var(--border-color);
-            color: #8ab4f8;
+            color: var(--accent-glow);
             font-family: 'Courier New', Courier, monospace;
             font-size: 13px;
-            margin-top: 10px;
+            margin-top: 12px;
+            line-height: 1.5;
         }
 
-        /* Área de Input Avanzada */
+        /* Área de Input Inteligente */
         .input-area-wrapper {
-            padding: 16px 20px 24px 20px;
+            padding: 20px;
             background-color: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: center;
         }
         .input-box {
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
             background-color: var(--bg-secondary);
             border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 10px 16px;
+            border-radius: 14px;
+            padding: 10px 14px;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 25px rgba(0,0,0,0.4);
             transition: border-color 0.2s;
         }
         .input-box:focus-within {
             border-color: var(--accent-glow);
         }
-        .textarea-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
         .textarea-wrapper textarea {
-            flex: 1;
+            width: 100%;
             background: transparent;
             border: none;
             color: white;
             font-size: 14px;
             outline: none;
             resize: none;
-            max-height: 120px;
+            max-height: 140px;
             font-family: inherit;
-            padding: 4px 0;
         }
         .input-bottom-actions {
             display: flex;
@@ -378,7 +372,7 @@
         }
         .tools-group {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             align-items: center;
         }
         .tool-btn {
@@ -386,8 +380,8 @@
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-            font-size: 16px;
-            padding: 6px;
+            font-size: 13px;
+            padding: 6px 10px;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -403,142 +397,252 @@
             align-items: center;
             gap: 6px;
             background: var(--bg-tertiary);
-            padding: 4px 8px;
+            padding: 4px 10px;
             border-radius: 6px;
-            font-size: 11px;
+            font-size: 12px;
             color: var(--accent-glow);
         }
         .attachment-tag img {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             object-fit: cover;
             border-radius: 4px;
         }
-        .send-action-btn {
-            background: var(--accent-glow);
-            color: #131314;
+        .send-btn {
+            background: linear-gradient(135deg, var(--accent-glow), #0284c7);
+            color: #0b0f19;
             border: none;
-            border-radius: 50%;
-            width: 34px;
-            height: 34px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-weight: 700;
             cursor: pointer;
+            font-size: 13px;
             transition: opacity 0.2s;
         }
-        .send-action-btn:hover {
-            opacity: 0.85;
+        .send-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Modal Genérico (Configurar Cuenta / Ajustes) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+        .modal-card {
+            background: var(--bg-secondary);
+            padding: 35px;
+            border-radius: 18px;
+            border: 1px solid var(--border-color);
+            max-width: 420px;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+        }
+        .modal-card h3 {
+            color: var(--accent-glow);
+            margin-top: 0;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        .modal-card label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .modal-card input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+        .modal-card input:focus {
+            outline: none;
+            border-color: var(--accent-glow);
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Pantalla de Bienvenida y Registro Local -->
+    <!-- Pantalla de Login con Envío de Código al Correo -->
     <div id="loginOverlay">
-        <div class="login-card">
-            <h2>✨ DevAI Ultimate</h2>
-            <p>El núcleo experto multi-aplicación estilo Gemini, Grok y ChatGPT.</p>
-            <input type="text" id="usernameInput" placeholder="Tu Nombre (Ej. Pietro)">
-            <input type="email" id="emailInput" placeholder="tucorreo@domain.com">
-            <button onclick="startAppSession()">Iniciar Sesión AI</button>
+        <div class="login-card" id="loginCardStep1">
+            <h2>🔐 Verificación por Correo</h2>
+            <p>Ingresa tu cuenta para recibir el código de acceso automatizado del núcleo experto.</p>
+            <input type="text" id="inputLoginName" placeholder="Tu Nombre (Ej. Pietro)">
+            <input type="email" id="inputLoginEmail" placeholder="tucorreo@domain.com">
+            <button onclick="requestVerificationCode()">Enviar Código al Correo ✉️</button>
+        </div>
+
+        <div class="login-card" id="loginCardStep2" style="display:none;">
+            <h2>📬 Código Enviado</h2>
+            <p id="sentInfoText">Hemos enviado un código de 4 dígitos a tu correo.</p>
+            <input type="text" id="inputVerificationCode" placeholder="Ingresa el código (Ej: 7788)" maxlength="4">
+            <button onclick="verifyAndEnterApp()">Validar y Acceder 🚀</button>
+            <button onclick="backToStep1()" style="background:transparent; border:none; color:var(--text-muted); margin-top:12px; cursor:pointer; font-size:12px; text-decoration:underline;">Volver atrás</button>
         </div>
     </div>
 
-    <!-- Interfaz de Chat Estilo LLM Premium -->
+    <!-- Interfaz Principal -->
     <div id="appContainer">
-        <!-- Sidebar Dinámica -->
+        <!-- Sidebar Avanzada -->
         <sidebar>
             <div class="sidebar-top">
-                <button class="new-chat-btn" onclick="createNewChat()">
-                    <span>➕</span> Nuevo Chat Experto
-                </button>
-                <div class="chats-title">Historial de Consultas</div>
+                <div class="sidebar-brand">⚡ DevAI Ultimate Pro</div>
+                
+                <button class="sidebar-btn" onclick="createNewChat()"><span>➕</span> Nuevo Chat Experto</button>
+                <button class="sidebar-btn" onclick="clearCurrentChatHistory()"><span>🧹</span> Limpiar Conversación</button>
+                <button class="sidebar-btn" onclick="exportCurrentChat()"><span>💾</span> Exportar Código / Chat</button>
+                
+                <div class="chats-title">Historial Inteligente</div>
                 <div class="chats-list" id="chatsList">
-                    <div class="no-chats" id="noChatsMsg">No hay conversaciones recientes.</div>
+                    <div class="no-chats" id="noChatsMsg">No hay chats recientes.</div>
                 </div>
             </div>
 
+            <!-- Footer con Perfil y Configurar Cuenta -->
             <div class="sidebar-footer">
-                <div class="user-profile">
-                    <div class="user-avatar" id="sidebarAvatar">P</div>
-                    <div class="user-meta">
-                        <div class="user-meta-name" id="sidebarName">Pietro</div>
-                        <div class="user-meta-email" id="sidebarEmail">user@devai.com</div>
+                <button class="sidebar-btn" onclick="openAccountModal()" style="background:var(--bg-tertiary); border-color:var(--accent-purple);">⚙️ Configurar Cuenta</button>
+                <div class="user-profile-row">
+                    <div class="user-info">
+                        <div class="user-avatar" id="sidebarAvatar">P</div>
+                        <div>
+                            <div class="user-meta-name" id="sidebarName">Pietro</div>
+                            <div class="user-meta-email" id="sidebarEmail">pietro@devai.com</div>
+                        </div>
                     </div>
+                    <button onclick="logoutSession()" style="background:transparent; border:none; color:var(--danger); cursor:pointer; font-size:12px; font-weight:600;" title="Cerrar sesión">Salir</button>
                 </div>
-                <button onclick="logoutSession()" style="background:transparent; border:none; color:var(--danger); cursor:pointer; font-size:12px; font-weight:600;" title="Cerrar">Salir</button>
             </div>
         </sidebar>
 
-        <!-- Zona Principal de Conversación -->
+        <!-- Zona Principal de Chat y Análisis -->
         <div class="main-area">
             <header>
-                <div class="model-selector">
-                    <span>⚡ DevAI 3.0 (Multitarea & Visión Experta)</span>
+                <div class="header-title">
+                    <div class="status-dot"></div>
+                    <span id="currentChatTitle">Núcleo Neural Multitarea Activo</span>
                 </div>
-                <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-secondary); padding: 5px 12px; border-radius: 12px; border: 1px solid var(--border-color);">Roblox • Unity • Unreal • Python • Apps de Diseño</div>
+                <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-secondary); padding: 5px 12px; border-radius: 12px; border: 1px solid var(--border-color);">Visión Artificial • Lógica Experta • Roblox & Apps</div>
             </header>
 
             <div class="chat-container" id="chatContainer">
-                <div class="message-row ai">
-                    <div class="avatar-bubble ai-avatar">AI</div>
-                    <div class="message-content">
-                        ¡Hola, <span id="welcomeUserName">Pietro</span>! Estoy configurado como motor multi-modelo avanzado (estilo Gemini, Grok y ChatGPT). No solo escribo scripts largos; también **analizo imágenes** de errores, diseño lógicas completas, explico arquitectura de proyectos, resuelvo bugs de cualquier app de programación o motor de juegos, y te doy soporte experto integral. ¿En qué trabajamos hoy?
-                    </div>
+                <div class="message ai-message">
+                    ¡Conexión establecida, <span id="welcomeUserName">Pietro</span>! Mi núcleo neural ha sido optimizado con máxima potencia analítica. Puedo **examinar a fondo cualquier script, imagen adjunta o código que envíes**, detectar fallos estructurales, corregirlos y asistirte en cualquier aplicación de programación, motores de juego o desarrollo. ¿Qué analizamos hoy?
                 </div>
             </div>
 
-            <!-- Área de Comandos e Input -->
+            <!-- Input Inteligente -->
             <div class="input-area-wrapper">
                 <div class="input-box">
                     <div class="textarea-wrapper">
-                        <textarea id="userInput" placeholder="Pregunta sobre cualquier app, código, depuración o sube una captura..." rows="1" oninput="autoResize(this)" onkeypress="handleKey(event)"></textarea>
+                        <textarea id="userInput" placeholder="Escribe tu consulta, pega scripts largos o adjunta una captura de error..." rows="1" oninput="autoResize(this)" onkeypress="handleKeyPress(event)"></textarea>
                     </div>
                     
                     <div class="input-bottom-actions">
                         <div class="tools-group">
                             <!-- Adjuntar Imagen para Análisis Visual -->
-                            <label class="tool-btn" title="Adjuntar imagen o captura de error">
+                            <label class="tool-btn" title="Adjuntar captura de pantalla o imagen">
                                 📷 <span>Imagen</span>
-                                <input type="file" id="imageUploader" accept="image/*" style="display:none;" onchange="processImageUpload(event)">
+                                <input type="file" id="imageUploader" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
                             </label>
                             <div class="attachment-tag" id="imageTagContainer">
                                 <img id="tagThumb" src="" alt="preview">
                                 <span id="tagName">archivo.png</span>
-                                <span onclick="clearImage()" style="cursor:pointer; color:var(--danger); font-weight:bold;">✕</span>
+                                <span onclick="removeAttachedImage()" style="cursor:pointer; color:var(--danger); font-weight:bold; margin-left:4px;">✕</span>
                             </div>
                         </div>
 
-                        <button class="send-action-btn" onclick="sendMessage()" title="Enviar">▲</button>
+                        <button class="send-btn" onclick="sendMessage()">Enviar Consulta ⚡</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        let currentUserEmail = "";
-        let chatHistoryList = [];
-        let activeChatId = null;
-        let activeImageBase64 = null;
-        let activeImageName = "";
+    <!-- Modal de Configuración de Cuenta -->
+    <div class="modal-overlay" id="accountModal">
+        <div class="modal-card">
+            <h3>⚙️ Configuración de Cuenta</h3>
+            <label>Nombre de Usuario</label>
+            <input type="text" id="modalAccountName" placeholder="Tu Nombre">
+            <label>Correo Electrónico (Para alertas y códigos)</label>
+            <input type="email" id="modalAccountEmail" placeholder="tucorreo@domain.com">
+            <div class="modal-buttons">
+                <button class="send-btn" onclick="saveAccountSettings()" style="flex:1;">Guardar Cambios</button>
+                <button onclick="closeAccountModal()" style="background:transparent; border:1px solid var(--border-color); color:var(--text-muted); border-radius:8px; padding:10px; cursor:pointer; flex:1;">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
-        function startAppSession() {
-            const name = document.getElementById('usernameInput').value.trim();
-            const email = document.getElementById('emailInput').value.trim();
+    <script>
+        let globalUserName = "Pietro";
+        let globalUserEmail = "pietro@devai.com";
+        let generatedSecretCode = "7788";
+        let chatSessions = [];
+        let activeChatId = null;
+        let attachedImageBase64 = null;
+        let attachedImageName = "";
+
+        function requestVerificationCode() {
+            const name = document.getElementById('inputLoginName').value.trim();
+            const email = document.getElementById('inputLoginEmail').value.trim();
 
             if(!name || !email) {
-                alert('Por favor ingresa tu nombre y correo.');
+                alert('Por favor ingresa tu nombre y correo electrónico.');
+                return;
+            }
+            if(!email.includes('@')) {
+                alert('Ingresa un correo válido.');
                 return;
             }
 
-            currentUserEmail = email;
-            document.getElementById('sidebarName').textContent = name;
-            document.getElementById('welcomeUserName').textContent = name;
-            document.getElementById('sidebarEmail').textContent = email;
-            document.getElementById('sidebarAvatar').textContent = name.charAt(0).toUpperCase();
+            globalUserName = name;
+            globalUserEmail = email;
+
+            // Simulación de envío de correo real con código
+            document.getElementById('sentInfoText').innerHTML = `📬 Código enviado exitosamente a: <b>${email}</b><br>(Código de prueba generado: <b>${generatedSecretCode}</b>)`;
+            document.getElementById('loginCardStep1').style.display = 'none';
+            document.getElementById('loginCardStep2').style.display = 'block';
+        }
+
+        function backToStep1() {
+            document.getElementById('loginCardStep2').style.display = 'none';
+            document.getElementById('loginCardStep1').style.display = 'block';
+        }
+
+        function verifyAndEnterApp() {
+            const codeInput = document.getElementById('inputVerificationCode').value.trim();
+            if(codeInput !== generatedSecretCode) {
+                alert('Código incorrecto. Revisa el código enviado a tu correo.');
+                return;
+            }
+
+            // Actualizar interfaz con datos del usuario
+            document.getElementById('sidebarName').textContent = globalUserName;
+            document.getElementById('welcomeUserName').textContent = globalUserName;
+            document.getElementById('sidebarEmail').textContent = globalUserEmail;
+            document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
 
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('appContainer').style.display = 'flex';
@@ -549,13 +653,47 @@
         function logoutSession() {
             document.getElementById('appContainer').style.display = 'none';
             document.getElementById('loginOverlay').style.display = 'flex';
-            chatHistoryList = [];
+            document.getElementById('loginCardStep2').style.display = 'none';
+            document.getElementById('loginCardStep1').style.display = 'block';
+            document.getElementById('inputVerificationCode').value = '';
+            chatSessions = [];
             activeChatId = null;
         }
 
-        function autoResize(ta) {
-            ta.style.height = 'auto';
-            ta.style.height = ta.scrollHeight + 'px';
+        function openAccountModal() {
+            document.getElementById('modalAccountName').value = globalUserName;
+            document.getElementById('modalAccountEmail').value = globalUserEmail;
+            document.getElementById('accountModal').style.display = 'flex';
+        }
+
+        function closeAccountModal() {
+            document.getElementById('accountModal').style.display = 'none';
+        }
+
+        function saveAccountSettings() {
+            const newName = document.getElementById('modalAccountName').value.trim();
+            const newEmail = document.getElementById('modalAccountEmail').value.trim();
+
+            if(!newName || !newEmail) {
+                alert('Los campos no pueden estar vacíos.');
+                return;
+            }
+
+            globalUserName = newName;
+            globalUserEmail = newEmail;
+
+            document.getElementById('sidebarName').textContent = globalUserName;
+            document.getElementById('welcomeUserName').textContent = globalUserName;
+            document.getElementById('sidebarEmail').textContent = globalUserEmail;
+            document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
+
+            closeAccountModal();
+            alert('✅ Cuenta configurada y actualizada correctamente.');
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
         }
 
         function createNewChat() {
@@ -564,86 +702,106 @@
                 id: newId,
                 title: "Nueva consulta experta",
                 messages: [
-                    { sender: 'ai', text: "Espacio inteligente inicializado. Pregúntame sobre cualquier lenguaje, app o adjunta imágenes de tus diseños y errores para solucionarlos de inmediato." }
+                    { sender: 'ai', text: `Espacio de análisis activo, ${globalUserName}. Pega tus scripts, consulta errores de aplicaciones o adjunta imágenes para una revisión profunda.` }
                 ]
             };
-            chatHistoryList.unshift(chatObj);
+            chatSessions.unshift(chatObj);
             activeChatId = newId;
-            renderSidebarChats();
-            renderActiveChat();
+            renderChatList();
+            renderActiveChatContent();
         }
 
-        function renderSidebarChats() {
+        function renderChatList() {
             const list = document.getElementById('chatsList');
             list.innerHTML = '';
 
-            if(chatHistoryList.length === 0) {
-                list.innerHTML = `<div class="no-chats" id="noChatsMsg">No hay conversaciones recientes.</div>`;
+            if(chatSessions.length === 0) {
+                list.innerHTML = `<div class="no-chats" id="noChatsMsg">No hay chats recientes.</div>`;
                 return;
             }
 
-            chatHistoryList.forEach(chat => {
+            chatSessions.forEach(chat => {
                 const item = document.createElement('div');
                 item.className = `chat-item ${chat.id === activeChatId ? 'active' : ''}`;
                 item.textContent = chat.title;
                 item.onclick = () => {
                     activeChatId = chat.id;
-                    renderSidebarChats();
-                    renderActiveChat();
+                    renderChatList();
+                    renderActiveChatContent();
                 };
                 list.appendChild(item);
             });
         }
 
-        function renderActiveChat() {
+        function renderActiveChatContent() {
             const container = document.getElementById('chatContainer');
             container.innerHTML = '';
 
-            const current = chatHistoryList.find(c => c.id === activeChatId);
-            if(!current) return;
+            const currentChat = chatSessions.find(c => c.id === activeChatId);
+            if(!currentChat) return;
 
-            current.messages.forEach(msg => {
-                const row = document.createElement('div');
-                row.className = `message-row ${msg.sender}`;
+            document.getElementById('currentChatTitle').textContent = `Chat: ${currentChat.title}`;
 
-                const avatar = document.createElement('div');
-                avatar.className = `avatar-bubble ${msg.sender === 'ai' ? 'ai-avatar' : 'user-avatar-msg'}`;
-                avatar.textContent = msg.sender === 'ai' ? 'AI' : 'U';
+            currentChat.messages.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = `message ${msg.sender === 'user' ? 'user-message' : 'ai-message'}`;
 
-                const content = document.createElement('div');
-                content.className = 'message-content';
-
-                let htmlContent = '';
+                let html = '';
                 if(msg.image) {
-                    htmlContent += `<img src="${msg.image}" class="msg-img" alt="adjunto">`;
+                    html += `<img src="${msg.image}" class="msg-img" alt="adjunto">`;
                 }
-                htmlContent += `<div>${msg.text}</div>`;
-                content.innerHTML = htmlContent;
-
-                row.appendChild(avatar);
-                row.appendChild(content);
-                container.appendChild(row);
+                html += `<div>${msg.text}</div>`;
+                div.innerHTML = html;
+                container.appendChild(div);
             });
             container.scrollTop = container.scrollHeight;
         }
 
-        function processImageUpload(e) {
+        function clearCurrentChatHistory() {
+            const currentChat = chatSessions.find(c => c.id === activeChatId);
+            if(currentChat) {
+                currentChat.messages = [
+                    { sender: 'ai', text: "Historial limpiado. ¿Qué deseas analizar o programar ahora?" }
+                ];
+                renderActiveChatContent();
+            }
+        }
+
+        function exportCurrentChat() {
+            const currentChat = chatSessions.find(c => c.id === activeChatId);
+            if(!currentChat) return;
+
+            let exportText = `--- CONVERSACIÓN DEVAI: ${currentChat.title} ---\n\n`;
+            currentChat.messages.forEach(m => {
+                exportText += `[${m.sender.toUpperCase()}]: ${m.text}\n\n`;
+            });
+
+            const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `DevAI_Export_${Date.now()}.txt`;
+            a.click();
+        }
+
+        function handleImageUpload(e) {
             const file = e.target.files[0];
             if(!file) return;
-            activeImageName = file.name;
+
+            attachedImageName = file.name;
             const reader = new FileReader();
             reader.onload = function(evt) {
-                activeImageBase64 = evt.target.result;
-                document.getElementById('tagThumb').src = activeImageBase64;
+                attachedImageBase64 = evt.target.result;
+                document.getElementById('tagThumb').src = attachedImageBase64;
                 document.getElementById('tagName').textContent = file.name;
                 document.getElementById('imageTagContainer').style.display = 'flex';
             };
             reader.readAsDataURL(file);
         }
 
-        function clearImage() {
-            activeImageBase64 = null;
-            activeImageName = "";
+        function removeAttachedImage() {
+            attachedImageBase64 = null;
+            attachedImageName = "";
             document.getElementById('imageUploader').value = "";
             document.getElementById('imageTagContainer').style.display = 'none';
         }
@@ -651,49 +809,47 @@
         function sendMessage() {
             const input = document.getElementById('userInput');
             const text = input.value.trim();
-            const img = activeImageBase64;
+            const currentImg = attachedImageBase64;
 
-            if(text === '' && !img) return;
+            if(text === '' && !currentImg) return;
 
-            const activeChat = chatHistoryList.find(c => c.id === activeChatId);
+            const activeChat = chatSessions.find(c => c.id === activeChatId);
             if(activeChat) {
                 if(activeChat.title === "Nueva consulta experta" && text !== '') {
-                    activeChat.title = text.length > 24 ? text.substring(0, 22) + '...' : text;
-                    renderSidebarChats();
+                    activeChat.title = text.length > 22 ? text.substring(0, 20) + '...' : text;
+                    renderChatList();
                 }
-                activeChat.messages.push({ sender: 'user', text: text, image: img });
+                activeChat.messages.push({ sender: 'user', text: text, image: currentImg });
             }
 
             input.value = '';
             input.style.height = 'auto';
-            clearImage();
-            renderActiveChat();
+            removeAttachedImage();
+            renderActiveChatContent();
 
-            // Simulación Inteligente Multitarea Estilo LLM Pro
+            // Simulación de Inteligencia Reeee Potente y Análisis Profundo
             setTimeout(() => {
-                let aiReply = "";
-                const lowerText = text.toLowerCase();
+                let aiResponse = "";
+                const lower = text.toLowerCase();
 
-                if(img) {
-                    aiReply = `🔍 **Análisis Visual Avanzado completado:** He escaneado tu imagen con precisión de red neuronal. He identificado los elementos clave y la interfaz o error presente. Aquí tienes la solución analítica optimizada:<br><pre>// Análisis corregido y optimizado por DevAI Vision Engine\nfunction resolveVisualBug() {\n    const stability = 1.0;\n    return \"Error neutralizado con éxito\";\n}</pre>`;
-                } else if(lowerText.includes('roblox') || lowerText.includes('lua') || lowerText.includes('script')) {
-                    aiReply = `⚡ **Análisis y Script Experto en Roblox Luau:**<br><pre>-- Módulo avanzado optimizado para rendimiento\nlocal Players = game:GetService('Players')\n\nPlayers.PlayerAdded:Connect(function(player)\n    print(\"[DevAI Pro] Jugador conectado de forma segura: \" .. player.Name)\nend)</pre>`;
-                } else if(lowerText.includes('python') || lowerText.includes('automatizacion') || lowerText.includes('bot')) {
-                    aiReply = `⚡ **Lógica y Arquitectura Python Pro:**<br><pre>import sys\nimport time\n\ndef run_expert_routine():\n    print(\"[DevAI] Procesamiento lógico ejecutado sin interrupciones.\")\n\nif __name__ == '__main__':\n    run_expert_routine()</pre>`;
-                } else if(lowerText.includes('unity') || lowerText.includes('c#')) {
-                    aiReply = `⚡ **Estructura C# para Unity:**<br><pre>using UnityEngine;\n\npublic class ExpertManager : MonoBehaviour {\n    void Start() {\n        Debug.Log(\"Entorno Unity inicializado correctamente.\");\n    }\n}</pre>`;
+                if(currentImg) {
+                    aiResponse = `🔍 **Análisis Visual y Estructural Profundo:** He examinado minuciosamente la imagen adjunta. He escaneado las líneas de código, la interfaz y los posibles puntos de fallo o colisión lógica. Aquí tienes la revisión y depuración exacta:<br><pre>-- Análisis corregido por el Núcleo Neural Pro\nlocal visionCore = script.Parent\nprint(\"[DevAI Analysis] Imagen procesada con éxito. Estabilidad al 100%.\")</pre>`;
+                } else if(lower.includes('roblox') || lower.includes('lua') || lower.includes('script')) {
+                    aiResponse = `⚡ **Análisis y Generación de Script en Roblox Luau:**<br><pre>-- Script optimizado con arquitectura de alto rendimiento\nlocal ReplicatedStorage = game:GetService(\"ReplicatedStorage\")\nlocal Players = game:GetService(\"Players\")\n\nPlayers.PlayerAdded:Connect(function(player)\n    print(\"[DevAI Studio] Configurando entorno para: \" .. player.Name)\nend)</pre>`;
+                } else if(lower.includes('python') || lower.includes('bot') || lower.includes('codigo')) {
+                    aiResponse = `⚡ **Revisión y Estructura en Python Pro:**<br><pre>import sys\nimport time\n\ndef evaluate_architecture():\n    print(\"[DevAI Neural] Código analizado. Sin cuellos de botella detectados.\")\n\nif __name__ == '__main__':\n    evaluate_architecture()</pre>`;
                 } else {
-                    aiReply = `💡 **Análisis Experto Integral:** He procesado tu consulta desde una perspectiva multidisciplinaria. Para resolverlo de manera óptima, te recomiendo estructurar la lógica dividiendo el problema en componentes modulares. Si necesitas que genere un script largo específico para cualquier entorno (Godot, Unreal, Blender, etc.) o analice otra captura, indícamelo y lo desarrollaremos al instante.`;
+                    aiResponse = `💡 **Revisión Experta Multitarea:** He procesado y pensado cada aspecto de tu solicitud con máxima potencia. He verificado la consistencia lógica y la viabilidad del código o problema planteado. Si necesitas profundizar en algún parámetro, refactorizar un script largo o analizar otra captura, indícalo y lo optimizaré al instante.`;
                 }
 
                 if(activeChat) {
-                    activeChat.messages.push({ sender: 'ai', text: aiReply, image: null });
+                    activeChat.messages.push({ sender: 'ai', text: aiResponse, image: null });
                 }
-                renderActiveChat();
-            }, 700);
+                renderActiveChatContent();
+            }, 800);
         }
 
-        function handleKey(e) {
+        function handleKeyPress(e) {
             if(e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 sendMessage();
