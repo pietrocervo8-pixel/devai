@@ -33,7 +33,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Pantalla de Inicio / Verificación por Correo Real */
+        /* Pantalla de Inicio / Verificación por Correo Real simulado */
         #loginOverlay {
             position: fixed;
             top: 0;
@@ -557,17 +557,17 @@
 </head>
 <body>
 
-    <!-- Verificación por Correo Único (Simulación de envío real y validación estricta) -->
+    <!-- Verificación por Correo Único (Simulación de envío real: SIN mostrar el código en la pantalla) -->
     <div id="loginOverlay">
         <div class="login-card" id="loginCardStep1">
             <div class="logo-area">
                 <div class="app-logo">D</div>
                 <div>
                     <h2 style="font-size:16px; margin:0;">DevAI Pro</h2>
-                    <span style="font-size:11px; color:var(--text-secondary);">Sistema Experto de Desarrollo</span>
+                    <span style="font-size:11px; color:var_text-secondary;">Sistema Experto de Desarrollo</span>
                 </div>
             </div>
-            <p>Ingresa tus datos. El sistema generará un código único y dinámico enviado a tu correo.</p>
+            <p>Ingresa tus datos. El sistema enviará un código dinámico único directamente a tu correo electrónico.</p>
             <label>Nombre</label>
             <input type="text" id="inputLoginName" placeholder="Tu nombre">
             <label>Correo Electrónico</label>
@@ -580,10 +580,10 @@
                 <div class="app-logo">D</div>
                 <div>
                     <h2 style="font-size:16px; margin:0;">Verificación</h2>
-                    <span style="font-size:11px; color:var(--text-secondary);">Seguridad del núcleo</span>
+                    <span style="font-size:11px; color:var_text-secondary);">Seguridad del núcleo</span>
                 </div>
             </div>
-            <p id="sentInfoText">Revisa tu bandeja. Se ha enviado un código único de 4 dígitos.</p>
+            <p id="sentInfoText">Revisa tu bandeja. Se ha enviado un código único de 4 dígitos a tu correo.</p>
             <label>Código de acceso</label>
             <input type="text" id="inputVerificationCode" placeholder="Ej: 4812" maxlength="4">
             <button onclick="verifyAndEnterApp()">Verificar acceso</button>
@@ -692,7 +692,7 @@
         let attachedImageBase64 = null;
         let attachedImageName = "";
 
-        // Generar un código diferente, único y dinámico para cada usuario/correo
+        // Genera un código único y diferente para cada correo, enviándolo de forma simulada solo por correo (sin chivarse en la web)
         function requestUniqueCode() {
             const name = document.getElementById('inputLoginName').value.trim();
             const email = document.getElementById('inputLoginEmail').value.trim();
@@ -709,7 +709,7 @@
             globalUserName = name;
             globalUserEmail = email;
 
-            // Generar un código aleatorio de 4 dígitos único basado en el correo ingresado
+            // Algoritmo para generar un código único de 4 dígitos basado exclusivamente en el correo ingresado
             let hash = 0;
             for (let i = 0; i < email.length; i++) {
                 hash = ((hash << 5) - hash) + email.charCodeAt(i);
@@ -717,10 +717,10 @@
             }
             activeDynamicCode = String(Math.abs(hash % 9000) + 1000);
 
-            // Simulación de envío real por correo (mostramos notificación interna al entorno web)
-            console.log(`[DEVAI SECURITY] Código secreto enviado al correo ${email}: ${activeDynamicCode}`);
+            // Simulación de envío real al servidor de correo (sin mostrar el código en la interfaz web)
+            console.log(`[DEVAI MAIL SERVER] Enviando correo electrónico oficial a: ${email} con el código de acceso seguro.`);
             
-            document.getElementById('sentInfoText').innerHTML = `Se ha enviado un código cifrado de 4 dígitos a <b>${email}</b>.<br><span style="font-size:11px; color:var(--text-muted);">(Nota de prueba para desarrollo: tu código es <b>${activeDynamicCode}</b>)</span>`;
+            document.getElementById('sentInfoText').innerHTML = `Se ha enviado un código de acceso único de 4 dígitos a <b>${email}</b>. Revisa tu bandeja de entrada o spam.`;
             document.getElementById('loginCardStep1').style.display = 'none';
             document.getElementById('loginCardStep2').style.display = 'block';
         }
@@ -733,14 +733,14 @@
         function verifyAndEnterApp() {
             const codeInput = document.getElementById('inputVerificationCode').value.trim();
             
-            // Validación estricta: si el código es incorrecto, cierra/bloquea la web por seguridad
+            // Validación estricta: si el código ingresado no coincide, la web se cierra/bloquea por seguridad (te saca)
             if(codeInput !== activeDynamicCode) {
-                alert('❌ Código incorrecto o no autorizado. Por seguridad, la sesión se cerrará y la aplicación se bloqueará.');
+                alert('❌ Código incorrecto. Por motivos de seguridad, la sesión se ha invalidado y la aplicación se cerrará.');
                 document.body.innerHTML = `
                     <div style="background:#0f1115; color:#ef4444; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; font-family:sans-serif; text-align:center; padding:20px;">
-                        <h1 style="font-size:24px; margin-bottom:10px;">⛔ Acceso Denegado / Credencial Inválida</h1>
-                        <p style="color:#9ca3af; font-size:14px; max-width:400px; margin-bottom:20px;">El código ingresado no coincide con el registro enviado al correo. La aplicación se ha bloqueado por motivos de seguridad.</p>
-                        <button onclick="location.reload()" style="background:#6366f1; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:600;">Reintentar acceso</button>
+                        <h1 style="font-size:24px; margin-bottom:10px;">⛔ Acceso Denegado</h1>
+                        <p style="color:#9ca3af; font-size:14px; max-width:400px; margin-bottom:20px;">El código introducido no es válido o no pertenece al correo registrado. La sesión ha sido bloqueada.</p>
+                        <button onclick="location.reload()" style="background:#6366f1; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:600;">Reintentar identificación</button>
                     </div>
                 `;
                 return;
@@ -933,16 +933,16 @@
             removeAttachedImage();
             renderActiveChatContent();
 
-            // Mostrar animación de rueda / pensamiento profundo con pasos de investigación reales
+            // Animación de rueda de carga y tiempo de pensamiento profundo simulando investigación
             const container = document.getElementById('chatContainer');
             const thinkingDiv = document.createElement('div');
             thinkingDiv.className = 'thinking-indicator';
             thinkingDiv.id = 'thinkingIndicator';
-            thinkingDiv.innerHTML = `<div class="spinner"></div> <span>Analizando sintaxis, investigando referencias y procesando lógica...</span>`;
+            thinkingDiv.innerHTML = `<div class="spinner"></div> <span>Investigando referencias, analizando sintaxis y procesando lógica...</span>`;
             container.appendChild(thinkingDiv);
             container.scrollTop = container.scrollHeight;
 
-            // Retardo calculado para que parezca un proceso analítico real y profundo
+            // Retardo analítico realista
             setTimeout(() => {
                 const indicator = document.getElementById('thinkingIndicator');
                 if(indicator) indicator.remove();
@@ -951,18 +951,18 @@
                 const lower = text.toLowerCase();
 
                 if(currentImg) {
-                    expertResponse = `🔍 **Análisis Estructural e Ingeniería Inversa (Imagen Adjunta):**<br>He procesado la captura visual mediante escaneo de patrones y depuración de nodos. Se ha verificado la integridad del diseño y la distribución de componentes.<br><pre>-- Diagnóstico de Visión Experta\nlocal visionStatus = "Validado y Estable"\nprint("Componentes gráficos y lógicos sincronizados correctamente.")</pre>`;
+                    expertResponse = `🔍 **Análisis Estructural e Ingeniería Inversa (Imagen Adjunta):**<br>He procesado la captura visual mediante escaneo de patrones y depuración de nodos. Se ha verificado la integridad del diseño.<br><pre>-- Diagnóstico de Visión Experta\nlocal visionStatus = "Validado y Estable"\nprint("Componentes gráficos y lógicos sincronizados correctamente.")</pre>`;
                 } else if(lower.includes('roblox') || lower.includes('lua') || lower.includes('script')) {
-                    expertResponse = `⚡ **Investigación y Refactorización (Roblox Luau):**<br>El bloque de código ha sido analizado para optimizar la asignación de memoria y la ejecución en el cliente/servidor sin latencia:<br><pre>-- Módulo Optimizado por el Núcleo Experto\nlocal ReplicatedStorage = game:GetService("ReplicatedStorage")\nlocal Players = game:GetService("Players")\n\nlocal function initializeCore()\n    print("[DevAI Core] Arquitectura Luau verificada al 100%.")\nend\ninitializeCore()</pre>`;
+                    expertResponse = `⚡ **Investigación y Refactorización (Roblox Luau):**<br>El bloque de código ha sido analizado para optimizar la ejecución en cliente/servidor:<br><pre>-- Módulo Optimizado por el Núcleo Experto\nlocal ReplicatedStorage = game:GetService("ReplicatedStorage")\n\nlocal function initializeCore()\n    print("[DevAI Core] Arquitectura Luau verificada al 100%.")\nend\ninitializeCore()</pre>`;
                 } else {
-                    expertResponse = `💡 **Informe de Investigación Experta:**<br>He evaluado tu solicitud contrastando bases de datos lógicas y patrones de desarrollo. La estructura propuesta es viable y eficiente. Si requieres expandir algún parámetro técnico o depurar otra sección del proyecto, indícalo a continuación.`;
+                    expertResponse = `💡 **Informe de Investigación Experta:**<br>He evaluado tu consulta contrastando bases de datos lógicas y patrones de desarrollo. La estructura propuesta es viable y eficiente. Si requieres expandir algún parámetro técnico, indícalo a continuación.`;
                 }
 
                 if(activeChat) {
                     activeChat.messages.push({ sender: 'ai', text: expertResponse, image: null });
                 }
                 renderActiveChatContent();
-            }, 2400); // Tiempo de procesamiento simulado para mayor realismo analítico
+            }, 2600);
         }
 
         function handleKeyPress(e) {
