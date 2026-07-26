@@ -3,30 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevAI Ultimate Pro - Neural Core & Vision</title>
+    <title>DevAI Ultimate Pro - Hyper-Intelligence Engine</title>
     <style>
         :root {
-            --bg-primary: #0b0f19;
-            --bg-secondary: #131b2e;
-            --bg-tertiary: #1e293b;
-            --accent-glow: #38bdf8;
-            --accent-purple: #a855f7;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --danger: #f43f5e;
+            --bg-base: #0f1115;
+            --bg-surface: #161920;
+            --bg-card: #1c212c;
+            --border: #262c38;
+            --border-hover: #3b4459;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --accent-glow: rgba(99, 102, 241, 0.25);
+            --text-main: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --danger: #ef4444;
             --success: #10b981;
         }
 
         body {
-            background-color: var(--bg-primary);
+            background-color: var(--bg-base);
             color: var(--text-main);
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
             height: 100vh;
             overflow: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* Pantalla de Inicio / Verificación por Correo */
@@ -36,64 +40,72 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at center, #1e293b 0%, var(--bg-primary) 100%);
+            background: linear-gradient(135deg, #0b0d10 0%, #161920 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 2000;
         }
         .login-card {
-            background: rgba(19, 27, 46, 0.95);
-            backdrop-filter: blur(16px);
-            padding: 40px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            text-align: center;
+            background: var(--bg-surface);
+            padding: 36px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            text-align: left;
             width: 100%;
-            max-width: 420px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.7), 0 0 30px rgba(56, 189, 248, 0.1);
+            max-width: 380px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
         .login-card h2 {
-            color: var(--accent-glow);
-            margin-bottom: 8px;
-            font-size: 24px;
+            color: var(--text-main);
+            margin-top: 0;
+            margin-bottom: 6px;
+            font-size: 20px;
+            font-weight: 600;
         }
         .login-card p {
-            color: var(--text-muted);
+            color: var(--text-secondary);
             font-size: 13px;
             margin-bottom: 24px;
-            line-height: 1.5;
+            line-height: 1.4;
+        }
+        .login-card label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
         }
         .login-card input {
             width: 100%;
-            padding: 14px;
-            margin-bottom: 14px;
-            background-color: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: white;
+            padding: 11px 14px;
+            margin-bottom: 16px;
+            background-color: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
             box-sizing: border-box;
-            font-size: 14px;
+            font-size: 13px;
         }
         .login-card input:focus {
             outline: none;
-            border-color: var(--accent-glow);
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-glow);
         }
         .login-card button {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--accent-glow), #0284c7);
-            color: #0b0f19;
+            padding: 11px;
+            background-color: var(--accent);
+            color: white;
             border: none;
-            border-radius: 10px;
-            font-weight: 700;
+            border-radius: 8px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 14px;
-            transition: transform 0.2s;
+            font-size: 13px;
+            transition: background 0.15s;
         }
         .login-card button:hover {
-            transform: translateY(-1px);
+            background-color: var(--accent-hover);
         }
 
         /* Estructura Principal */
@@ -104,140 +116,150 @@
             flex-direction: row;
         }
 
-        /* Barra Lateral Avanzada */
+        /* Barra Lateral Limpia */
         sidebar {
-            width: 280px;
-            background-color: var(--bg-secondary);
-            border-right: 1px solid var(--border-color);
+            width: 260px;
+            background-color: var(--bg-surface);
+            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 16px;
+            padding: 14px;
             box-sizing: border-box;
         }
         .sidebar-top {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
             flex: 1;
             overflow: hidden;
         }
         .sidebar-brand {
-            font-size: 17px;
-            font-weight: 800;
-            color: var(--accent-glow);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            padding: 8px 10px;
             margin-bottom: 6px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         .sidebar-btn {
-            background-color: var(--bg-tertiary);
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            padding: 11px 14px;
-            border-radius: 10px;
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: none;
+            padding: 9px 10px;
+            border-radius: 6px;
             text-align: left;
             cursor: pointer;
             font-size: 13px;
             font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 10px;
-            transition: all 0.2s;
+            gap: 8px;
+            transition: background 0.1s, color 0.1s;
         }
         .sidebar-btn:hover {
-            background-color: #26334d;
-            border-color: var(--accent-glow);
+            background-color: var(--bg-card);
+            color: var(--text-main);
         }
         .chats-title {
             font-size: 11px;
             color: var(--text-muted);
-            font-weight: 700;
-            padding: 12px 6px 4px 6px;
-            letter-spacing: 1px;
+            font-weight: 600;
+            padding: 16px 10px 6px 10px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
         }
         .chats-list {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
             overflow-y: auto;
             flex: 1;
         }
         .chats-list::-webkit-scrollbar {
-            width: 4px;
+            width: 3px;
         }
         .chats-list::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
+            background: var(--border);
+            border-radius: 3px;
         }
         .chat-item {
             font-size: 13px;
-            color: var(--text-muted);
-            padding: 10px 12px;
-            border-radius: 8px;
+            color: var(--text-secondary);
+            padding: 8px 10px;
+            border-radius: 6px;
             cursor: pointer;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            transition: all 0.2s;
+            transition: background 0.1s, color 0.1s;
         }
         .chat-item:hover {
-            background-color: var(--bg-tertiary);
+            background-color: var(--bg-card);
             color: var(--text-main);
         }
         .chat-item.active {
-            background-color: var(--bg-tertiary);
-            color: var(--accent-glow);
-            border: 1px solid var(--border-color);
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            font-weight: 500;
         }
         .no-chats {
             font-size: 12px;
             color: var(--text-muted);
-            padding: 8px;
-            font-style: italic;
+            padding: 10px;
         }
 
-        /* Footer Sidebar (Perfil y Botón Configurar) */
+        /* Footer Sidebar */
         .sidebar-footer {
-            border-top: 1px solid var(--border-color);
-            padding-top: 12px;
+            border-top: 1px solid var(--border);
+            padding-top: 10px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 4px;
         }
         .user-profile-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 6px 8px;
+            border-radius: 6px;
+        }
+        .user-profile-row:hover {
+            background-color: var(--bg-card);
         }
         .user-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            overflow: hidden;
         }
         .user-avatar {
-            width: 34px;
-            height: 34px;
-            background: linear-gradient(135deg, var(--accent-glow), var(--accent-purple));
+            width: 28px;
+            height: 28px;
+            background-color: var(--accent);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            color: #0b0f19;
-            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            font-size: 12px;
+            flex-shrink: 0;
         }
         .user-meta-name {
-            font-weight: 600;
+            font-weight: 500;
             color: var(--text-main);
-            font-size: 13px;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .user-meta-email {
             color: var(--text-muted);
-            font-size: 11px;
-            max-width: 120px;
+            font-size: 10px;
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -247,183 +269,177 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            background-color: var(--bg-primary);
+            background-color: var(--bg-base);
             height: 100%;
         }
         header {
-            padding: 14px 24px;
-            border-bottom: 1px solid var(--border-color);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: var(--bg-secondary);
+            background-color: var(--bg-surface);
         }
         .header-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--accent-glow);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--success);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--success);
+        .header-title b {
+            color: var(--text-main);
         }
 
         .chat-container {
             flex: 1;
             overflow-y: auto;
-            padding: 30px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            max-width: 900px;
+            gap: 16px;
+            max-width: 760px;
             width: 100%;
             margin: 0 auto;
             box-sizing: border-box;
         }
         .message {
-            padding: 16px 20px;
-            border-radius: 12px;
-            max-width: 85%;
-            font-size: 14px;
-            line-height: 1.6;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            padding: 12px 16px;
+            border-radius: 10px;
+            max-width: 88%;
+            font-size: 13px;
+            line-height: 1.5;
             word-break: break-word;
         }
         .ai-message {
-            background-color: var(--bg-secondary);
+            background-color: var(--bg-surface);
             color: var(--text-main);
             align-self: flex-start;
-            border: 1px solid var(--border-color);
-            border-left: 4px solid var(--accent-glow);
+            border: 1px solid var(--border);
         }
         .user-message {
-            background: linear-gradient(135deg, #0284c7, #0369a1);
+            background-color: var(--accent);
             color: white;
             align-self: flex-end;
         }
         .msg-img {
-            max-width: 260px;
-            max-height: 200px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+            max-width: 220px;
+            max-height: 160px;
+            border-radius: 6px;
+            margin-bottom: 8px;
             display: block;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border);
         }
         pre {
-            background: #050811;
-            padding: 16px;
-            border-radius: 8px;
+            background: var(--bg-base);
+            padding: 12px;
+            border-radius: 6px;
             overflow-x: auto;
-            border: 1px solid var(--border-color);
-            color: var(--accent-glow);
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 13px;
-            margin-top: 12px;
-            line-height: 1.5;
+            border: 1px solid var(--border);
+            color: #a5b4fc;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 12px;
+            margin-top: 8px;
+            line-height: 1.4;
         }
 
-        /* Área de Input Inteligente */
+        /* Área de Input */
         .input-area-wrapper {
-            padding: 20px;
-            background-color: var(--bg-primary);
-            border-top: 1px solid var(--border-color);
+            padding: 16px 24px 20px 24px;
+            background-color: var(--bg-base);
             display: flex;
             justify-content: center;
         }
         .input-box {
-            max-width: 900px;
+            max-width: 760px;
             width: 100%;
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 10px 14px;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 12px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.4);
-            transition: border-color 0.2s;
+            gap: 6px;
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
         .input-box:focus-within {
-            border-color: var(--accent-glow);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-glow);
         }
         .textarea-wrapper textarea {
             width: 100%;
             background: transparent;
             border: none;
-            color: white;
-            font-size: 14px;
+            color: var(--text-main);
+            font-size: 13px;
             outline: none;
             resize: none;
-            max-height: 140px;
+            max-height: 120px;
             font-family: inherit;
         }
         .input-bottom-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-top: 1px solid var(--border-color);
-            padding-top: 8px;
+            border-top: 1px solid var(--border);
+            padding-top: 6px;
         }
         .tools-group {
             display: flex;
-            gap: 10px;
+            gap: 6px;
             align-items: center;
         }
         .tool-btn {
             background: transparent;
             border: none;
-            color: var(--text-muted);
+            color: var(--text-secondary);
             cursor: pointer;
-            font-size: 13px;
-            padding: 6px 10px;
-            border-radius: 8px;
+            font-size: 12px;
+            padding: 5px 8px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            transition: background 0.2s, color 0.2s;
+            gap: 5px;
+            transition: background 0.1s, color 0.1s;
         }
         .tool-btn:hover {
-            background: var(--bg-tertiary);
-            color: var(--accent-glow);
+            background: var(--bg-card);
+            color: var(--text-main);
         }
         .attachment-tag {
             display: none;
             align-items: center;
-            gap: 6px;
-            background: var(--bg-tertiary);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            color: var(--accent-glow);
+            gap: 5px;
+            background: var(--bg-card);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: var(--text-main);
+            border: 1px solid var(--border);
         }
         .attachment-tag img {
-            width: 22px;
-            height: 22px;
+            width: 18px;
+            height: 18px;
             object-fit: cover;
-            border-radius: 4px;
+            border-radius: 3px;
         }
         .send-btn {
-            background: linear-gradient(135deg, var(--accent-glow), #0284c7);
-            color: #0b0f19;
+            background: var(--accent);
+            color: white;
             border: none;
-            border-radius: 8px;
-            padding: 8px 18px;
-            font-weight: 700;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 13px;
-            transition: opacity 0.2s;
+            font-size: 12px;
+            transition: background 0.1s;
         }
         .send-btn:hover {
-            opacity: 0.9;
+            background: var(--accent-hover);
         }
 
-        /* Modal Genérico (Configurar Cuenta / Ajustes) */
+        /* Modal Modificado */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -431,166 +447,164 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
             justify-content: center;
             align-items: center;
             z-index: 3000;
         }
         .modal-card {
-            background: var(--bg-secondary);
-            padding: 35px;
-            border-radius: 18px;
-            border: 1px solid var(--border-color);
-            max-width: 420px;
+            background: var(--bg-surface);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            max-width: 380px;
             width: 100%;
             box-sizing: border-box;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
         .modal-card h3 {
-            color: var(--accent-glow);
+            color: var(--text-main);
             margin-top: 0;
-            font-size: 20px;
-            margin-bottom: 15px;
+            font-size: 16px;
+            margin-bottom: 14px;
+            font-weight: 600;
         }
         .modal-card label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 600;
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .modal-card input {
             width: 100%;
-            padding: 12px;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: white;
-            font-size: 14px;
+            padding: 10px;
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-main);
+            font-size: 13px;
             box-sizing: border-box;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         .modal-card input:focus {
             outline: none;
-            border-color: var(--accent-glow);
+            border-color: var(--accent);
         }
         .modal-buttons {
             display: flex;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 8px;
+            margin-top: 6px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Pantalla de Login con Envío de Código al Correo -->
+    <!-- Verificación por Correo -->
     <div id="loginOverlay">
         <div class="login-card" id="loginCardStep1">
-            <h2>🔐 Verificación por Correo</h2>
-            <p>Ingresa tu cuenta para recibir el código de acceso automatizado del núcleo experto.</p>
-            <input type="text" id="inputLoginName" placeholder="Tu Nombre (Ej. Pietro)">
-            <input type="email" id="inputLoginEmail" placeholder="tucorreo@domain.com">
-            <button onclick="requestVerificationCode()">Enviar Código al Correo ✉️</button>
+            <h2>Acceso a DevAI</h2>
+            <p>Introduce tu correo para recibir el código de verificación de seguridad.</p>
+            <label>Nombre</label>
+            <input type="text" id="inputLoginName" placeholder="Tu nombre">
+            <label>Correo Electrónico</label>
+            <input type="email" id="inputLoginEmail" placeholder="correo@ejemplo.com">
+            <button onclick="requestVerificationCode()">Continuar</button>
         </div>
 
         <div class="login-card" id="loginCardStep2" style="display:none;">
-            <h2>📬 Código Enviado</h2>
-            <p id="sentInfoText">Hemos enviado un código de 4 dígitos a tu correo.</p>
-            <input type="text" id="inputVerificationCode" placeholder="Ingresa el código (Ej: 7788)" maxlength="4">
-            <button onclick="verifyAndEnterApp()">Validar y Acceder 🚀</button>
-            <button onclick="backToStep1()" style="background:transparent; border:none; color:var(--text-muted); margin-top:12px; cursor:pointer; font-size:12px; text-decoration:underline;">Volver atrás</button>
+            <h2>Verificar código</h2>
+            <p id="sentInfoText">Se ha enviado un código de 4 dígitos a tu bandeja.</p>
+            <label>Código de acceso</label>
+            <input type="text" id="inputVerificationCode" placeholder="Ej: 7788" maxlength="4">
+            <button onclick="verifyAndEnterApp()">Verificar y entrar</button>
+            <button onclick="backToStep1()" style="background:transparent; border:none; color:var(--text-secondary); margin-top:10px; cursor:pointer; font-size:12px; text-decoration:underline; width:100%;">Volver</button>
         </div>
     </div>
 
     <!-- Interfaz Principal -->
     <div id="appContainer">
-        <!-- Sidebar Avanzada -->
         <sidebar>
             <div class="sidebar-top">
-                <div class="sidebar-brand">⚡ DevAI Ultimate Pro</div>
+                <div class="sidebar-brand">⚡ DevAI Pro</div>
                 
-                <button class="sidebar-btn" onclick="createNewChat()"><span>➕</span> Nuevo Chat Experto</button>
-                <button class="sidebar-btn" onclick="clearCurrentChatHistory()"><span>🧹</span> Limpiar Conversación</button>
-                <button class="sidebar-btn" onclick="exportCurrentChat()"><span>💾</span> Exportar Código / Chat</button>
+                <button class="sidebar-btn" onclick="createNewChat()"><span>＋</span> Nuevo chat</button>
+                <button class="sidebar-btn" onclick="clearCurrentChatHistory()"><span>⟳</span> Limpiar chat</button>
+                <button class="sidebar-btn" onclick="exportCurrentChat()"><span>↓</span> Exportar registro</button>
                 
-                <div class="chats-title">Historial Inteligente</div>
+                <div class="chats-title">Conversaciones</div>
                 <div class="chats-list" id="chatsList">
-                    <div class="no-chats" id="noChatsMsg">No hay chats recientes.</div>
+                    <div class="no-chats" id="noChatsMsg">Sin chats recientes.</div>
                 </div>
             </div>
 
-            <!-- Footer con Perfil y Configurar Cuenta -->
             <div class="sidebar-footer">
-                <button class="sidebar-btn" onclick="openAccountModal()" style="background:var(--bg-tertiary); border-color:var(--accent-purple);">⚙️ Configurar Cuenta</button>
+                <button class="sidebar-btn" onclick="openAccountModal()"><span>⚙</span> Configurar cuenta</button>
                 <div class="user-profile-row">
                     <div class="user-info">
                         <div class="user-avatar" id="sidebarAvatar">P</div>
-                        <div>
+                        <div style="overflow:hidden;">
                             <div class="user-meta-name" id="sidebarName">Pietro</div>
                             <div class="user-meta-email" id="sidebarEmail">pietro@devai.com</div>
                         </div>
                     </div>
-                    <button onclick="logoutSession()" style="background:transparent; border:none; color:var(--danger); cursor:pointer; font-size:12px; font-weight:600;" title="Cerrar sesión">Salir</button>
+                    <button onclick="logoutSession()" style="background:transparent; border:none; color:var(--text-secondary); cursor:pointer; font-size:11px;" title="Salir">✕</button>
                 </div>
             </div>
         </sidebar>
 
-        <!-- Zona Principal de Chat y Análisis -->
         <div class="main-area">
             <header>
                 <div class="header-title">
-                    <div class="status-dot"></div>
-                    <span id="currentChatTitle">Núcleo Neural Multitarea Activo</span>
+                    <span>Sesión activa:</span> <b id="currentChatTitle">Nuevo chat</b>
                 </div>
-                <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-secondary); padding: 5px 12px; border-radius: 12px; border: 1px solid var(--border-color);">Visión Artificial • Lógica Experta • Roblox & Apps</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">Motor Hiper-Inteligente v4.2</div>
             </header>
 
             <div class="chat-container" id="chatContainer">
                 <div class="message ai-message">
-                    ¡Conexión establecida, <span id="welcomeUserName">Pietro</span>! Mi núcleo neural ha sido optimizado con máxima potencia analítica. Puedo **examinar a fondo cualquier script, imagen adjunta o código que envíes**, detectar fallos estructurales, corregirlos y asistirte en cualquier aplicación de programación, motores de juego o desarrollo. ¿Qué analizamos hoy?
+                    Hola, <span id="welcomeUserName">Pietro</span>. El núcleo hiper-inteligente está activo con capacidad de análisis visual avanzado, refactorización profunda y procesamiento lógico instantáneo. ¿Qué analizamos o programamos hoy?
                 </div>
             </div>
 
-            <!-- Input Inteligente -->
             <div class="input-area-wrapper">
                 <div class="input-box">
                     <div class="textarea-wrapper">
-                        <textarea id="userInput" placeholder="Escribe tu consulta, pega scripts largos o adjunta una captura de error..." rows="1" oninput="autoResize(this)" onkeypress="handleKeyPress(event)"></textarea>
+                        <textarea id="userInput" placeholder="Escribe tu consulta, pega código o adjunta una captura..." rows="1" oninput="autoResize(this)" onkeypress="handleKeyPress(event)"></textarea>
                     </div>
                     
                     <div class="input-bottom-actions">
                         <div class="tools-group">
-                            <!-- Adjuntar Imagen para Análisis Visual -->
-                            <label class="tool-btn" title="Adjuntar captura de pantalla o imagen">
-                                📷 <span>Imagen</span>
+                            <label class="tool-btn" title="Adjuntar imagen">
+                                <span>📎</span> <span>Imagen</span>
                                 <input type="file" id="imageUploader" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
                             </label>
                             <div class="attachment-tag" id="imageTagContainer">
                                 <img id="tagThumb" src="" alt="preview">
                                 <span id="tagName">archivo.png</span>
-                                <span onclick="removeAttachedImage()" style="cursor:pointer; color:var(--danger); font-weight:bold; margin-left:4px;">✕</span>
+                                <span onclick="removeAttachedImage()" style="cursor:pointer; color:var(--danger); font-weight:bold; margin-left:2px;">✕</span>
                             </div>
                         </div>
 
-                        <button class="send-btn" onclick="sendMessage()">Enviar Consulta ⚡</button>
+                        <button class="send-btn" onclick="sendMessage()">Enviar</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Configuración de Cuenta -->
+    <!-- Modal de Configuración -->
     <div class="modal-overlay" id="accountModal">
         <div class="modal-card">
-            <h3>⚙️ Configuración de Cuenta</h3>
-            <label>Nombre de Usuario</label>
-            <input type="text" id="modalAccountName" placeholder="Tu Nombre">
-            <label>Correo Electrónico (Para alertas y códigos)</label>
-            <input type="email" id="modalAccountEmail" placeholder="tucorreo@domain.com">
+            <h3>Configuración de cuenta</h3>
+            <label>Nombre</label>
+            <input type="text" id="modalAccountName">
+            <label>Correo Electrónico</label>
+            <input type="email" id="modalAccountEmail">
             <div class="modal-buttons">
-                <button class="send-btn" onclick="saveAccountSettings()" style="flex:1;">Guardar Cambios</button>
-                <button onclick="closeAccountModal()" style="background:transparent; border:1px solid var(--border-color); color:var(--text-muted); border-radius:8px; padding:10px; cursor:pointer; flex:1;">Cancelar</button>
+                <button class="send-btn" onclick="saveAccountSettings()" style="flex:1;">Guardar</button>
+                <button onclick="closeAccountModal()" style="background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:6px; padding:8px; cursor:pointer; flex:1; font-size:12px;">Cancelar</button>
             </div>
         </div>
     </div>
@@ -609,19 +623,18 @@
             const email = document.getElementById('inputLoginEmail').value.trim();
 
             if(!name || !email) {
-                alert('Por favor ingresa tu nombre y correo electrónico.');
+                alert('Por favor completa todos los campos.');
                 return;
             }
             if(!email.includes('@')) {
-                alert('Ingresa un correo válido.');
+                alert('Introduce un correo válido.');
                 return;
             }
 
             globalUserName = name;
             globalUserEmail = email;
 
-            // Simulación de envío de correo real con código
-            document.getElementById('sentInfoText').innerHTML = `📬 Código enviado exitosamente a: <b>${email}</b><br>(Código de prueba generado: <b>${generatedSecretCode}</b>)`;
+            document.getElementById('sentInfoText').innerHTML = `Código enviado a <b>${email}</b><br>(Código temporal: <b>${generatedSecretCode}</b>)`;
             document.getElementById('loginCardStep1').style.display = 'none';
             document.getElementById('loginCardStep2').style.display = 'block';
         }
@@ -634,11 +647,10 @@
         function verifyAndEnterApp() {
             const codeInput = document.getElementById('inputVerificationCode').value.trim();
             if(codeInput !== generatedSecretCode) {
-                alert('Código incorrecto. Revisa el código enviado a tu correo.');
+                alert('Código incorrecto.');
                 return;
             }
 
-            // Actualizar interfaz con datos del usuario
             document.getElementById('sidebarName').textContent = globalUserName;
             document.getElementById('welcomeUserName').textContent = globalUserName;
             document.getElementById('sidebarEmail').textContent = globalUserEmail;
@@ -688,7 +700,6 @@
             document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
 
             closeAccountModal();
-            alert('✅ Cuenta configurada y actualizada correctamente.');
         }
 
         function autoResize(textarea) {
@@ -700,9 +711,9 @@
             const newId = Date.now();
             const chatObj = {
                 id: newId,
-                title: "Nueva consulta experta",
+                title: "Nuevo chat",
                 messages: [
-                    { sender: 'ai', text: `Espacio de análisis activo, ${globalUserName}. Pega tus scripts, consulta errores de aplicaciones o adjunta imágenes para una revisión profunda.` }
+                    { sender: 'ai', text: `Espacio inicializado, ${globalUserName}. Pega tu código o adjunta capturas para un análisis profundo con hiper-inteligencia.` }
                 ]
             };
             chatSessions.unshift(chatObj);
@@ -716,7 +727,7 @@
             list.innerHTML = '';
 
             if(chatSessions.length === 0) {
-                list.innerHTML = `<div class="no-chats" id="noChatsMsg">No hay chats recientes.</div>`;
+                list.innerHTML = `<div class="no-chats" id="noChatsMsg">Sin chats recientes.</div>`;
                 return;
             }
 
@@ -740,7 +751,7 @@
             const currentChat = chatSessions.find(c => c.id === activeChatId);
             if(!currentChat) return;
 
-            document.getElementById('currentChatTitle').textContent = `Chat: ${currentChat.title}`;
+            document.getElementById('currentChatTitle').textContent = currentChat.title;
 
             currentChat.messages.forEach(msg => {
                 const div = document.createElement('div');
@@ -761,7 +772,7 @@
             const currentChat = chatSessions.find(c => c.id === activeChatId);
             if(currentChat) {
                 currentChat.messages = [
-                    { sender: 'ai', text: "Historial limpiado. ¿Qué deseas analizar o programar ahora?" }
+                    { sender: 'ai', text: "Historial restablecido. ¿Qué deseas verificar?" }
                 ];
                 renderActiveChatContent();
             }
@@ -771,7 +782,7 @@
             const currentChat = chatSessions.find(c => c.id === activeChatId);
             if(!currentChat) return;
 
-            let exportText = `--- CONVERSACIÓN DEVAI: ${currentChat.title} ---\n\n`;
+            let exportText = `--- REGISTRO DEVAI: ${currentChat.title} ---\n\n`;
             currentChat.messages.forEach(m => {
                 exportText += `[${m.sender.toUpperCase()}]: ${m.text}\n\n`;
             });
@@ -780,7 +791,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `DevAI_Export_${Date.now()}.txt`;
+            a.download = `DevAI_Registro_${Date.now()}.txt`;
             a.click();
         }
 
@@ -815,7 +826,7 @@
 
             const activeChat = chatSessions.find(c => c.id === activeChatId);
             if(activeChat) {
-                if(activeChat.title === "Nueva consulta experta" && text !== '') {
+                if(activeChat.title === "Nuevo chat" && text !== '') {
                     activeChat.title = text.length > 22 ? text.substring(0, 20) + '...' : text;
                     renderChatList();
                 }
@@ -827,26 +838,24 @@
             removeAttachedImage();
             renderActiveChatContent();
 
-            // Simulación de Inteligencia Reeee Potente y Análisis Profundo
+            // Simulación de Hiper-Inteligencia Analítica
             setTimeout(() => {
                 let aiResponse = "";
                 const lower = text.toLowerCase();
 
                 if(currentImg) {
-                    aiResponse = `🔍 **Análisis Visual y Estructural Profundo:** He examinado minuciosamente la imagen adjunta. He escaneado las líneas de código, la interfaz y los posibles puntos de fallo o colisión lógica. Aquí tienes la revisión y depuración exacta:<br><pre>-- Análisis corregido por el Núcleo Neural Pro\nlocal visionCore = script.Parent\nprint(\"[DevAI Analysis] Imagen procesada con éxito. Estabilidad al 100%.\")</pre>`;
+                    aiResponse = `Análisis visual completado mediante redes neuronales profundas. Se ha evaluado la estructura y el contenido de la captura adjunta sin detectar anomalías críticas.<br><pre>-- Diagnóstico de Visión Hiper-Inteligente\nlocal status = "Optimizado"\nprint("Estructura visual validada correctamente.")</pre>`;
                 } else if(lower.includes('roblox') || lower.includes('lua') || lower.includes('script')) {
-                    aiResponse = `⚡ **Análisis y Generación de Script en Roblox Luau:**<br><pre>-- Script optimizado con arquitectura de alto rendimiento\nlocal ReplicatedStorage = game:GetService(\"ReplicatedStorage\")\nlocal Players = game:GetService(\"Players\")\n\nPlayers.PlayerAdded:Connect(function(player)\n    print(\"[DevAI Studio] Configurando entorno para: \" .. player.Name)\nend)</pre>`;
-                } else if(lower.includes('python') || lower.includes('bot') || lower.includes('codigo')) {
-                    aiResponse = `⚡ **Revisión y Estructura en Python Pro:**<br><pre>import sys\nimport time\n\ndef evaluate_architecture():\n    print(\"[DevAI Neural] Código analizado. Sin cuellos de botella detectados.\")\n\nif __name__ == '__main__':\n    evaluate_architecture()</pre>`;
+                    aiResponse = `Estructura analizada y optimizada para Roblox Luau:<br><pre>-- Módulo procesado por Hiper-Inteligencia\nlocal ContextService = game:GetService("ReplicatedStorage")\n\nfunction verifyCoreState()\n    print("Núcleo ejecutándose con máxima estabilidad.")\nend\nverifyCoreState()</pre>`;
                 } else {
-                    aiResponse = `💡 **Revisión Experta Multitarea:** He procesado y pensado cada aspecto de tu solicitud con máxima potencia. He verificado la consistencia lógica y la viabilidad del código o problema planteado. Si necesitas profundizar en algún parámetro, refactorizar un script largo o analizar otra captura, indícalo y lo optimizaré al instante.`;
+                    aiResponse = `Consulta evaluada en profundidad por el núcleo hiper-inteligente. La lógica ha sido verificada y no presenta cuellos de botella estructurales. ¿Requerieres que profundice en algún componente específico?`;
                 }
 
                 if(activeChat) {
                     activeChat.messages.push({ sender: 'ai', text: aiResponse, image: null });
                 }
                 renderActiveChatContent();
-            }, 800);
+            }, 700);
         }
 
         function handleKeyPress(e) {
