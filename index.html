@@ -3,12 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevAI - Asistente Pro de Programación</title>
+    <title>DevAI Pro - Enterprise Neural Engine</title>
     <style>
+        :root {
+            --bg-primary: #090d16;
+            --bg-secondary: #0f172a;
+            --bg-tertiary: #1e293b;
+            --accent-glow: #38bdf8;
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --danger: #ef4444;
+        }
+
         body {
-            background-color: #0d1117;
-            color: #c9d1d9;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
@@ -23,62 +36,69 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #0d1117;
+            background: radial-gradient(circle at center, #1e293b 0%, var(--bg-primary) 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 2000;
         }
         .login-card {
-            background: #161b22;
-            padding: 40px;
-            border-radius: 12px;
-            border: 1px solid #30363d;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            padding: 45px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
             text-align: center;
             width: 100%;
-            max-width: 400px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            max-width: 420px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(56, 189, 248, 0.1);
         }
         .login-card h2 {
-            color: #58a6ff;
-            margin-bottom: 10px;
+            color: var(--accent-glow);
+            margin-bottom: 8px;
+            font-size: 24px;
+            letter-spacing: -0.5px;
         }
         .login-card p {
-            color: #8b949e;
+            color: var(--text-muted);
             font-size: 13px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         .login-card input {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             margin-bottom: 15px;
-            background-color: #0d1117;
-            border: 1px solid #30363d;
-            border-radius: 6px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             color: white;
             box-sizing: border-box;
             font-size: 14px;
+            transition: all 0.3s ease;
         }
         .login-card input:focus {
             outline: none;
-            border-color: #58a6ff;
+            border-color: var(--accent-glow);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
         }
         .login-card button {
             width: 100%;
-            padding: 12px;
-            background-color: #238636;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent-glow), #0284c7);
             color: white;
             border: none;
-            border-radius: 6px;
-            font-weight: bold;
+            border-radius: 8px;
+            font-weight: 600;
             cursor: pointer;
             font-size: 14px;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         .login-card button:hover {
-            background-color: #2ea043;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
         }
 
-        /* Interfaz Principal con Barra Lateral */
+        /* Interfaz Principal */
         #appContainer {
             display: none;
             width: 100%;
@@ -86,69 +106,132 @@
             flex-direction: row;
         }
 
-        /* Barra Lateral */
+        /* Barra Lateral Pro */
         sidebar {
-            width: 260px;
-            background-color: #161b22;
-            border-right: 1px solid #30363d;
+            width: 280px;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             padding: 20px;
+            box-sizing: border-box;
         }
         .sidebar-top {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
+            flex: 1;
+            overflow: hidden;
         }
         .sidebar-brand {
             font-size: 18px;
-            font-weight: bold;
-            color: #58a6ff;
-            margin-bottom: 10px;
+            font-weight: 800;
+            color: var(--accent-glow);
+            margin-bottom: 5px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            letter-spacing: -0.5px;
         }
         .sidebar-btn {
-            background-color: #21262d;
-            color: #c9d1d9;
-            border: 1px solid #30363d;
-            padding: 10px 14px;
-            border-radius: 6px;
+            background-color: var(--bg-tertiary);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            border-radius: 8px;
             text-align: left;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .sidebar-btn:hover {
-            background-color: #30363d;
+            background-color: #334155;
+            border-color: var(--accent-glow);
+        }
+        
+        /* Botón de Suscripción PRO en la barra lateral */
+        .sidebar-pro-btn {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
             color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 10px;
+        }
+        .sidebar-pro-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+        }
+
+        .chats-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
         }
         .chats-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin-top: 10px;
-            max-height: 250px;
+            gap: 6px;
             overflow-y: auto;
+            flex: 1;
+            padding-right: 4px;
+        }
+        .chats-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .chats-list::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
         }
         .chat-item {
             font-size: 13px;
-            color: #8b949e;
-            padding: 8px;
-            border-radius: 4px;
+            color: var(--text-muted);
+            padding: 10px 12px;
+            border-radius: 6px;
             cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.2s;
+            border: 1px solid transparent;
         }
         .chat-item:hover {
-            background-color: #21262d;
-            color: #c9d1d9;
+            background-color: var(--bg-tertiary);
+            color: var(--text-main);
+        }
+        .chat-item.active {
+            background-color: var(--bg-tertiary);
+            color: var(--accent-glow);
+            border-color: var(--border-color);
+        }
+        .no-chats-msg {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 5px 0;
         }
 
-        /* Perfil Pepito en Sidebar */
+        /* Perfil de Usuario en Sidebar */
         .sidebar-footer {
-            border-top: 1px solid #30363d;
+            border-top: 1px solid var(--border-color);
             padding-top: 15px;
             display: flex;
             align-items: center;
@@ -162,24 +245,28 @@
         .user-avatar {
             width: 36px;
             height: 36px;
-            background-color: #238636;
+            background: linear-gradient(135deg, var(--accent-green), #059669);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             color: white;
+            font-size: 14px;
         }
         .user-details {
             font-size: 13px;
         }
         .user-name {
-            font-weight: bold;
+            font-weight: 600;
             color: white;
         }
         .user-email {
-            color: #8b949e;
+            color: var(--text-muted);
             font-size: 11px;
+            max-width: 130px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* Área de Chat Principal */
@@ -187,32 +274,33 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            background-color: #0d1117;
+            background-color: var(--bg-primary);
             height: 100%;
         }
         header {
-            padding: 15px 25px;
-            border-bottom: 1px solid #30363d;
+            padding: 15px 30px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #161b22;
+            background-color: var(--bg-secondary);
         }
         .header-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #58a6ff;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--accent-glow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .pro-badge {
-            background: linear-gradient(45deg, #f85149, #d29922);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(248,81,73,0.3);
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-green);
         }
+
         .chat-box {
             flex: 1;
             overflow-y: auto;
@@ -220,50 +308,56 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-            max-width: 800px;
+            max-width: 850px;
             width: 100%;
             margin: 0 auto;
             box-sizing: border-box;
         }
         .message {
-            padding: 14px 18px;
-            border-radius: 8px;
+            padding: 16px 20px;
+            border-radius: 12px;
             max-width: 85%;
             font-size: 14px;
             line-height: 1.6;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .ai-message {
-            background-color: #161b22;
-            color: #c9d1d9;
+            background-color: var(--bg-secondary);
+            color: var(--text-main);
             align-self: flex-start;
-            border: 1px solid #30363d;
-            border-left: 4px solid #58a6ff;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-glow);
         }
         .user-message {
-            background-color: #238636;
+            background: linear-gradient(135deg, #0284c7, #0369a1);
             color: white;
             align-self: flex-end;
         }
         .input-area {
             padding: 20px;
-            background-color: #0d1117;
-            border-top: 1px solid #30363d;
+            background-color: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: center;
         }
         .input-wrapper {
-            max-width: 800px;
+            max-width: 850px;
             width: 100%;
             display: flex;
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 8px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
             overflow: hidden;
-            padding: 5px;
+            padding: 6px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            transition: border-color 0.3s;
+        }
+        .input-wrapper:focus-within {
+            border-color: var(--accent-glow);
         }
         .input-wrapper input {
             flex: 1;
-            padding: 12px;
+            padding: 12px 16px;
             background: transparent;
             border: none;
             color: white;
@@ -271,28 +365,30 @@
             outline: none;
         }
         .input-wrapper button {
-            padding: 0 20px;
-            background-color: #238636;
+            padding: 0 24px;
+            background: linear-gradient(135deg, var(--accent-glow), #0284c7);
             color: white;
             border: none;
-            border-radius: 6px;
-            font-weight: bold;
+            border-radius: 8px;
+            font-weight: 600;
             cursor: pointer;
+            transition: opacity 0.2s;
         }
         .input-wrapper button:hover {
-            background-color: #2ea043;
+            opacity: 0.9;
         }
         pre {
-            background: #0d1117;
-            padding: 12px;
-            border-radius: 6px;
+            background: var(--bg-primary);
+            padding: 14px;
+            border-radius: 8px;
             overflow-x: auto;
-            border: 1px solid #30363d;
-            color: #79c0ff;
-            margin-top: 10px;
+            border: 1px solid var(--border-color);
+            color: #38bdf8;
+            margin-top: 12px;
+            font-family: 'Courier New', Courier, monospace;
         }
 
-        /* Modal Suscripción PRO */
+        /* Modal de Suscripción PRO con Pasarela de Tarjeta */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -300,43 +396,101 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
             justify-content: center;
             align-items: center;
             z-index: 3000;
         }
         .modal-content {
-            background: #161b22;
-            padding: 35px;
-            border-radius: 12px;
-            border: 1px solid #30363d;
-            max-width: 420px;
+            background: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            max-width: 450px;
             width: 100%;
             text-align: center;
             box-sizing: border-box;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+            animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes modalPop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
         .modal-content h2 {
-            color: #f85149;
+            color: #ec4899;
             margin-top: 0;
+            font-size: 22px;
         }
-        .price {
-            font-size: 26px;
-            font-weight: bold;
-            color: #58a6ff;
+        .modal-price {
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
             margin: 15px 0;
         }
-        .close-btn {
-            background: #30363d;
+        .modal-price span {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: normal;
+        }
+        .card-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .card-form label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .card-form input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .card-form input:focus {
+            outline: none;
+            border-color: #ec4899;
+        }
+        .card-row {
+            display: flex;
+            gap: 10px;
+        }
+        .pay-btn {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 700;
             cursor: pointer;
             margin-top: 15px;
-            font-weight: bold;
+            font-size: 15px;
+            width: 100%;
+            transition: opacity 0.2s;
         }
-        .close-btn:hover {
-            background: #484f58;
+        .pay-btn:hover {
+            opacity: 0.9;
+        }
+        .close-modal-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 13px;
+            text-decoration: underline;
+        }
+        .close-modal-btn:hover {
+            color: white;
         }
     </style>
 </head>
@@ -345,15 +499,15 @@
     <!-- Pantalla de Login con Bot Verificador -->
     <div id="loginOverlay">
         <div class="login-card">
-            <h2>🤖 DevAI Bot Verification</h2>
-            <p>Ingresa tu correo. Tu Bot personalizado enviará el código de verificación.</p>
+            <h2>🤖 DevAI Verifier Bot</h2>
+            <p>Ingresa tus datos. Tu Bot automatizado procesará el acceso al sistema.</p>
             <input type="text" id="usernameInput" placeholder="Tu Nombre (Ej. Pepito)">
             <input type="email" id="emailInput" placeholder="tucorreo@domain.com">
             <button onclick="triggerBotVerification()">Enviar Código via Bot</button>
             
-            <div id="verifyStep" style="display:none; margin-top:15px;">
-                <input type="text" id="codeVerifyInput" placeholder="Código de 4 dígitos enviado por el Bot">
-                <button onclick="completeLogin()" style="background:#58a6ff;">Validar y Entrar</button>
+            <div id="verifyStep" style="display:none; margin-top:18px;">
+                <input type="text" id="codeVerifyInput" placeholder="Código de 4 dígitos (Prueba: 9988)">
+                <button onclick="completeLogin()" style="background:var(--accent-green); margin-top:5px;">Validar e Ingresar</button>
             </div>
         </div>
     </div>
@@ -363,16 +517,20 @@
         <!-- Barra Lateral Pro -->
         <sidebar>
             <div class="sidebar-top">
-                <div class="sidebar-brand">⚡ DevAI Pro Bot</div>
-                <button class="sidebar-btn" onclick="newChat()">➕ Nuevo Chat</button>
-                <div style="font-size: 12px; color: #8b949e; margin-top: 10px; font-weight: bold;">HISTORIAL DE CHATS</div>
+                <div class="sidebar-brand">⚡ DevAI Enterprise</div>
+                
+                <!-- Botón de Suscripción PRO -->
+                <button class="sidebar-pro-btn" onclick="openProModal()">⭐ Suscribirse a PRO</button>
+
+                <button class="sidebar-btn" onclick="newChat()">➕ Nuevo Chat Inteligente</button>
+                
+                <div class="chats-section-title">Historial de Conversaciones</div>
                 <div class="chats-list" id="chatsList">
-                    <div class="chat-item" onclick="loadChat(1)">Script Roblox Luau Pro</div>
-                    <div class="chat-item" onclick="loadChat(2)">Optimización Python CPU</div>
+                    <div class="no-chats-msg" id="noChatsText">No hay chats activos. ¡Empieza a escribir!</div>
                 </div>
             </div>
 
-            <!-- Cuenta de Pepito en Sidebar -->
+            <!-- Perfil del Usuario en la Barra Lateral -->
             <div class="sidebar-footer">
                 <div class="user-info">
                     <div class="user-avatar" id="userAvatar">P</div>
@@ -381,54 +539,80 @@
                         <div class="user-email" id="profileEmail">pepito@devai.com</div>
                     </div>
                 </div>
-                <button onclick="logout()" style="background:transparent; border:none; color:#f85149; cursor:pointer; font-size:12px;" title="Cerrar sesión">Salir</button>
+                <button onclick="logout()" style="background:transparent; border:none; color:var(--danger); cursor:pointer; font-size:12px; font-weight:600;" title="Cerrar sesión">Salir</button>
             </div>
         </sidebar>
 
         <!-- Zona de Chat Principal -->
         <div class="main-chat-area">
             <header>
-                <div class="header-title" id="currentChatTitle">Chat Activo: DevAI Kernel Híbrido Pro</div>
-                <div class="pro-badge" onclick="openProModal()">⭐ Plan PRO ($9.99/mes)</div>
+                <div class="header-title">
+                    <div class="status-dot"></div>
+                    <span id="currentChatTitle">Neural Kernel: Activo</span>
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); background: var(--bg-tertiary); padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border-color);">Modo Pro Inteligente Habilitado</div>
             </header>
 
             <div class="chat-box" id="chatBox">
                 <div class="message ai-message">
-                    ¡Conexión establecida con éxito, <span id="displayName">Pepito</span>! Soy tu infraestructura optimizada con IA de programación avanzada. ¿Qué motor o script resolvemos hoy?
+                    ¡Conexión neuronal establecida con éxito, <span id="displayName">Pepito</span>! Soy tu núcleo de IA avanzado. Escribe lo que necesites o consulta sobre programación y el sistema gestionará automáticamente tu espacio de trabajo.
                 </div>
             </div>
 
             <div class="input-area">
                 <div class="input-wrapper">
-                    <input type="text" id="userInput" placeholder="Escribe tu consulta de código o motor aquí..." onkeypress="handleKeyPress(event)">
+                    <input type="text" id="userInput" placeholder="Escribe tu consulta o proyecto aquí..." onkeypress="handleKeyPress(event)">
                     <button onclick="sendMessage()">Enviar</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Suscripción PRO -->
+    <!-- Modal de Suscripción PRO con Tarjeta -->
     <div class="modal-overlay" id="proModal">
         <div class="modal-content">
-            <h2>🚀 DevAI Plan PRO</h2>
-            <p>Obtén velocidad de compilación extrema, servidores dedicados y herramientas profesionales ilimitadas para tus videojuegos y desarrollo.</p>
-            <div class="price">$9.99 USD / mes</div>
-            <button style="background:#238636; color:white; border:none; padding:12px 24px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:14px;" onclick="alert('¡Pasarela de pagos PRO conectada con éxito! Próximamente habilitada.')">Suscribirme al Plan PRO</button>
-            <br>
-            <button class="close-btn" onclick="closeProModal()">Cerrar</button>
+            <h2>🚀 Suscripción DevAI PRO</h2>
+            <div class="modal-price">$9.99 USD <span>/ mes</span></div>
+            <p style="color:var(--text-muted); font-size:13px; margin:0 0 15px 0;">Velocidad de compilación ilimitada, servidores de IA dedicados y prioridad total.</p>
+            
+            <div class="card-form">
+                <div>
+                    <label>Nombre del Titular</label>
+                    <input type="text" id="cardName" placeholder="Pepito Pérez">
+                </div>
+                <div>
+                    <label>Número de Tarjeta</label>
+                    <input type="text" id="cardNumber" placeholder="4532 •••• •••• 8890" maxlength="19">
+                </div>
+                <div class="card-row">
+                    <div>
+                        <label>Expiración (MM/AA)</label>
+                        <input type="text" id="cardExp" placeholder="12/28" maxlength="5">
+                    </div>
+                    <div>
+                        <label>CVV / CVC</label>
+                        <input type="password" id="cardCvv" placeholder="123" maxlength="4">
+                    </div>
+                </div>
+                <button class="pay-btn" onclick="processPayment()">Confirmar y Suscribirme</button>
+            </div>
+
+            <button class="close-modal-btn" onclick="closeProModal()">Cancelar / Cerrar</button>
         </div>
     </div>
 
     <script>
         let userEmailStorage = "";
-        let generatedCode = "9988"; // Código simulado que envía tu Bot
+        let generatedCode = "9988"; // Código simulado de verificación del Bot
+        let chatSessions = []; // Empieza totalmente en 0 chats
+        let activeChatId = null;
 
         function triggerBotVerification() {
             const name = document.getElementById('usernameInput').value.trim();
             const email = document.getElementById('emailInput').value.trim();
 
             if(name === '' || email === '') {
-                alert('Por favor ingresa tu nombre y correo.');
+                alert('Por favor ingresa tu nombre y correo electrónico.');
                 return;
             }
 
@@ -438,7 +622,7 @@
             }
 
             userEmailStorage = email;
-            alert('🤖 ¡Bot activado! El código de verificación ha sido despachado hacia tu correo: ' + email + ' (Código de prueba: 9988)');
+            alert('🤖 ¡Bot activado! El código de verificación ha sido enviado a: ' + email + ' (Código de prueba: 9988)');
             document.getElementById('verifyStep').style.display = 'block';
         }
 
@@ -458,6 +642,9 @@
 
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('appContainer').style.display = 'flex';
+            
+            // Renderizar los 0 chats iniciales limpiamente
+            renderChatList();
         }
 
         function logout() {
@@ -467,6 +654,8 @@
             document.getElementById('codeVerifyInput').value = '';
             document.getElementById('emailInput').value = '';
             document.getElementById('usernameInput').value = '';
+            chatSessions = [];
+            activeChatId = null;
         }
 
         function openProModal() {
@@ -477,67 +666,154 @@
             document.getElementById('proModal').style.display = 'none';
         }
 
-        function newChat() {
-            const chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML = `<div class="message ai-message">Nuevo espacio de trabajo iniciado. ¿Qué estructura de código programamos?</div>`;
-            document.getElementById('currentChatTitle').textContent = "Chat Activo: Nuevo Proyecto Pro";
+        function processPayment() {
+            const cardName = document.getElementById('cardName').value.trim();
+            const cardNumber = document.getElementById('cardNumber').value.trim();
+            const cardExp = document.getElementById('cardExp').value.trim();
+            const cardCvv = document.getElementById('cardCvv').value.trim();
+
+            if(cardName === '' || cardNumber === '' || cardExp === '' || cardCvv === '') {
+                alert('Por favor completa todos los campos de tu tarjeta de crédito.');
+                return;
+            }
+
+            alert('✨ ¡Pago procesado con éxito! Tu cuenta ha sido actualizada al Plan PRO Enterprise.');
+            closeProModal();
         }
 
-        function loadChat(id) {
-            const chatBox = document.getElementById('chatBox');
-            if(id === 1) {
-                chatBox.innerHTML = `
-                    <div class="message user-message">Generar script Roblox Luau Pro</div>
-                    <div class="message ai-message">Motor Luau Activo:<br><pre>local part = script.Parent\nwhile true do\n    part.Color = Color3.new(math.random(), math.random(), math.random())\n    task.wait(0.5)\nend</pre></div>
-                `;
-                document.getElementById('currentChatTitle').textContent = "Chat: Script Roblox Luau Pro";
-            } else {
-                chatBox.innerHTML = `
-                    <div class="message user-message">Monitorear memoria en Python</div>
-                    <div class="message ai-message">Script Python Pro:<br><pre>import psutil\nprint('Uso de RAM actual:', psutil.virtual_memory().percent, '%')</pre></div>
-                `;
-                document.getElementById('currentChatTitle').textContent = "Chat: Optimización Python CPU";
+        function newChat() {
+            const newId = Date.now();
+            const newChatObj = {
+                id: newId,
+                title: "Nuevo chat",
+                messages: [
+                    { sender: 'ai', text: "Nuevo espacio de trabajo inteligente inicializado. ¿De qué hablaremos o programaremos hoy?" }
+                ]
+            };
+            chatSessions.unshift(newChatObj);
+            activeChatId = newId;
+            renderChatList();
+            loadChatContent(newId);
+        }
+
+        function renderChatList() {
+            const chatsListContainer = document.getElementById('chatsList');
+            chatsListContainer.innerHTML = '';
+
+            if (chatSessions.length === 0) {
+                chatsListContainer.innerHTML = `<div class="no-chats-msg" id="noChatsText">No hay chats activos. ¡Empieza a escribir!</div>`;
+                return;
             }
+
+            chatSessions.forEach(chat => {
+                const item = document.createElement('div');
+                item.className = `chat-item ${chat.id === activeChatId ? 'active' : ''}`;
+                item.textContent = chat.title;
+                item.onclick = () => loadChatContent(chat.id);
+                chatsListContainer.appendChild(item);
+            });
+        }
+
+        function loadChatContent(id) {
+            activeChatId = id;
+            renderChatList();
+            const chat = chatSessions.find(c => c.id === id);
+            if (!chat) return;
+
+            document.getElementById('currentChatTitle').textContent = `Chat: ${chat.title}`;
+            const chatBox = document.getElementById('chatBox');
+            chatBox.innerHTML = '';
+
+            chat.messages.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = `message ${msg.sender === 'user' ? 'user-message' : 'ai-message'}`;
+                div.innerHTML = msg.text;
+                chatBox.appendChild(div);
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Función inteligente para determinar el nombre del chat basado en el mensaje del usuario
+        function generateSmartChatTitle(userText) {
+            const t = userText.toLowerCase();
+            if (t.includes('roblox') || t.includes('lua') || t.includes('script')) return 'Scripting Roblox Luau';
+            if (t.includes('python') || t.includes('memoria') || t.includes('cpu')) return 'Monitoreo Python';
+            if (t.includes('juego') || t.includes('videojuego') || t.includes('desarrollo')) return 'Desarrollo de Videojuegos';
+            if (t.includes('hola') || t.includes('saludos')) return 'Conversación General';
+            
+            // Si es largo, recortarlo; si no, usar las primeras palabras limpias
+            let cleanTitle = userText.length > 22 ? userText.substring(0, 20) + '...' : userText;
+            return cleanTitle.charAt(0).toUpperCase() + cleanTitle.slice(1);
         }
 
         function sendMessage() {
             const input = document.getElementById('userInput');
             const chatBox = document.getElementById('chatBox');
-            const text = input.value.trim().toLowerCase();
+            const text = input.value.trim();
+            const textLower = text.toLowerCase();
 
             if (text === '') return;
 
+            // Si no hay ningún chat abierto, crear uno automáticamente al primer mensaje
+            if (activeChatId === null || chatSessions.length === 0) {
+                const newId = Date.now();
+                const smartTitle = generateSmartChatTitle(text);
+                const newChatObj = {
+                    id: newId,
+                    title: smartTitle,
+                    messages: []
+                };
+                chatSessions.unshift(newChatObj);
+                activeChatId = newId;
+            } else {
+                // Actualizar el título del chat activo si todavía se llamaba "Nuevo chat"
+                const currentChat = chatSessions.find(c => c.id === activeChatId);
+                if (currentChat && currentChat.title === "Nuevo chat") {
+                    currentChat.title = generateSmartChatTitle(text);
+                }
+            }
+
+            // Registrar mensaje del usuario en el historial del chat activo
+            const activeChat = chatSessions.find(c => c.id === activeChatId);
+            activeChat.messages.push({ sender: 'user', text: text });
+
+            renderChatList();
+
+            // Renderizar burbuja del usuario
             const userDiv = document.createElement('div');
             userDiv.className = 'message user-message';
-            userDiv.textContent = input.value.trim();
+            userDiv.textContent = text;
             chatBox.appendChild(userDiv);
 
             input.value = '';
             chatBox.scrollTop = chatBox.scrollHeight;
 
+            // Respuesta inteligente simulada
             setTimeout(() => {
-                const aiDiv = document.createElement('div');
-                aiDiv.className = 'message ai-message';
-                
                 let responseText = "";
 
-                // Filtro de Inteligencia y Restricción de Programación
-                if (text.includes('cartelera') || text.includes('tarea') || text.includes('dibujo') || text.includes('exposicion') || text.includes('pelicula')) {
+                // Regla estricta solicitada por el usuario sobre tareas/carteleras/dibujos/exposiciones
+                if (textLower.includes('cartelera') || textLower.includes('tarea') || textLower.includes('dibujo') || textLower.includes('exposicion') || textLower.includes('maqueta') || textLower.includes('pelicula')) {
                     responseText = "Fui programado para ayudar a la gente que tenga dificultad en programar.";
-                } else if (text.includes('hola') || text.includes('saludos') || text.includes('buenas')) {
-                    responseText = "¡Hola! Qué gusto saludarte. ¿En qué script, bug o motor de desarrollo te puedo ayudar hoy?";
-                } else if (text.includes('roblox') || text.includes('lua') || text.includes('script')) {
-                    responseText = "Procesando entorno Luau Pro:<br><pre>local part = script.Parent\nwhile true do\n    part.Transparency = math.random()\n    task.wait(1)\nend</pre>";
-                } else if (text.includes('python') || text.includes('memoria') || text.includes('temperatura')) {
-                    responseText = "Generando script analítico en Python:<br><pre>import psutil\nprint('Hardware status: Normal')</pre>";
+                } else if (textLower.includes('hola') || textLower.includes('saludos') || textLower.includes('buenas')) {
+                    responseText = "¡Hola! Qué gusto saludarte en este entorno pro. ¿En qué estructura de código o motor de desarrollo te puedo asistir hoy?";
+                } else if (textLower.includes('roblox') || textLower.includes('lua') || textLower.includes('script')) {
+                    responseText = "Procesando núcleo Luau Pro:<br><pre>local part = script.Parent\nwhile true do\n    part.BrickColor = BrickColor.random()\n    task.wait(0.5)\nend</pre>";
+                } else if (textLower.includes('python') || textLower.includes('codigo') || textLower.includes('programa')) {
+                    responseText = "Generando rutina optimizada en Python:<br><pre>import sys, time\nprint('Entorno de ejecución DevAI v4.2 Activo.')</pre>";
                 } else {
-                    responseText = "Entendido. Analizando tu consulta dentro de los parámetros del núcleo de programación DevAI.";
+                    responseText = "Consulta analizada correctamente dentro de los parámetros de desarrollo de software del sistema.";
                 }
 
+                // Registrar respuesta de la IA en el historial
+                activeChat.messages.push({ sender: 'ai', text: responseText });
+
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'message ai-message';
                 aiDiv.innerHTML = responseText;
                 chatBox.appendChild(aiDiv);
                 chatBox.scrollTop = chatBox.scrollHeight;
-            }, 800);
+            }, 700);
         }
 
         function handleKeyPress(e) {
