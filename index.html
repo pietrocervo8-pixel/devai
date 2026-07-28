@@ -723,11 +723,11 @@
         <div class="login-card" id="loginCardLoading1" style="display:none;">
             <div class="loading-screen">
                 <div class="cyber-loader"></div>
-                <div class="loading-text" id="loadingText1">Verificando identidad...</div>
+                <div class="loading-text">Verificando identidad...</div>
             </div>
         </div>
 
-        <!-- PASO 3: Contraseña -->
+        <!-- PASO 3: Contraseña y Confirmar Contraseña -->
         <div class="login-card" id="loginCardStep2" style="display:none;">
             <div class="logo-area">
                 <div class="app-logo">D</div>
@@ -736,9 +736,11 @@
                     <span style="font-size:11px; color:var(--text-secondary);">Credencial de Acceso</span>
                 </div>
             </div>
-            <p>Introduce tu contraseña cifrada para desbloquear el núcleo.</p>
+            <p>Crea y confirma tu contraseña cifrada para desbloquear el núcleo.</p>
             <label>Contraseña</label>
             <input type="password" id="inputLoginPassword" placeholder="••••••••">
+            <label>Confirmar Contraseña</label>
+            <input type="password" id="inputLoginConfirmPassword" placeholder="••••••••">
             <button onclick="verifyPasswordAction()">Verificar contraseña</button>
         </div>
 
@@ -746,16 +748,8 @@
         <div class="login-card" id="loginCardLoading2" style="display:none;">
             <div class="loading-screen">
                 <div class="cyber-loader"></div>
-                <div class="loading-text" id="loadingText2">Validando cifrado...</div>
+                <div class="loading-text">Validando cifrado y accesos...</div>
             </div>
-        </div>
-
-        <!-- PASO 5: Bienvenido a Devai -->
-        <div class="login-card" id="loginCardWelcome" style="display:none; text-align:center;">
-            <div style="font-size:48px; margin-bottom:12px; filter: drop-shadow(0 0 10px rgba(88,166,255,0.4));">🚀</div>
-            <h2 style="font-size:20px; margin-bottom:8px; color:var(--text-main);">Bienvenido a Devai</h2>
-            <p id="welcomeUserSub" style="color:var(--text-secondary); font-size:13px; margin-bottom:24px;">Núcleo cognitivo sincronizado correctamente.</p>
-            <button onclick="enterApplication()" style="background: linear-gradient(135deg, #1f6feb, #388bfd);">Entrar al sistema</button>
         </div>
 
     </div>
@@ -789,7 +783,7 @@
                             <div class="user-meta-email" id="sidebarEmail">pietro@devai.com</div>
                         </div>
                     </div>
-                    <button onclick="logoutSession()" style="background:transparent; border:none; color:var(--text-secondary); cursor:pointer; font-size:11px;" title="Salir">✕</button>
+                    <button onclick="logoutSession()" style="background:transparent; border:none; color:var(--text-secondary); cursor:pointer; font-size:11px;" title="Cerrar sesión">✕</button>
                 </div>
             </div>
         </sidebar>
@@ -801,20 +795,18 @@
                 </div>
                 <div style="font-size: 11px; color: var(--text-secondary); display:flex; align-items:center; gap:6px;">
                     <div style="width:6px; height:6px; background:var(--success); border-radius:50%; box-shadow: 0 0 6px var(--success);"></div>
-                    Hyper-Intelligence Engine Pro v7.0
+                    Hyper-Intelligence Engine Pro v7.5
                 </div>
             </header>
 
             <div class="chat-container" id="chatContainer">
-                <div class="message ai-message">
-                    Hola, <span id="welcomeUserName">Pietro</span>. El motor de hiper-inteligencia analítica está activo con capacidades avanzadas. Indícame tus requerimientos de desarrollo o scripts para comenzar.
-                </div>
+                <!-- Los mensajes se inyectan dinámicamente incluyendo el de bienvenida al entrar -->
             </div>
 
             <div class="input-area-wrapper">
                 <div class="input-box">
                     <div class="textarea-wrapper">
-                        <textarea id="userInput" placeholder="Escribe tu consulta o pega tu código aquí..." rows="1" oninput="autoResize(this)" onkeypress="handleKeyPress(event)"></textarea>
+                        <textarea id="userInput" placeholder="Escribe tu consulta o código avanzado aquí..." rows="1" oninput="autoResize(this)" onkeypress="handleKeyPress(event)"></textarea>
                     </div>
                     
                     <div class="input-bottom-actions">
@@ -861,10 +853,6 @@
         let attachedImageName = "";
         let isRobotVerified = false;
 
-        window.onload = function() {
-            createNewChat();
-        };
-
         function triggerVerification() {
             if(isRobotVerified) return;
             const box = document.getElementById('recaptchaBox');
@@ -908,8 +896,14 @@
 
         function verifyPasswordAction() {
             const pass = document.getElementById('inputLoginPassword').value.trim();
-            if(!pass) {
-                alert('Por favor introduce tu contraseña.');
+            const confirmPass = document.getElementById('inputLoginConfirmPassword').value.trim();
+
+            if(!pass || !confirmPass) {
+                alert('Por favor introduce y confirma tu contraseña.');
+                return;
+            }
+            if(pass !== confirmPass) {
+                alert('Las contraseñas no coinciden. Por favor verifícalas.');
                 return;
             }
 
@@ -917,23 +911,15 @@
             document.getElementById('loginCardLoading2').style.display = 'block';
 
             setTimeout(() => {
-                document.getElementById('loginCardLoading2').style.display = 'none';
-                document.getElementById('welcomeUserSub').textContent = `Hola, ${globalUserName}. Acceso autorizado correctamente.`;
-                document.getElementById('loginCardWelcome').style.display = 'block';
-            }, 1400);
-        }
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'flex';
 
-        function enterApplication() {
-            document.getElementById('sidebarName').textContent = globalUserName;
-            document.getElementById('welcomeUserName').textContent = globalUserName;
-            document.getElementById('sidebarEmail').textContent = globalUserEmail;
-            document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
+                document.getElementById('sidebarName').textContent = globalUserName;
+                document.getElementById('sidebarEmail').textContent = globalUserEmail;
+                document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
 
-            document.getElementById('loginOverlay').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'flex';
-
-            renderChatList();
-            renderActiveChatContent();
+                createNewChatWithWelcomeMessage();
+            }, 1600);
         }
 
         function logoutSession() {
@@ -963,7 +949,6 @@
             globalUserEmail = newEmail;
 
             document.getElementById('sidebarName').textContent = globalUserName;
-            document.getElementById('welcomeUserName').textContent = globalUserName;
             document.getElementById('sidebarEmail').textContent = globalUserEmail;
             document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
 
@@ -975,13 +960,28 @@
             textarea.style.height = textarea.scrollHeight + 'px';
         }
 
+        function createNewChatWithWelcomeMessage() {
+            const newId = Date.now();
+            const chatObj = {
+                id: newId,
+                title: "Bienvenida a DevAI",
+                messages: [
+                    { sender: 'ai', text: `🚀 **¡Bienvenido a DEVAI, ${globalUserName}!** Núcleo cognitivo sincronizado y verificado correctamente. Ya puedes hablar, consultar scripts complejos o estructurar tus proyectos con máxima inteligencia analítica. ¿Qué deseas construir hoy?` }
+                ]
+            };
+            chatSessions.unshift(chatObj);
+            activeChatId = newId;
+            renderChatList();
+            renderActiveChatContent();
+        }
+
         function createNewChat() {
             const newId = Date.now();
             const chatObj = {
                 id: newId,
                 title: "Nuevo chat",
                 messages: [
-                    { sender: 'ai', text: `Entorno de hiper-inteligencia inicializado para ${globalUserName}. El núcleo cognitivo está listo para procesar consultas complejas.` }
+                    { sender: 'ai', text: `Entorno PRO inicializado para ${globalUserName}. ¿Qué consulta deseas procesar?` }
                 ]
             };
             chatSessions.unshift(chatObj);
@@ -1040,7 +1040,7 @@
             const currentChat = chatSessions.find(c => c.id === activeChatId);
             if(currentChat) {
                 currentChat.messages = [
-                    { sender: 'ai', text: "Historial cognitivo restablecido. ¿Qué proyecto deseas estructurar hoy?" }
+                    { sender: 'ai', text: "Historial cognitivo restablecido. ¿En qué algoritmo trabajamos?" }
                 ];
                 renderActiveChatContent();
             }
@@ -1112,29 +1112,53 @@
             thinkingDiv.id = 'thinkingIndicator';
             thinkingDiv.innerHTML = `
                 <div class="thinking-header">
-                    <div class="spinner"></div> <span>Procesando hiper-inteligencia analítica...</span>
+                    <div class="spinner"></div> <span>Procesando hiper-inteligencia analítica con IA avanzada...</span>
                 </div>
-                <div class="thinking-steps" id="thinkingStepText">Analizando patrones de sintaxis y arquitectura...</div>
+                <div class="thinking-steps" id="thinkingStepText">Ejecutando motor cognitivo multinivel...</div>
             `;
             container.appendChild(thinkingDiv);
             container.scrollTop = container.scrollHeight;
 
             setTimeout(() => {
                 const stepEl = document.getElementById('thinkingStepText');
-                if(stepEl) stepEl.textContent = "Optimización de nodos y lógica algorítmica...";
-            }, 800);
+                if(stepEl) stepEl.textContent = "Sintetizando lógica de programación y flujos de optimización...";
+            }, 900);
 
             setTimeout(() => {
                 const indicator = document.getElementById('thinkingIndicator');
                 if(indicator) indicator.remove();
 
-                let expertResponse = "💡 **Informe Analítico Pro:**<br>He procesado tu requerimiento con éxito. La estructura lógica ha sido optimizada para garantizar el máximo rendimiento en tu entorno.";
+                let expertResponse = generateProIntelligenceResponse(text);
                 
                 if(activeChat) {
                     activeChat.messages.push({ sender: 'ai', text: expertResponse, image: null });
                 }
                 renderActiveChatContent();
-            }, 1800);
+            }, 1900);
+        }
+
+        function generateProIntelligenceResponse(userQuery) {
+            const queryLower = userQuery.toLowerCase();
+            
+            if(queryLower.includes('script') || queryLower.includes('codigo') || queryLower.includes('roblox') || queryLower.includes('python')) {
+                return `⚡ **Análisis de Código Pro:**<br>He evaluado tu solicitud con el motor inteligente. Aquí tienes la estructura optimizada y lista para producción:<br><pre><code>-- DevAI Hyper-Engine Optimizer v7.5
+local SystemCore = {
+    Author = "${globalUserName}",
+    Status = "Fully Operational",
+    Timestamp = os.time()
+}
+
+function SystemCore:ExecuteProTask()
+    print("Ejecutando rutinas avanzadas para: " .. self.Author)
+    return true
+end
+
+return SystemCore:ExecuteProTask()</code></pre><br>¿Deseas implementar alguna capa adicional de seguridad o depuración?`;
+            } else if(queryLower.includes('hola') || queryLower.includes('ayuda')) {
+                return `¡Hola de nuevo, ${globalUserName}! Estoy a tu completa disposición con capacidad máxima de procesamiento. Cuéntame qué aspecto de tu proyecto deseas desarrollar.`;
+            } else {
+                return `💡 **Informe Analítico Avanzado:**<br>He procesado tu requerimiento con éxito bajo los parámetros de ultra-precisión. La estructura lógica ha sido validada para garantizar el máximo rendimiento. ¿Pasamos a la siguiente fase de desarrollo?`;
+            }
         }
 
         function handleKeyPress(e) {
