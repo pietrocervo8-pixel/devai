@@ -4,14 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevAI Ultimate Pro - Hyper-Intelligence Engine</title>
-    <!-- SDK de EmailJS para envío de correos reales -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script type="text/javascript">
-        (function(){
-            // Inicializa EmailJS con tu Public Key
-            emailjs.init("TU_PUBLIC_KEY");
-        })();
-    </script>
     <style>
         :root {
             --bg-base: #0f1115;
@@ -134,7 +126,7 @@
             background-color: var(--accent-hover);
         }
 
-        /* Widget de verificación personalizado con el diseño exacto solicitado */
+        /* Widget de verificación personalizado */
         .recaptcha-box {
             background: #f9f9f9;
             border: 1px solid #d3d3d3;
@@ -195,7 +187,6 @@
         .recaptcha-logo {
             width: 32px;
             height: 32px;
-            /* Se eliminó el logo y el texto de la marca según lo solicitado */
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
@@ -206,6 +197,26 @@
         @keyframes spinRecap {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* Pantalla de carga / Verificando */
+        .loading-screen {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px auto;
+        }
+        .loading-text {
+            font-size: 14px;
+            color: var(--text-main);
+            font-weight: 500;
         }
 
         /* Estructura Principal */
@@ -654,8 +665,10 @@
 </head>
 <body>
 
-    <!-- Pantalla de Inicio / Verificación (Sin menciones ni logos de reCAPTCHA) -->
+    <!-- Pantalla de Inicio / Verificación Secuencial -->
     <div id="loginOverlay">
+        
+        <!-- PASO 1: Nombre, Correo y no soy robot -->
         <div class="login-card" id="loginCardStep1">
             <div class="logo-area">
                 <div class="app-logo">D</div>
@@ -664,13 +677,13 @@
                     <span style="font-size:11px; color:var(--text-secondary);">Sistema Seguro de Acceso</span>
                 </div>
             </div>
-            <p>Ingresa tus datos para enviar un código de verificación real a tu bandeja de correo.</p>
+            <p>Ingresa tus datos y confirma que no eres un robot para continuar.</p>
             <label>Nombre</label>
             <input type="text" id="inputLoginName" placeholder="Tu nombre">
             <label>Correo Electrónico</label>
             <input type="email" id="inputLoginEmail" placeholder="correo@ejemplo.com">
             
-            <!-- Widget de verificación adaptado con la misma forma y animación de rotación solicitada, sin textos ni logos de reCAPTCHA -->
+            <!-- Widget de verificación de robot -->
             <div class="recaptcha-box" id="recaptchaBox" onclick="triggerVerification()">
                 <div class="recaptcha-left">
                     <div class="recaptcha-checkbox">
@@ -683,23 +696,48 @@
                 </div>
             </div>
 
-            <button id="sendEmailBtn" onclick="requestUniqueCode()">Enviar código a mi correo</button>
+            <button id="nextToPasswordBtn" onclick="proceedToPassword()">Continuar</button>
         </div>
 
+        <!-- PASO 2: Pantalla de Verificando (Carga 1) -->
+        <div class="login-card" id="loginCardLoading1" style="display:none;">
+            <div class="loading-screen">
+                <div class="loading-spinner"></div>
+                <div class="loading-text" id="loadingText1">Verificando...</div>
+            </div>
+        </div>
+
+        <!-- PASO 3: Pon tu contraseña -->
         <div class="login-card" id="loginCardStep2" style="display:none;">
             <div class="logo-area">
                 <div class="app-logo">D</div>
                 <div>
-                    <h2 style="font-size:16px; margin:0;">Verificación</h2>
-                    <span style="font-size:11px; color:var(--text-secondary);">Seguridad del núcleo</span>
+                    <h2 style="font-size:16px; margin:0;">Seguridad</h2>
+                    <span style="font-size:11px; color:var(--text-secondary);">Credenciales de acceso</span>
                 </div>
             </div>
-            <p id="sentInfoText">Revisa tu bandeja. Se ha enviado un correo con tu código de acceso.</p>
-            <label>Código de acceso</label>
-            <input type="text" id="inputVerificationCode" placeholder="Ej: 4812" maxlength="4">
-            <button onclick="verifyAndEnterApp()">Verificar acceso</button>
-            <button onclick="backToStep1()" style="background:transparent; border:none; color:var(--text-secondary); margin-top:10px; cursor:pointer; font-size:12px; text-decoration:underline; width:100%;">Volver</button>
+            <p>Introduce tu contraseña para validar tu identidad en el sistema.</p>
+            <label>Contraseña</label>
+            <input type="password" id="inputLoginPassword" placeholder="••••••••">
+            <button onclick="verifyPasswordAction()">Verificar contraseña</button>
         </div>
+
+        <!-- PASO 4: Pantalla de Verificando (Carga 2) -->
+        <div class="login-card" id="loginCardLoading2" style="display:none;">
+            <div class="loading-screen">
+                <div class="loading-spinner"></div>
+                <div class="loading-text" id="loadingText2">Verificando...</div>
+            </div>
+        </div>
+
+        <!-- PASO 5: Bienvenido a Devai -->
+        <div class="login-card" id="loginCardWelcome" style="display:none; text-align:center;">
+            <div style="font-size:42px; margin-bottom:12px;">🎉</div>
+            <h2 style="font-size:20px; margin-bottom:8px; color:var(--text-main);">Bienvenido a Devai</h2>
+            <p id="welcomeUserSub" style="color:var(--text-secondary); font-size:13px; margin-bottom:20px;">Entorno inicializado con éxito.</p>
+            <button onclick="enterApplication()">Entrar al sistema</button>
+        </div>
+
     </div>
 
     <!-- Interfaz Principal -->
@@ -797,7 +835,6 @@
     <script>
         let globalUserName = "Pietro";
         let globalUserEmail = "pietro@devai.com";
-        let activeDynamicCode = "";
         let chatSessions = [];
         let activeChatId = null;
         let attachedImageBase64 = null;
@@ -808,7 +845,6 @@
             createNewChat();
         };
 
-        // Simulación interactiva del botón de verificación personalizado con el mismo estilo y animación de rotación
         function triggerVerification() {
             if(isRobotVerified) return;
             const box = document.getElementById('recaptchaBox');
@@ -822,10 +858,9 @@
             }, 1200);
         }
 
-        function requestUniqueCode() {
+        function proceedToPassword() {
             const name = document.getElementById('inputLoginName').value.trim();
             const email = document.getElementById('inputLoginEmail').value.trim();
-            const btn = document.getElementById('sendEmailBtn');
 
             if(!name || !email) {
                 alert('Por favor completa todos los campos.');
@@ -836,64 +871,42 @@
                 return;
             }
             if(!isRobotVerified) {
-                alert('Por favor completa la verificación haciendo clic en la casilla.');
+                alert('Por favor confirma que no eres un robot.');
                 return;
             }
 
             globalUserName = name;
             globalUserEmail = email;
 
-            activeDynamicCode = String(Math.floor(1000 + Math.random() * 9000));
+            // Mostrar pantalla de carga "verificando..." (Carga 1)
+            document.getElementById('loginCardStep1').style.display = 'none';
+            document.getElementById('loginCardLoading1').style.display = 'block';
 
-            btn.textContent = "Enviando correo real...";
-            btn.disabled = true;
-
-            const templateParams = {
-                to_name: globalUserName,
-                to_email: globalUserEmail,
-                pass_code: activeDynamicCode
-            };
-
-            emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
-                .then(function(response) {
-                    btn.textContent = "Enviar código a mi correo";
-                    btn.disabled = false;
-                    document.getElementById('sentInfoText').innerHTML = `Se ha enviado un código de acceso único a <b>${email}</b>. Revisa tu bandeja de entrada o spam.`;
-                    document.getElementById('loginCardStep1').style.display = 'none';
-                    document.getElementById('loginCardStep2').style.display = 'block';
-                }, function(error) {
-                    btn.textContent = "Enviar código a mi correo";
-                    btn.disabled = false;
-                    alert('Nota: No se configuraron las credenciales de EmailJS, pero simulará el flujo de correo.');
-                    document.getElementById('sentInfoText').innerHTML = `Código enviado a <b>${email}</b>.<br><span style="font-size:11px; color:var(--text-secondary);">(Modo prueba: tu código es ${activeDynamicCode})</span>`;
-                    document.getElementById('loginCardStep1').style.display = 'none';
-                    document.getElementById('loginCardStep2').style.display = 'block';
-                });
+            setTimeout(() => {
+                document.getElementById('loginCardLoading1').style.display = 'none';
+                document.getElementById('loginCardStep2').style.display = 'block';
+            }, 1500);
         }
 
-        function backToStep1() {
-            document.getElementById('loginCardStep2').style.display = 'none';
-            document.getElementById('loginCardStep1').style.display = 'block';
-        }
-
-        function verifyAndEnterApp() {
-            const codeInput = document.getElementById('inputVerificationCode').value.trim();
-            
-            if(codeInput !== activeDynamicCode) {
-                document.body.innerHTML = `
-                    <div style="background:#0f1115; color:#f3f4f6; height:100vh; display:flex; justify-content:center; align-items:center; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                        <div style="background:#161920; border:1px solid #262c38; padding:32px; border-radius:12px; max-width:360px; width:100%; text-align:left; box-shadow:0 20px 40px rgba(0,0,0,0.5);">
-                            <div style="color:#ef4444; font-weight:600; font-size:16px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
-                                <span>⛔</span> Acceso Denegado
-                            </div>
-                            <p style="color:#9ca3af; font-size:13px; line-height:1.4; margin-bottom:20px;">El código introducido no es válido. Por motivos de seguridad, la sesión ha sido cerrada y se ha bloqueado el acceso.</p>
-                            <button onclick="location.reload()" style="background:#6366f1; color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; width:100%;">Reintentar identificación</button>
-                        </div>
-                    </div>
-                `;
+        function verifyPasswordAction() {
+            const pass = document.getElementById('inputLoginPassword').value.trim();
+            if(!pass) {
+                alert('Por favor introduce tu contraseña.');
                 return;
             }
 
+            // Mostrar pantalla de carga "verificando..." (Carga 2)
+            document.getElementById('loginCardStep2').style.display = 'none';
+            document.getElementById('loginCardLoading2').style.display = 'block';
+
+            setTimeout(() => {
+                document.getElementById('loginCardLoading2').style.display = 'none';
+                document.getElementById('welcomeUserSub').textContent = `Hola, ${globalUserName}. Acceso autorizado correctamente.`;
+                document.getElementById('loginCardWelcome').style.display = 'block';
+            }, 1500);
+        }
+
+        function enterApplication() {
             document.getElementById('sidebarName').textContent = globalUserName;
             document.getElementById('welcomeUserName').textContent = globalUserName;
             document.getElementById('sidebarEmail').textContent = globalUserEmail;
