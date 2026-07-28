@@ -18,6 +18,7 @@
             --text-muted: #484f58;
             --danger: #f85149;
             --success: #2ea043;
+            --admin-gold: #f1e05a;
         }
 
         body {
@@ -32,44 +33,24 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Pantalla de Inicio / Acceso Directo con Botón de Crear Cuenta */
-        #loginOverlay {
+        /* Capa de Modales / Tarjetas de Autenticación */
+        .modal-overlay {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at center, #111b2b 0%, #07090e 100%);
-            display: flex;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(6px);
             justify-content: center;
             align-items: center;
-            z-index: 2000;
-        }
-        
-        .top-right-create-btn {
-            position: absolute;
-            top: 24px;
-            right: 32px;
-            background-color: transparent;
-            color: var(--accent);
-            border: 1px solid var(--accent);
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-            box-shadow: 0 0 15px rgba(88, 166, 255, 0.15);
-        }
-        .top-right-create-btn:hover {
-            background-color: var(--accent);
-            color: var(--bg-base);
-            box-shadow: 0 0 20px var(--accent-glow);
+            z-index: 3000;
         }
 
         .login-card {
             background: var(--bg-surface);
-            padding: 36px;
+            padding: 32px;
             border-radius: 16px;
             border: 1px solid var(--border);
             text-align: left;
@@ -77,6 +58,7 @@
             max-width: 400px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.7), 0 0 20px rgba(88, 166, 255, 0.1);
             position: relative;
+            box-sizing: border-box;
             overflow: hidden;
         }
         .login-card::before {
@@ -117,7 +99,6 @@
             margin: 0 0 4px 0;
             font-size: 18px;
             font-weight: 700;
-            letter-spacing: 0.5px;
         }
         .login-card p {
             color: var(--text-secondary);
@@ -166,7 +147,6 @@
         }
         .login-card button.action-btn:hover {
             background-color: #2ea043;
-            box-shadow: 0 6px 16px rgba(46, 160, 67, 0.4);
         }
         .login-card button.secondary-action-btn {
             width: 100%;
@@ -187,7 +167,7 @@
             border-color: var(--border-hover);
         }
 
-        /* Widget de verificación robot PRO */
+        /* reCAPTCHA Pro Widget */
         .recaptcha-box {
             background: var(--bg-base);
             border: 1px solid var(--border);
@@ -254,7 +234,7 @@
             display: block;
         }
 
-        /* Pantallas de carga con efectos cibernéticos */
+        /* Pantallas de carga */
         .loading-screen {
             text-align: center;
             padding: 30px 0;
@@ -283,7 +263,7 @@
 
         /* Estructura Principal */
         #appContainer {
-            display: none;
+            display: flex;
             width: 100%;
             height: 100%;
             flex-direction: row;
@@ -455,7 +435,42 @@
             flex-direction: column;
             background-color: var(--bg-base);
             height: 100%;
+            position: relative;
         }
+
+        /* Botones superiores derechos para invitados y usuario */
+        .top-auth-buttons {
+            position: absolute;
+            top: 12px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+            align-items: center;
+        }
+        .auth-top-btn {
+            background-color: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .auth-top-btn:hover {
+            background-color: var(--accent);
+            color: var(--bg-base);
+        }
+        .auth-top-btn.primary {
+            background-color: var(--accent);
+            color: var(--bg-base);
+        }
+        .auth-top-btn.primary:hover {
+            background-color: #4184e4;
+        }
+
         header {
             padding: 12px 20px;
             border-bottom: 1px solid var(--border);
@@ -463,6 +478,7 @@
             justify-content: space-between;
             align-items: center;
             background-color: var(--bg-surface);
+            padding-right: 180px; /* Espacio para los botones */
         }
         .header-title {
             font-size: 13px;
@@ -558,12 +574,6 @@
             border-top: 2px solid var(--accent);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
-        }
-        .thinking-steps {
-            font-size: 11px;
-            color: var(--text-muted);
-            padding-left: 26px;
-            font-family: monospace;
         }
 
         .input-area-wrapper {
@@ -662,164 +672,73 @@
             background: #2ea043;
         }
 
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(6px);
-            justify-content: center;
-            align-items: center;
-            z-index: 3000;
-        }
-        .modal-card {
+        /* Panel de Administración Oculto para Dueño */
+        .admin-panel-card {
             background: var(--bg-surface);
-            padding: 28px;
+            padding: 24px;
             border-radius: 14px;
-            border: 1px solid var(--border);
-            max-width: 400px;
+            border: 1px solid var(--admin-gold);
+            max-width: 550px;
             width: 100%;
             box-sizing: border-box;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 15px rgba(241, 224, 90, 0.2);
         }
-        .modal-card h3 {
-            color: var(--text-main);
+        .admin-panel-card h3 {
+            color: var(--admin-gold);
             margin-top: 0;
             font-size: 16px;
-            margin-bottom: 16px;
-            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .modal-card label {
-            font-size: 11px;
-            color: var(--text-secondary);
-            font-weight: 600;
-            display: block;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-        }
-        .modal-card input {
-            width: 100%;
-            padding: 11px;
-            background: var(--bg-base);
+        .user-management-list {
+            max-height: 220px;
+            overflow-y: auto;
             border: 1px solid var(--border);
             border-radius: 8px;
-            color: var(--text-main);
-            font-size: 13px;
-            box-sizing: border-box;
-            margin-bottom: 14px;
+            margin: 12px 0;
+            background: var(--bg-base);
         }
-        .modal-card input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-glow);
-        }
-        .modal-buttons {
+        .user-mgmt-item {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
             display: flex;
-            gap: 10px;
-            margin-top: 8px;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
         }
+        .user-mgmt-item:last-child {
+            border-bottom: none;
+        }
+        .mgmt-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .mgmt-btn {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-ban { background: #5a1d1d; color: #ff7b72; }
+        .btn-ban:hover { background: #822222; }
+        .btn-del { background: #b62324; color: white; }
+        .btn-del:hover { background: #da3633; }
+        .btn-edit { background: var(--border); color: var(--text-main); }
+        .btn-edit:hover { background: var(--border-hover); }
     </style>
 </head>
 <body>
 
-    <!-- Pantalla de Inicio / Acceso con Botón de Crear Cuenta en la esquina superior -->
-    <div id="loginOverlay">
-        
-        <!-- Botón superior derecho para abrir el flujo de crear cuenta -->
-        <button class="top-right-create-btn" onclick="openCreateAccountFlow()">Crear Cuenta</button>
-
-        <!-- PASO 1: Ingreso predeterminado (o pantalla de bienvenida de acceso) -->
-        <div class="login-card" id="loginCardWelcome">
-            <div class="logo-area">
-                <div class="app-logo">D</div>
-                <div>
-                    <h2>DevAI Ultimate Pro</h2>
-                    <span style="font-size:11px; color:var(--text-secondary);">Motor de Hiper-Inteligencia</span>
-                </div>
-            </div>
-            <p>Bienvenido al sistema inteligente. Inicia sesión o crea una cuenta nueva desde el botón superior.</p>
-            
-            <label>Correo Electrónico</label>
-            <input type="email" id="inputLoginEmail" placeholder="correo@ejemplo.com">
-            
-            <label>Contraseña</label>
-            <input type="password" id="inputLoginPassword" placeholder="••••••••">
-
-            <button class="action-btn" onclick="directLoginAction()">Iniciar Sesión</button>
-            <button class="secondary-action-btn" onclick="openCreateAccountFlow()">¿No tienes cuenta? Regístrate aquí</button>
-        </div>
-
-        <!-- PASO 2: Flujo de Crear Cuenta (Nombre, Correo y reCAPTCHA) -->
-        <div class="login-card" id="loginCardStep1" style="display:none;">
-            <div class="logo-area">
-                <div class="app-logo">D</div>
-                <div>
-                    <h2>Crear Cuenta Pro</h2>
-                    <span style="font-size:11px; color:var(--text-secondary);">Registro en el Sistema</span>
-                </div>
-            </div>
-            <p>Introduce tus datos para registrar una nueva cuenta en DevAI.</p>
-            <label>Nombre</label>
-            <input type="text" id="inputRegName" placeholder="Tu nombre">
-            <label>Correo Electrónico</label>
-            <input type="email" id="inputRegEmail" placeholder="correo@ejemplo.com">
-            
-            <!-- Widget de verificación de robot PRO -->
-            <div class="recaptcha-box" id="recaptchaBox" onclick="triggerVerification()">
-                <div class="recaptcha-left">
-                    <div class="recaptcha-checkbox">
-                        <div class="recaptcha-checkmark">✓</div>
-                    </div>
-                    <span class="recaptcha-text" id="recaptchaText">No soy un robot</span>
-                </div>
-                <div class="recaptcha-right">
-                    <div class="recaptcha-spinner" id="recaptchaSpinner"></div>
-                </div>
-            </div>
-
-            <button class="action-btn" onclick="proceedToPasswordSetup()">Continuar</button>
-            <button class="secondary-action-btn" onclick="backToWelcome()">Volver al inicio</button>
-        </div>
-
-        <!-- PASO 3: Verificando identidad (Carga 1) -->
-        <div class="login-card" id="loginCardLoading1" style="display:none;">
-            <div class="loading-screen">
-                <div class="cyber-loader"></div>
-                <div class="loading-text">Registrando credenciales...</div>
-            </div>
-        </div>
-
-        <!-- PASO 4: Contraseña y Confirmar Contraseña -->
-        <div class="login-card" id="loginCardStep2" style="display:none;">
-            <div class="logo-area">
-                <div class="app-logo">D</div>
-                <div>
-                    <h2>Seguridad Avanzada</h2>
-                    <span style="font-size:11px; color:var(--text-secondary);">Contraseña y Confirmación</span>
-                </div>
-            </div>
-            <p>Crea y confirma tu contraseña cifrada para proteger tu cuenta.</p>
-            <label>Contraseña</label>
-            <input type="password" id="inputRegPassword" placeholder="••••••••">
-            <label>Confirmar Contraseña</label>
-            <input type="password" id="inputRegConfirmPassword" placeholder="••••••••">
-            <button class="action-btn" onclick="verifyAndFinishRegistration()">Verificar contraseña</button>
-        </div>
-
-        <!-- PASO 5: Verificación final de cifrado (Carga 2) -->
-        <div class="login-card" id="loginCardLoading2" style="display:none;">
-            <div class="loading-screen">
-                <div class="cyber-loader"></div>
-                <div class="loading-text">Validando cifrado y accesos...</div>
-            </div>
-        </div>
-
+    <!-- Botones Superiores (Siempre visibles en la página principal) -->
+    <div class="top-auth-buttons" id="topAuthButtons">
+        <button class="auth-top-btn" onclick="openLoginModal()">Iniciar Sesión</button>
+        <button class="auth-top-btn primary" onclick="openRegisterModal()">Crear Cuenta</button>
     </div>
 
-    <!-- Interfaz Principal -->
+    <!-- Interfaz Principal (Se puede usar sin iniciar sesión) -->
     <div id="appContainer">
         <sidebar>
             <div class="sidebar-top">
@@ -838,17 +757,15 @@
                 </div>
             </div>
 
-            <div class="sidebar-footer">
-                <button class="sidebar-btn" onclick="openAccountModal()"><span>⚙</span> Configurar cuenta</button>
-                <div class="user-profile-row">
+            <div class="sidebar-footer" id="sidebarFooter">
+                <div class="user-profile-row" id="guestFooterRow">
                     <div class="user-info">
-                        <div class="user-avatar" id="sidebarAvatar">P</div>
+                        <div class="user-avatar">?</div>
                         <div style="overflow:hidden;">
-                            <div class="user-meta-name" id="sidebarName">Pietro</div>
-                            <div class="user-meta-email" id="sidebarEmail">pietro@devai.com</div>
+                            <div class="user-meta-name">Modo Invitado</div>
+                            <div class="user-meta-email">Sin iniciar sesión</div>
                         </div>
                     </div>
-                    <button onclick="logoutSession()" style="background:transparent; border:none; color:var(--text-secondary); cursor:pointer; font-size:11px;" title="Cerrar sesión">✕</button>
                 </div>
             </div>
         </sidebar>
@@ -894,167 +811,383 @@
         </div>
     </div>
 
-    <!-- Modal de Configuración -->
-    <div class="modal-overlay" id="accountModal">
-        <div class="modal-card">
-            <h3>Configuración de cuenta</h3>
-            <label>Nombre</label>
-            <input type="text" id="modalAccountName">
+    <!-- MODAL: Iniciar Sesión (Correo, Contraseña y Captcha) -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="login-card">
+            <div class="logo-area">
+                <div class="app-logo">D</div>
+                <div>
+                    <h2>Iniciar Sesión Pro</h2>
+                    <span style="font-size:11px; color:var(--text-secondary);">Acceso al Sistema</span>
+                </div>
+            </div>
+            <p>Introduce tu correo electrónico y contraseña guardados.</p>
+            
             <label>Correo Electrónico</label>
-            <input type="email" id="modalAccountEmail">
-            <div class="modal-buttons">
-                <button class="send-btn" onclick="saveAccountSettings()" style="flex:1;">Guardar</button>
-                <button onclick="closeAccountModal()" style="background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:6px; padding:8px; cursor:pointer; flex:1; font-size:12px;">Cancelar</button>
+            <input type="email" id="inputLoginEmail" placeholder="correo@ejemplo.com">
+            
+            <label>Contraseña</label>
+            <input type="password" id="inputLoginPassword" placeholder="••••••••">
+
+            <!-- reCAPTCHA en Inicio de Sesión -->
+            <div class="recaptcha-box" id="recaptchaLoginBox" onclick="triggerLoginVerification()">
+                <div class="recaptcha-left">
+                    <div class="recaptcha-checkbox">
+                        <div class="recaptcha-checkmark">✓</div>
+                    </div>
+                    <span class="recaptcha-text" id="recaptchaLoginText">No soy un robot</span>
+                </div>
+                <div class="recaptcha-right">
+                    <div class="recaptcha-spinner" id="recaptchaLoginSpinner"></div>
+                </div>
+            </div>
+
+            <button class="action-btn" onclick="executeLogin()">Iniciar Sesión</button>
+            <button class="secondary-action-btn" onclick="closeAllModals()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- MODAL: Crear Cuenta (Correo, Contraseña y Captcha) -->
+    <div class="modal-overlay" id="registerModal">
+        <div class="login-card">
+            <div class="logo-area">
+                <div class="app-logo">D</div>
+                <div>
+                    <h2>Crear Cuenta Pro</h2>
+                    <span style="font-size:11px; color:var(--text-secondary);">Registro de Credenciales</span>
+                </div>
+            </div>
+            <p>Regístra tu cuenta para guardar tus datos de forma segura.</p>
+            
+            <label>Correo Electrónico</label>
+            <input type="email" id="inputRegEmail" placeholder="correo@ejemplo.com">
+            
+            <label>Contraseña</label>
+            <input type="password" id="inputRegPassword" placeholder="••••••••">
+
+            <!-- reCAPTCHA en Registro -->
+            <div class="recaptcha-box" id="recaptchaRegBox" onclick="triggerRegVerification()">
+                <div class="recaptcha-left">
+                    <div class="recaptcha-checkbox">
+                        <div class="recaptcha-checkmark">✓</div>
+                    </div>
+                    <span class="recaptcha-text" id="recaptchaRegText">No soy un robot</span>
+                </div>
+                <div class="recaptcha-right">
+                    <div class="recaptcha-spinner" id="recaptchaRegSpinner"></div>
+                </div>
+            </div>
+
+            <button class="action-btn" onclick="executeRegister()">Registrar Cuenta</button>
+            <button class="secondary-action-btn" onclick="closeAllModals()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- MODAL: Panel de Administración Exclusivo para el Dueño -->
+    <div class="modal-overlay" id="adminPanelModal">
+        <div class="admin-panel-card">
+            <h3><span>🛡️</span> Panel de Control del Dueño (pietrocervo8@gmail.com)</h3>
+            <p style="font-size:12px; color:var://text-secondary; margin-bottom:10px;">Gestión avanzada de usuarios registrados en el sistema:</p>
+            
+            <div class="user-management-list" id="userManagementList">
+                <!-- Se llena dinámicamente -->
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; margin-top:14px;">
+                <button onclick="closeAdminModal()" class="send-btn" style="background:var(--border); color:var(--text-main);">Cerrar Panel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Modificar Usuario (Admin) -->
+    <div class="modal-overlay" id="editUserModal">
+        <div class="login-card">
+            <h3>Modificar Usuario</h3>
+            <p style="font-size:12px;">Edita las credenciales de este usuario.</p>
+            <input type="hidden" id="editUserOldEmail">
+            <label>Nuevo Correo</label>
+            <input type="email" id="editUserNewEmail">
+            <label>Nueva Contraseña</label>
+            <input type="text" id="editUserNewPassword">
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button class="action-btn" onclick="saveEditedUser()">Guardar Cambios</button>
+                <button class="secondary-action-btn" onclick="closeEditModal()" style="margin-top:0;">Cancelar</button>
             </div>
         </div>
     </div>
 
     <script>
-        let globalUserName = "Pietro";
-        let globalUserEmail = "pietro@devai.com";
+        // Base de datos local segura persistente en localStorage
+        let registeredUsers = JSON.parse(localStorage.getItem('devai_users')) || [
+            { email: "pietrocervo8@gmail.com", password: "adminPassword123", banned: false }
+        ];
+
+        let currentUser = JSON.parse(localStorage.getItem('devai_current_user')) || null;
         let chatSessions = [];
         let activeChatId = null;
         let attachedImageBase64 = null;
         let attachedImageName = "";
-        let isRobotVerified = false;
 
-        function openCreateAccountFlow() {
-            document.getElementById('loginCardWelcome').style.display = 'none';
-            document.getElementById('loginCardStep1').style.display = 'block';
+        let isLoginVerified = false;
+        let isRegVerified = false;
+
+        window.onload = function() {
+            if(currentUser) {
+                if(currentUser.banned) {
+                    alert("Tu cuenta ha sido suspendida (baneada) por el administrador.");
+                    logoutSession();
+                    return;
+                }
+                applyUserSessionUI();
+            } else {
+                createNewChatWithWelcomeMessage();
+            }
+        };
+
+        function openLoginModal() {
+            isLoginVerified = false;
+            document.getElementById('recaptchaLoginBox').classList.remove('verified');
+            document.getElementById('inputLoginEmail').value = '';
+            document.getElementById('inputLoginPassword').value = '';
+            document.getElementById('loginModal').style.display = 'flex';
         }
 
-        function backToWelcome() {
-            document.getElementById('loginCardStep1').style.display = 'none';
-            document.getElementById('loginCardWelcome').style.display = 'block';
+        function openRegisterModal() {
+            isRegVerified = false;
+            document.getElementById('recaptchaRegBox').classList.remove('verified');
+            document.getElementById('inputRegEmail').value = '';
+            document.getElementById('inputRegPassword').value = '';
+            document.getElementById('registerModal').style.display = 'flex';
         }
 
-        function triggerVerification() {
-            if(isRobotVerified) return;
-            const box = document.getElementById('recaptchaBox');
+        function closeAllModals() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('registerModal').style.display = 'none';
+            document.getElementById('adminPanelModal').style.display = 'none';
+            document.getElementById('editUserModal').style.display = 'none';
+        }
+
+        function triggerLoginVerification() {
+            if(isLoginVerified) return;
+            const box = document.getElementById('recaptchaLoginBox');
             box.classList.add('verifying');
-
             setTimeout(() => {
                 box.classList.remove('verifying');
                 box.classList.add('verified');
-                isRobotVerified = true;
-            }, 1000);
+                isLoginVerified = true;
+            }, 800);
         }
 
-        function proceedToPasswordSetup() {
-            const name = document.getElementById('inputRegName').value.trim();
+        function triggerRegVerification() {
+            if(isRegVerified) return;
+            const box = document.getElementById('recaptchaRegBox');
+            box.classList.add('verifying');
+            setTimeout(() => {
+                box.classList.remove('verifying');
+                box.classList.add('verified');
+                isRegVerified = true;
+            }, 800);
+        }
+
+        function executeRegister() {
             const email = document.getElementById('inputRegEmail').value.trim();
+            const password = document.getElementById('inputRegPassword').value.trim();
 
-            if(!name || !email) {
-                alert('Por favor completa todos los campos.');
+            if(!email || !password) {
+                alert("Por favor completa todos los campos.");
                 return;
             }
             if(!email.includes('@')) {
-                alert('Introduce un correo electrónico válido.');
+                alert("Introduce un correo electrónico válido.");
                 return;
             }
-            if(!isRobotVerified) {
-                alert('Por favor confirma que no eres un robot haciendo clic en la casilla.');
+            if(!isRegVerified) {
+                alert("Por favor verifica que no eres un robot.");
                 return;
             }
 
-            globalUserName = name;
-            globalUserEmail = email;
+            // Verificar si ya existe
+            const exists = registeredUsers.find(u => u.email === email);
+            if(exists) {
+                alert("Este correo ya está registrado. Inicia sesión.");
+                return;
+            }
 
-            document.getElementById('loginCardStep1').style.display = 'none';
-            document.getElementById('loginCardLoading1').style.display = 'block';
+            // Guardar usuario nuevo en la base de datos segura
+            registeredUsers.push({ email, password, banned: false });
+            localStorage.setItem('devai_users', JSON.stringify(registeredUsers));
 
-            setTimeout(() => {
-                document.getElementById('loginCardLoading1').style.display = 'none';
-                document.getElementById('loginCardStep2').style.display = 'block';
-            }, 1400);
+            alert("¡Cuenta creada y guardada con éxito! Ya puedes iniciar sesión.");
+            closeAllModals();
+            openLoginModal();
         }
 
-        function verifyAndFinishRegistration() {
-            const pass = document.getElementById('inputRegPassword').value.trim();
-            const confirmPass = document.getElementById('inputRegConfirmPassword').value.trim();
-
-            if(!pass || !confirmPass) {
-                alert('Por favor introduce y confirma tu contraseña.');
-                return;
-            }
-            if(pass !== confirmPass) {
-                alert('Las contraseñas no coinciden. Por favor verifícalas.');
-                return;
-            }
-
-            document.getElementById('loginCardStep2').style.display = 'none';
-            document.getElementById('loginCardLoading2').style.display = 'block';
-
-            setTimeout(() => {
-                enterAppAsVerifiedUser();
-            }, 1600);
-        }
-
-        function directLoginAction() {
+        function executeLogin() {
             const email = document.getElementById('inputLoginEmail').value.trim();
-            const pass = document.getElementById('inputLoginPassword').value.trim();
+            const password = document.getElementById('inputLoginPassword').value.trim();
 
-            if(!email || !pass) {
-                alert('Por favor introduce tu correo y contraseña.');
+            if(!email || !password) {
+                alert("Por favor introduce correo y contraseña.");
                 return;
             }
-            if(!email.includes('@')) {
-                alert('Introduce un correo válido.');
+            if(!isLoginVerified) {
+                alert("Por favor verifica que no eres un robot.");
                 return;
             }
 
-            globalUserEmail = email;
-            // Extraer nombre base del correo si es genérico
-            let extractedName = email.split('@')[0];
-            globalUserName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1);
+            const user = registeredUsers.find(u => u.email === email && u.password === password);
+            if(!user) {
+                alert("Credenciales incorrectas o usuario no encontrado.");
+                return;
+            }
+            if(user.banned) {
+                alert("Esta cuenta se encuentra baneada.");
+                return;
+            }
 
-            enterAppAsVerifiedUser();
+            currentUser = user;
+            localStorage.setItem('devai_current_user', JSON.stringify(currentUser));
+            closeAllModals();
+            applyUserSessionUI();
         }
 
-        function enterAppAsVerifiedUser() {
-            document.getElementById('loginOverlay').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'flex';
+        function applyUserSessionUI() {
+            // Ocultar botones superiores de login/registro y mostrar perfil en sidebar con opciones si es dueño
+            document.getElementById('topAuthButtons').style.display = 'none';
 
-            document.getElementById('sidebarName').textContent = globalUserName;
-            document.getElementById('sidebarEmail').textContent = globalUserEmail;
-            document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
+            let namePart = currentUser.email.split('@')[0];
+            let formattedName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+            let isOwner = (currentUser.email.toLowerCase() === "pietrocervo8@gmail.com");
 
-            createNewChatWithWelcomeMessage();
+            let footerHtml = `
+                ${isOwner ? `<button class="sidebar-btn" onclick="openAdminPanel()" style="color:var(--admin-gold); border-color:rgba(241,224,90,0.3); margin-bottom:4px;"><span>🛡️</span> Panel de Dueño</button>` : ''}
+                <div class="user-profile-row">
+                    <div class="user-info">
+                        <div class="user-avatar">${formattedName.charAt(0)}</div>
+                        <div style="overflow:hidden;">
+                            <div class="user-meta-name">${formattedName}</div>
+                            <div class="user-meta-email">${currentUser.email}</div>
+                        </div>
+                    </div>
+                    <button onclick="logoutSession()" style="background:transparent; border:none; color:var(--text-secondary); cursor:pointer; font-size:11px;" title="Cerrar sesión">✕</button>
+                </div>
+            `;
+            document.getElementById('sidebarFooter').innerHTML = footerHtml;
+
+            if(chatSessions.length === 0) {
+                createNewChatWithWelcomeMessage();
+            }
         }
 
         function logoutSession() {
+            localStorage.removeItem('devai_current_user');
             location.reload();
         }
 
-        function openAccountModal() {
-            document.getElementById('modalAccountName').value = globalUserName;
-            document.getElementById('modalAccountEmail').value = globalUserEmail;
-            document.getElementById('accountModal').style.display = 'flex';
+        /* Funciones del Panel de Dueño (Exclusivo pietrocervo8@gmail.com) */
+        function openAdminPanel() {
+            if(!currentUser || currentUser.email.toLowerCase() !== "pietrocervo8@gmail.com") {
+                alert("Acceso denegado. Solo el dueño (pietrocervo8@gmail.com) puede acceder.");
+                return;
+            }
+            renderUserManagementList();
+            document.getElementById('adminPanelModal').style.display = 'flex';
         }
 
-        function closeAccountModal() {
-            document.getElementById('accountModal').style.display = 'none';
+        function closeAdminModal() {
+            document.getElementById('adminPanelModal').style.display = 'none';
         }
 
-        function saveAccountSettings() {
-            const newName = document.getElementById('modalAccountName').value.trim();
-            const newEmail = document.getElementById('modalAccountEmail').value.trim();
+        function renderUserManagementList() {
+            // Recargar datos actualizados
+            registeredUsers = JSON.parse(localStorage.getItem('devai_users')) || [];
+            const container = document.getElementById('userManagementList');
+            container.innerHTML = '';
 
-            if(!newName || !newEmail) {
-                alert('Los campos no pueden estar vacíos.');
+            if(registeredUsers.length === 0) {
+                container.innerHTML = `<div style="padding:12px; font-size:12px; color:var(--text-muted);">No hay usuarios registrados.</div>`;
                 return;
             }
 
-            globalUserName = newName;
-            globalUserEmail = newEmail;
-
-            document.getElementById('sidebarName').textContent = globalUserName;
-            document.getElementById('sidebarEmail').textContent = globalUserEmail;
-            document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
-
-            closeAccountModal();
+            registeredUsers.forEach(u => {
+                let item = document.createElement('div');
+                item.className = 'user-mgmt-item';
+                item.innerHTML = `
+                    <div>
+                        <b>${u.email}</b> ${u.banned ? '<span style="color:var(--danger); font-size:10px;">[BANEADO]</span>' : ''}
+                        <div style="font-size:10px; color:var(--text-muted);">Pass: ${u.password}</div>
+                    </div>
+                    <div class="mgmt-actions">
+                        <button class="mgmt-btn btn-edit" onclick="openEditUserModal('${u.email}')">Modificar</button>
+                        <button class="mgmt-btn btn-ban" onclick="toggleBanUser('${u.email}')">${u.banned ? 'Desbanear' : 'Banear'}</button>
+                        ${u.email.toLowerCase() !== 'pietrocervo8@gmail.com' ? `<button class="mgmt-btn btn-del" onclick="deleteUserAccount('${u.email}')">Borrar</button>` : ''}
+                    </div>
+                `;
+                container.appendChild(item);
+            });
         }
 
+        function toggleBanUser(email) {
+            if(email.toLowerCase() === 'pietrocervo8@gmail.com') {
+                alert("No puedes banear la cuenta del dueño principal.");
+                return;
+            }
+            let user = registeredUsers.find(u => u.email === email);
+            if(user) {
+                user.banned = !user.banned;
+                localStorage.setItem('devai_users', JSON.stringify(registeredUsers));
+                renderUserManagementList();
+            }
+        }
+
+        function deleteUserAccount(email) {
+            if(email.toLowerCase() === 'pietrocervo8@gmail.com') {
+                alert("No puedes eliminar la cuenta principal del dueño.");
+                return;
+            }
+            if(confirm(`¿Estás seguro de eliminar permanentemente la cuenta de ${email}?`)) {
+                registeredUsers = registeredUsers.filter(u => u.email !== email);
+                localStorage.setItem('devai_users', JSON.stringify(registeredUsers));
+                renderUserManagementList();
+            }
+        }
+
+        function openEditUserModal(email) {
+            let user = registeredUsers.find(u => u.email === email);
+            if(!user) return;
+
+            document.getElementById('editUserOldEmail').value = user.email;
+            document.getElementById('editUserNewEmail').value = user.email;
+            document.getElementById('editUserNewPassword').value = user.password;
+            document.getElementById('editUserModal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+        }
+
+        function saveEditedUser() {
+            let oldEmail = document.getElementById('editUserOldEmail').value;
+            let newEmail = document.getElementById('editUserNewEmail').value.trim();
+            let newPass = document.getElementById('editUserNewPassword').value.trim();
+
+            if(!newEmail || !newPass) {
+                alert("Los campos no pueden estar vacíos.");
+                return;
+            }
+
+            let user = registeredUsers.find(u => u.email === oldEmail);
+            if(user) {
+                user.email = newEmail;
+                user.password = newPass;
+                localStorage.setItem('devai_users', JSON.stringify(registeredUsers));
+                alert("Usuario modificado con éxito.");
+                closeEditModal();
+                renderUserManagementList();
+            }
+        }
+
+        /* Lógica del Chat e Inteligencia */
         function autoResize(textarea) {
             textarea.style.height = 'auto';
             textarea.style.height = textarea.scrollHeight + 'px';
@@ -1062,11 +1195,12 @@
 
         function createNewChatWithWelcomeMessage() {
             const newId = Date.now();
+            const displayName = currentUser ? currentUser.email.split('@')[0] : "Invitado";
             const chatObj = {
                 id: newId,
                 title: "Bienvenida a DevAI",
                 messages: [
-                    { sender: 'ai', text: `🚀 **¡Bienvenido a DEVAI, ${globalUserName}!** Núcleo cognitivo sincronizado y verificado correctamente. Ya puedes hablar, consultar scripts complejos o estructurar tus proyectos con máxima inteligencia analítica. ¿Qué deseas construir hoy?` }
+                    { sender: 'ai', text: `🚀 **¡Bienvenido a DEVAI, ${displayName}!** Entorno cognitivo activo. Puedes usar la interfaz libremente o registrarte / iniciar sesión en la esquina superior. ¿Qué deseas construir hoy?` }
                 ]
             };
             chatSessions.unshift(chatObj);
@@ -1081,7 +1215,7 @@
                 id: newId,
                 title: "Nuevo chat",
                 messages: [
-                    { sender: 'ai', text: `Entorno PRO inicializado para ${globalUserName}. ¿Qué consulta deseas procesar?` }
+                    { sender: 'ai', text: `Entorno PRO inicializado. ¿Qué consulta deseas procesar?` }
                 ]
             };
             chatSessions.unshift(chatObj);
@@ -1212,17 +1346,11 @@
             thinkingDiv.id = 'thinkingIndicator';
             thinkingDiv.innerHTML = `
                 <div class="thinking-header">
-                    <div class="spinner"></div> <span>Procesando hiper-inteligencia analítica con IA avanzada...</span>
+                    <div class="spinner"></div> <span>Procesando hiper-inteligencia analítica...</span>
                 </div>
-                <div class="thinking-steps" id="thinkingStepText">Ejecutando motor cognitivo multinivel...</div>
             `;
             container.appendChild(thinkingDiv);
             container.scrollTop = container.scrollHeight;
-
-            setTimeout(() => {
-                const stepEl = document.getElementById('thinkingStepText');
-                if(stepEl) stepEl.textContent = "Sintetizando lógica de programación y flujos de optimización...";
-            }, 900);
 
             setTimeout(() => {
                 const indicator = document.getElementById('thinkingIndicator');
@@ -1234,16 +1362,17 @@
                     activeChat.messages.push({ sender: 'ai', text: expertResponse, image: null });
                 }
                 renderActiveChatContent();
-            }, 1900);
+            }, 1500);
         }
 
         function generateProIntelligenceResponse(userQuery) {
             const queryLower = userQuery.toLowerCase();
+            const authorName = currentUser ? currentUser.email.split('@')[0] : "Invitado";
             
             if(queryLower.includes('script') || queryLower.includes('codigo') || queryLower.includes('roblox') || queryLower.includes('python')) {
-                return `⚡ **Análisis de Código Pro:**<br>He evaluado tu solicitud con el motor inteligente. Aquí tienes la estructura optimizada y lista para producción:<br><pre><code>-- DevAI Hyper-Engine Optimizer v7.5
+                return `⚡ **Análisis de Código Pro:**<br>Estructura optimizada y lista para producción:<br><pre><code>-- DevAI Hyper-Engine Optimizer v7.5
 local SystemCore = {
-    Author = "${globalUserName}",
+    Author = "${authorName}",
     Status = "Fully Operational",
     Timestamp = os.time()
 }
@@ -1253,11 +1382,9 @@ function SystemCore:ExecuteProTask()
     return true
 end
 
-return SystemCore:ExecuteProTask()</code></pre><br>¿Deseas implementar alguna capa adicional de seguridad o depuración?`;
-            } else if(queryLower.includes('hola') || queryLower.includes('ayuda')) {
-                return `¡Hola de nuevo, ${globalUserName}! Estoy a tu completa disposición con capacidad máxima de procesamiento. Cuéntame qué aspecto de tu proyecto deseas desarrollar.`;
+return SystemCore:ExecuteProTask()</code></pre>`;
             } else {
-                return `💡 **Informe Analítico Avanzado:**<br>He procesado tu requerimiento con éxito bajo los parámetros de ultra-precisión. La estructura lógica ha sido validada para garantizar el máximo rendimiento. ¿Pasamos a la siguiente fase de desarrollo?`;
+                return `💡 **Informe Analítico Avanzado:**<br>Requerimiento procesado con éxito bajo parámetros de ultra-precisión para el usuario actual. ¿Deseas continuar con el desarrollo de tu proyecto?`;
             }
         }
 
