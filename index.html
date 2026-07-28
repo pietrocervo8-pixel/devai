@@ -1,949 +1,1148 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevAI Ultimate Pro - Hyper-Intelligence Engine</title>
-    <style>
-        :root {
-            --bg-base: #07090e;
-            --bg-surface: #0d1117;
-            --bg-card: #161b22;
-            --border: #30363d;
-            --border-hover: #58a6ff;
-            --accent: #58a6ff;
-            --accent-glow: rgba(88, 166, 255, 0.3);
-            --text-main: #f0f6fc;
-            --text-secondary: #8b949e;
-            --text-muted: #484f58;
-            --danger: #f85149;
-            --success: #2ea043;
-            --admin-gold: #f1e05a;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevAI Ultimate Pro - Hyper-Intelligence Engine</title>
+    <style>
+        :root {
+            --bg-base: #07090e;
+            --bg-surface: #0d1117;
+            --bg-card: #161b22;
+            --border: #30363d;
+            --border-hover: #58a6ff;
+            --accent: #58a6ff;
+            --accent-glow: rgba(88, 166, 255, 0.3);
+            --text-main: #f0f6fc;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            --danger: #f85149;
+            --success: #2ea043;
+        }
 
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
 
-        /* Capa de Modales / Tarjetas de Autenticación */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(6px);
-            justify-content: center;
-            align-items: center;
-            z-index: 3000;
-        }
+        /* Pantalla de Inicio / Verificación PRO */
+        #loginOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #111b2b 0%, #07090e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .login-card {
+            background: var(--bg-surface);
+            padding: 36px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            text-align: left;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.7), 0 0 20px rgba(88, 166, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            animation: scanLine 3s linear infinite;
+        }
+        @keyframes scanLine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .login-card .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .app-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), #1f6feb);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        .login-card h2 {
+            color: var(--text-main);
+            margin: 0 0 4px 0;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .login-card p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 24px;
+            line-height: 1.4;
+        }
+        .login-card label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .login-card input {
+            width: 100%;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            background-color: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            box-sizing: border-box;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .login-card input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .login-card button {
+            width: 100%;
+            padding: 12px;
+            background-color: #238636;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);
+        }
+        .login-card button:hover {
+            background-color: #2ea043;
+            box-shadow: 0 6px 16px rgba(46, 160, 67, 0.4);
+        }
 
-        .login-card {
-            background: var(--bg-surface);
-            padding: 32px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            text-align: left;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.7), 0 0 20px rgba(88, 166, 255, 0.1);
-            position: relative;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-        .login-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            animation: scanLine 3s linear infinite;
-        }
-        @keyframes scanLine {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-        .login-card .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .app-logo {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--accent), #1f6feb);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            color: white;
-            font-size: 20px;
-            box-shadow: 0 0 15px var(--accent-glow);
-        }
-        .login-card h2 {
-            color: var(--text-main);
-            margin: 0 0 4px 0;
-            font-size: 18px;
-            font-weight: 700;
-        }
-        .login-card p {
-            color: var(--text-secondary);
-            font-size: 13px;
-            margin-bottom: 24px;
-            line-height: 1.4;
-        }
-        .login-card label {
-            display: block;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .login-card input {
-            width: 100%;
-            padding: 12px 14px;
-            margin-bottom: 16px;
-            background-color: var(--bg-base);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text-main);
-            box-sizing: border-box;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
-        .login-card input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-glow);
-        }
-        .login-card button.action-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: #238636;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-            box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);
-        }
-        .login-card button.action-btn:hover {
-            background-color: #2ea043;
-        }
-        .login-card button.secondary-action-btn {
-            width: 100%;
-            padding: 10px;
-            background-color: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 12px;
-            margin-top: 8px;
-            transition: all 0.2s;
-        }
-        .login-card button.secondary-action-btn:hover {
-            background-color: var(--bg-base);
-            color: var(--text-main);
-            border-color: var(--border-hover);
-        }
+        /* Widget de verificación robot PRO */
+        .recaptcha-box {
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .recaptcha-box:hover {
+            border-color: var(--border-hover);
+        }
+        .recaptcha-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .recaptcha-checkbox {
+            width: 24px;
+            height: 24px;
+            background: var(--bg-surface);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .recaptcha-box.verified .recaptcha-checkbox {
+            border-color: var(--success);
+            background: rgba(46, 160, 67, 0.1);
+        }
+        .recaptcha-checkmark {
+            display: none;
+            color: var(--success);
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .recaptcha-box.verified .recaptcha-checkmark {
+            display: block;
+        }
+        .recaptcha-text {
+            font-size: 13px;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+        .recaptcha-right {
+            display: flex;
+            align-items: center;
+        }
+        .recaptcha-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+        .recaptcha-box.verifying .recaptcha-spinner {
+            display: block;
+        }
 
-        /* reCAPTCHA Pro Widget */
-        .recaptcha-box {
-            background: var(--bg-base);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            cursor: pointer;
-            transition: border-color 0.2s;
-        }
-        .recaptcha-box:hover {
-            border-color: var(--border-hover);
-        }
-        .recaptcha-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .recaptcha-checkbox {
-            width: 24px;
-            height: 24px;
-            background: var(--bg-surface);
-            border: 2px solid var(--border);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-        .recaptcha-box.verified .recaptcha-checkbox {
-            border-color: var(--success);
-            background: rgba(46, 160, 67, 0.1);
-        }
-        .recaptcha-checkmark {
-            display: none;
-            color: var(--success);
-            font-size: 16px;
-            font-weight: bold;
-        }
-        .recaptcha-box.verified .recaptcha-checkmark {
-            display: block;
-        }
-        .recaptcha-text {
-            font-size: 13px;
-            color: var(--text-main);
-            font-weight: 500;
-        }
-        .recaptcha-right {
-            display: flex;
-            align-items: center;
-        }
-        .recaptcha-spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border);
-            border-top: 2px solid var(--accent);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            display: none;
-        }
-        .recaptcha-box.verifying .recaptcha-spinner {
-            display: block;
-        }
+        /* Pantallas de carga con efectos cibernéticos */
+        .loading-screen {
+            text-align: center;
+            padding: 30px 0;
+        }
+        .cyber-loader {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+            margin: 0 auto 20px auto;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            font-size: 14px;
+            color: var(--accent);
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
 
-        /* Pantallas de carga */
-        .loading-screen {
-            text-align: center;
-            padding: 30px 0;
-        }
-        .cyber-loader {
-            width: 60px;
-            height: 60px;
-            border: 3px solid var(--border);
-            border-top: 3px solid var(--accent);
-            border-radius: 50%;
-            animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
-            margin: 0 auto 20px auto;
-            box-shadow: 0 0 15px var(--accent-glow);
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .loading-text {
-            font-size: 14px;
-            color: var(--accent);
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
+        /* Estructura Principal */
+        #appContainer {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: row;
+        }
 
-        /* Estructura Principal */
-        #appContainer {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            flex-direction: row;
-        }
+        sidebar {
+            width: 260px;
+            background-color: var(--bg-surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 14px;
+            box-sizing: border-box;
+        }
+        .sidebar-top {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .sidebar-brand {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            padding: 6px 8px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar-brand .app-logo-mini {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--accent), #1f6feb);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: white;
+            font-size: 12px;
+        }
+        .sidebar-btn {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+            padding: 9px 10px;
+            border-radius: 6px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+        }
+        .sidebar-btn:hover {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            border-color: var(--border);
+        }
+        .chats-title {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 700;
+            padding: 16px 10px 6px 10px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+        .chats-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .chats-list::-webkit-scrollbar {
+            width: 3px;
+        }
+        .chats-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+        .chat-item {
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.15s;
+        }
+        .chat-item:hover {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+        }
+        .chat-item.active {
+            background-color: var(--bg-card);
+            color: var(--accent);
+            font-weight: 600;
+            border: 1px solid var(--border);
+        }
+        .no-chats {
+            font-size: 12px;
+            color: var(--text-muted);
+            padding: 10px;
+        }
 
-        sidebar {
-            width: 260px;
-            background-color: var(--bg-surface);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 14px;
-            box-sizing: border-box;
-        }
-        .sidebar-top {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-            overflow: hidden;
-        }
-        .sidebar-brand {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-main);
-            padding: 6px 8px;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .sidebar-brand .app-logo-mini {
-            width: 24px;
-            height: 24px;
-            background: linear-gradient(135deg, var(--accent), #1f6feb);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            color: white;
-            font-size: 12px;
-        }
-        .sidebar-btn {
-            background-color: transparent;
-            color: var(--text-secondary);
-            border: 1px solid transparent;
-            padding: 9px 10px;
-            border-radius: 6px;
-            text-align: left;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.15s;
-        }
-        .sidebar-btn:hover {
-            background-color: var(--bg-card);
-            color: var(--text-main);
-            border-color: var(--border);
-        }
-        .chats-title {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 700;
-            padding: 16px 10px 6px 10px;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-        }
-        .chats-list {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            overflow-y: auto;
-            flex: 1;
-        }
-        .chats-list::-webkit-scrollbar {
-            width: 3px;
-        }
-        .chats-list::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 3px;
-        }
-        .chat-item {
-            font-size: 13px;
-            color: var(--text-secondary);
-            padding: 8px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            transition: all 0.15s;
-        }
-        .chat-item:hover {
-            background-color: var(--bg-card);
-            color: var(--text-main);
-        }
-        .chat-item.active {
-            background-color: var(--bg-card);
-            color: var(--accent);
-            font-weight: 600;
-            border: 1px solid var(--border);
-        }
-        .no-chats {
-            font-size: 12px;
-            color: var(--text-muted);
-            padding: 10px;
-        }
+        .sidebar-footer {
+            border-top: 1px solid var(--border);
+            padding-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .user-profile-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 8px;
+            border-radius: 6px;
+        }
+        .user-profile-row:hover {
+            background-color: var(--bg-card);
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow: hidden;
+        }
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--accent), #1f6feb);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .user-meta-name {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .user-meta-email {
+            color: var(--text-muted);
+            font-size: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-        .sidebar-footer {
-            border-top: 1px solid var(--border);
-            padding-top: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .user-profile-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 6px 8px;
-            border-radius: 6px;
-        }
-        .user-profile-row:hover {
-            background-color: var(--bg-card);
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            overflow: hidden;
-        }
-        .user-avatar {
-            width: 28px;
-            height: 28px;
-            background: linear-gradient(135deg, var(--accent), #1f6feb);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: white;
-            font-size: 12px;
-            flex-shrink: 0;
-        }
-        .user-meta-name {
-            font-weight: 600;
-            color: var(--text-main);
-            font-size: 12px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .user-meta-email {
-            color: var(--text-muted);
-            font-size: 10px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-base);
+            height: 100%;
+        }
+        header {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-surface);
+        }
+        .header-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-title b {
+            color: var(--text-main);
+        }
 
-        .main-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--bg-base);
-            height: 100%;
-            position: relative;
-        }
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        .message {
+            padding: 14px 18px;
+            border-radius: 12px;
+            max-width: 88%;
+            font-size: 13px;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+        .ai-message {
+            background-color: var(--bg-surface);
+            color: var(--text-main);
+            align-self: flex-start;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .user-message {
+            background: linear-gradient(135deg, #1f6feb, #388bfd);
+            color: white;
+            align-self: flex-end;
+            box-shadow: 0 4px 12px rgba(31, 111, 235, 0.3);
+        }
+        .msg-img {
+            max-width: 220px;
+            max-height: 160px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: block;
+            border: 1px solid var(--border);
+        }
+        pre {
+            background: var(--bg-base);
+            padding: 14px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            color: #79c0ff;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 12px;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
 
-        /* Botones superiores derechos para invitados y usuario */
-        .top-auth-buttons {
-            position: absolute;
-            top: 12px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 10;
-            align-items: center;
-        }
-        .auth-top-btn {
-            background-color: transparent;
-            color: var(--accent);
-            border: 1px solid var(--accent);
-            padding: 7px 14px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-        .auth-top-btn:hover {
-            background-color: var(--accent);
-            color: var(--bg-base);
-        }
-        .auth-top-btn.primary {
-            background-color: var(--accent);
-            color: var(--bg-base);
-        }
-        .auth-top-btn.primary:hover {
-            background-color: #4184e4;
-        }
+        .thinking-indicator {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background-color: var(--bg-surface);
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            align-self: flex-start;
+            font-size: 12px;
+            color: var(--text-secondary);
+            max-width: 420px;
+            width: 100%;
+        }
+        .thinking-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .thinking-steps {
+            font-size: 11px;
+            color: var(--text-muted);
+            padding-left: 26px;
+            font-family: monospace;
+        }
 
-        header {
-            padding: 12px 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: var(--bg-surface);
-            padding-right: 180px; /* Espacio para los botones */
-        }
-        .header-title {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .header-title b {
-            color: var(--text-main);
-        }
+        .input-area-wrapper {
+            padding: 16px 24px 20px 24px;
+            background-color: var(--bg-base);
+            display: flex;
+            justify-content: center;
+        }
+        .input-box {
+            max-width: 800px;
+            width: 100%;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .input-box:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .textarea-wrapper textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 13px;
+            outline: none;
+            resize: none;
+            max-height: 120px;
+            font-family: inherit;
+        }
+        .input-bottom-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+            padding-top: 8px;
+        }
+        .tools-group {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .tool-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+        .tool-btn:hover {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border-color: var(--border);
+        }
+        .attachment-tag {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-card);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+        .attachment-tag img {
+            width: 18px;
+            height: 18px;
+            object-fit: cover;
+            border-radius: 3px;
+        }
+        .send-btn {
+            background: #238636;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 7px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.15s;
+            box-shadow: 0 2px 8px rgba(35, 134, 54, 0.3);
+        }
+        .send-btn:hover {
+            background: #2ea043;
+        }
 
-        .chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
-            box-sizing: border-box;
-        }
-        .message {
-            padding: 14px 18px;
-            border-radius: 12px;
-            max-width: 88%;
-            font-size: 13px;
-            line-height: 1.6;
-            word-break: break-word;
-        }
-        .ai-message {
-            background-color: var(--bg-surface);
-            color: var(--text-main);
-            align-self: flex-start;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        .user-message {
-            background: linear-gradient(135deg, #1f6feb, #388bfd);
-            color: white;
-            align-self: flex-end;
-            box-shadow: 0 4px 12px rgba(31, 111, 235, 0.3);
-        }
-        .msg-img {
-            max-width: 220px;
-            max-height: 160px;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            display: block;
-            border: 1px solid var(--border);
-        }
-        pre {
-            background: var(--bg-base);
-            padding: 14px;
-            border-radius: 8px;
-            overflow-x: auto;
-            border: 1px solid var(--border);
-            color: #79c0ff;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-size: 12px;
-            margin-top: 10px;
-            line-height: 1.5;
-        }
-
-        .thinking-indicator {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            background-color: var(--bg-surface);
-            padding: 14px 18px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            align-self: flex-start;
-            font-size: 12px;
-            color: var(--text-secondary);
-            max-width: 420px;
-            width: 100%;
-        }
-        .thinking-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-main);
-            font-weight: 600;
-        }
-        .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid var(--border);
-            border-top: 2px solid var(--accent);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        .input-area-wrapper {
-            padding: 16px 24px 20px 24px;
-            background-color: var(--bg-base);
-            display: flex;
-            justify-content: center;
-        }
-        .input-box {
-            max-width: 800px;
-            width: 100%;
-            background-color: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 10px 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-        .input-box:focus-within {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-glow);
-        }
-        .textarea-wrapper textarea {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: var(--text-main);
-            font-size: 13px;
-            outline: none;
-            resize: none;
-            max-height: 120px;
-            font-family: inherit;
-        }
-        .input-bottom-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid var(--border);
-            padding-top: 8px;
-        }
-        .tools-group {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-        .tool-btn {
-            background: transparent;
-            border: 1px solid transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 12px;
-            padding: 6px 10px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.15s;
-        }
-        .tool-btn:hover {
-            background: var(--bg-card);
-            color: var(--text-main);
-            border-color: var(--border);
-        }
-        .attachment-tag {
-            display: none;
-            align-items: center;
-            gap: 6px;
-            background: var(--bg-card);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            color: var(--text-main);
-            border: 1px solid var(--border);
-        }
-        .attachment-tag img {
-            width: 18px;
-            height: 18px;
-            object-fit: cover;
-            border-radius: 3px;
-        }
-        .send-btn {
-            background: #238636;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 7px 16px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.15s;
-            box-shadow: 0 2px 8px rgba(35, 134, 54, 0.3);
-        }
-        .send-btn:hover {
-            background: #2ea043;
-        }
-
-        /* Panel de Administración Oculto para Dueño */
-        .admin-panel-card {
-            background: var(--bg-surface);
-            padding: 24px;
-            border-radius: 14px;
-            border: 1px solid var(--admin-gold);
-            max-width: 550px;
-            width: 100%;
-            box-sizing: border-box;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 15px rgba(241, 224, 90, 0.2);
-        }
-        .admin-panel-card h3 {
-            color: var(--admin-gold);
-            margin-top: 0;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .user-management-list {
-            max-height: 220px;
-            overflow-y: auto;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin: 12px 0;
-            background: var(--bg-base);
-        }
-        .user-mgmt-item {
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-        }
-        .user-mgmt-item:last-child {
-            border-bottom: none;
-        }
-        .mgmt-actions {
-            display: flex;
-            gap: 6px;
-        }
-        .mgmt-btn {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-        }
-        .btn-ban { background: #5a1d1d; color: #ff7b72; }
-        .btn-ban:hover { background: #822222; }
-        .btn-del { background: #b62324; color: white; }
-        .btn-del:hover { background: #da3633; }
-        .btn-edit { background: var(--border); color: var(--text-main); }
-        .btn-edit:hover { background: var(--border-hover); }
-    </style>
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+        .modal-card {
+            background: var(--bg-surface);
+            padding: 28px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            max-width: 400px;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+        }
+        .modal-card h3 {
+            color: var(--text-main);
+            margin-top: 0;
+            font-size: 16px;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+        .modal-card label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        .modal-card input {
+            width: 100%;
+            padding: 11px;
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 13px;
+            box-sizing: border-box;
+            margin-bottom: 14px;
+        }
+        .modal-card input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Botones Superiores (Siempre visibles en la página principal) -->
-    <div class="top-auth-buttons" id="topAuthButtons">
-        <button class="auth-top-btn" onclick="openLoginModal()">Iniciar Sesión</button>
-        <button class="auth-top-btn primary" onclick="openRegisterModal()">Crear Cuenta</button>
-    </div>
+    <!-- Pantalla de Inicio / Verificación Secuencial PRO -->
+    <div id="loginOverlay">
+        
+        <!-- PASO 1: Nombre, Correo y reCAPTCHA interactivo -->
+        <div class="login-card" id="loginCardStep1">
+            <div class="logo-area">
+                <div class="app-logo">D</div>
+                <div>
+                    <h2>DevAI Ultimate Pro</h2>
+                    <span style="font-size:11px; color:var(--text-secondary);">Motor de Hiper-Inteligencia</span>
+                </div>
+            </div>
+            <p>Identifícate en el sistema y verifica tus credenciales.</p>
+            <label>Nombre</label>
+            <input type="text" id="inputLoginName" placeholder="Tu nombre">
+            <label>Correo Electrónico</label>
+            <input type="email" id="inputLoginEmail" placeholder="correo@ejemplo.com">
+            
+            <!-- Widget de verificación de robot PRO -->
+            <div class="recaptcha-box" id="recaptchaBox" onclick="triggerVerification()">
+                <div class="recaptcha-left">
+                    <div class="recaptcha-checkbox">
+                        <div class="recaptcha-checkmark">✓</div>
+                    </div>
+                    <span class="recaptcha-text" id="recaptchaText">No soy un robot</span>
+                </div>
+                <div class="recaptcha-right">
+                    <div class="recaptcha-spinner" id="recaptchaSpinner"></div>
+                </div>
+            </div>
 
-    <!-- Interfaz Principal (Se puede usar sin iniciar sesión) -->
-    <div id="appContainer">
-        <sidebar>
-            <div class="sidebar-top">
-                <div class="sidebar-brand">
-                    <div class="app-logo-mini">D</div>
-                    <span>DevAI Pro</span>
-                </div>
-                
-                <button class="sidebar-btn" onclick="createNewChat()"><span>＋</span> Nuevo chat</button>
-                <button class="sidebar-btn" onclick="clearCurrentChatHistory()"><span>⟳</span> Limpiar chat</button>
-                <button class="sidebar-btn" onclick="exportCurrentChat()"><span>↓</span> Exportar registro</button>
-                
-                <div class="chats-title">Conversaciones</div>
-                <div class="chats-list" id="chatsList">
-                    <div class="no-chats" id="noChatsMsg">Sin chats recientes.</div>
-                </div>
-            </div>
+            <button onclick="proceedToPassword()">Continuar</button>
+        </div>
 
-            <div class="sidebar-footer" id="sidebarFooter">
-                <div class="user-profile-row" id="guestFooterRow">
-                    <div class="user-info">
-                        <div class="user-avatar">?</div>
-                        <div style="overflow:hidden;">
-                            <div class="user-meta-name">Modo Invitado</div>
-                            <div class="user-meta-email">Sin iniciar sesión</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </sidebar>
+        <!-- PASO 2: Verificando (Carga 1) -->
+        <div class="login-card" id="loginCardLoading1" style="display:none;">
+            <div class="loading-screen">
+                <div class="cyber-loader"></div>
+                <div class="loading-text" id="loadingText1">Verificando identidad...</div>
+            </div>
+        </div>
 
-        <div class="main-area">
-            <header>
-                <div class="header-title">
-                    <span>Sesión activa:</span> <b id="currentChatTitle">Nuevo chat</b>
-                </div>
-                <div style="font-size: 11px; color: var(--text-secondary); display:flex; align-items:center; gap:6px;">
-                    <div style="width:6px; height:6px; background:var(--success); border-radius:50%; box-shadow: 0 0 6px var(--success);"></div>
-                    Hyper-Intelligence Engine Pro v7.5
-                </div>
-            </header>
+        <!-- PASO 3: Contraseña -->
+        <div class="login-card" id="loginCardStep2" style="display:none;">
+            <div class="logo-area">
+                <div class="app-logo">D</div>
+                <div>
+                    <h2>Seguridad Avanzada</h2>
+                    <span style="font-size:11px; color:var(--text-secondary);">Credencial de Acceso</span>
+                </div>
+            </div>
+            <p>Introduce tu contraseña cifrada para desbloquear el núcleo.</p>
+            <label>Contraseña</label>
+            <input type="password" id="inputLoginPassword" placeholder="••••••••">
+            <button onclick="verifyPasswordAction()">Verificar contraseña</button>
+        </div>
 
-            <div class="chat-container" id="chatContainer">
-                <!-- Los mensajes se inyectan dinámicamente -->
-            </div>
+        <!-- PASO 4: Verificando (Carga 2) -->
+        <div class="login-card" id="loginCardLoading2" style="display:none;">
+            <div class="loading-screen">
+                <div class="cyber-loader"></div>
+                <div class="loading-text" id="loadingText2">Validando cifrado...</div>
+            </div>
+        </div>
 
-            <div class="input-area-wrapper">
-                <div class="input-box">
-                    <div class="textarea-wrapper">
-                        <textarea id="userInput" placeholder="Escribe tu consulta o código avanzado aquí..." rows="1" oninput="autoResize(this)" onkeypress="handleKeyPress(event)"></textarea>
-                    </div>
-                    
-                    <div class="input-bottom-actions">
-                        <div class="tools-group">
-                            <label class="tool-btn" title="Adjuntar imagen">
-                                <span>📎</span> <span>Imagen</span>
-                                <input type="file" id="imageUploader" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
-                            </label>
-                            <div class="attachment-tag" id="imageTagContainer">
-                                <img id="tagThumb" src="" alt="preview">
-                                <span id="tagName">archivo.png</span>
-                                <span onclick="removeAttachedImage()" style="cursor:pointer; color:var(--danger); font-weight:bold; margin-left:2px;">✕</span>
-                            </div>
-                        </div>
+        <!-- PASO 5: Bienvenido a Devai -->
+        <div class="login-card" id="loginCardWelcome" style="display:none; text-align:center;">
+            <div style="font-size:48px; margin-bottom:12px; filter: drop-shadow(0 0 10px rgba(88,166,255,0.4));">🚀</div>
+            <h2 style="font-size:20px; margin-bottom:8px; color:var(--text-main);">Bienvenido a Devai</h2>
+            <p id="welcomeUserSub" style="color:var(--text-secondary); font-size:13px; margin-bottom:24px;">Núcleo cognitivo sincronizado correctamente.</p>
+            <button onclick="enterApplication()" style="background: linear-gradient(135deg, #1f6feb, #388bfd);">Entrar al sistema</button>
+        </div>
 
-                        <button class="send-btn" onclick="sendMessage()">Procesar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    </div>
 
-    <!-- MODAL: Iniciar Sesión (Correo, Contraseña y Captcha) -->
-    <div class="modal-overlay" id="loginModal">
-        <div class="login-card">
-            <div class="logo-area">
-                <div class="app-logo">D</div>
-                <div>
-                    <h2>Iniciar Sesión Pro</h2>
-                    <span style="font-size:11px; color:var(--text-secondary);">Acceso al Sistema</span>
-                </div>
-            </div>
-            <p>Introduce tu correo electrónico y contraseña guardados.</p>
-            
-            <label>Correo Electrónico</label>
-            <input type="email" id="inputLoginEmail" placeholder="correo@ejemplo.com">
-            
-            <label>Contraseña</label>
-            <input type="password" id="inputLoginPassword" placeholder="••••••••">
+    <!-- Interfaz Principal -->
+    <div id="appContainer">
+        <sidebar>
+            <div class="sidebar-top">
+                <div class="sidebar-brand">
+                    <div class="app-logo-mini">D</div>
+                    <span>DevAI Pro</span>
+                </div>
+                
+                <button class="sidebar-btn" onclick="createNewChat()"><span>＋</span> Nuevo chat</button>
+                <button class="sidebar-btn" onclick="clearCurrentChatHistory()"><span>⟳</span> Limpiar chat</button>
+                <button class="sidebar-btn" onclick="exportCurrentChat()"><span>↓</span> Exportar registro</button>
+                
+                <div class="chats-title">Conversaciones</div>
+                <div class="chats-list" id="chatsList">
+                    <div class="no-chats" id="noChatsMsg">Sin chats recientes.</div>
+                </div>
+            </div>
 
-            <!-- reCAPTCHA en Inicio de Sesión -->
-            <div class="recaptcha-box" id="recaptchaLoginBox" onclick="triggerLoginVerification()">
-                <div class="recaptcha-left">
-                    <div class="recaptcha-checkbox">
-                        <div class="recaptcha-checkmark">✓</div>
-                    </div>
-                    <span class="recaptcha-text" id="recaptchaLoginText">No soy un robot</span>
-                </div>
-                <div class="recaptcha-right">
-                    <div class="recaptcha-spinner" id="recaptchaLoginSpinner"></div>
-                </div>
-            </div>
+            <div class="sidebar-footer">
+                <button class="sidebar-btn" onclick="openAccountModal()"><span>⚙</span> Configurar cuenta</button>
+                <div class="user-profile-row">
+                    <div class="user-info">
+                        <div class="user-avatar" id="sidebarAvatar">P</div>
+                        <div style="overflow:hidden;">
+                            <div class="user-meta-name" id="sidebarName">Pietro</div>
+                            <div class="user-meta-email" id="sidebarEmail">pietro@devai.com</div>
+                        </div>
+                    </div>
+                    <button onclick="logoutSession()" style="background:transparent; border:none; color:var(--text-secondary); cursor:pointer; font-size:11px;" title="Salir">✕</button>
+                </div>
+            </div>
+        </sidebar>
 
-            <button class="action-btn" onclick="executeLogin()">Iniciar Sesión</button>
-            <button class="secondary-action-btn" onclick="closeAllModals()">Cancelar</button>
-        </div>
-    </div>
+        <div class="main-area">
+            <header>
+                <div class="header-title">
+                    <span>Sesión activa:</span> <b id="currentChatTitle">Nuevo chat</b>
+                </div>
+                <div style="font-size: 11px; color: var(--text-secondary); display:flex; align-items:center; gap:6px;">
+                    <div style="width:6px; height:6px; background:var(--success); border-radius:50%; box-shadow: 0 0 6px var(--success);"></div>
+                    Hyper-Intelligence Engine Pro v7.0
+                </div>
+            </header>
 
-    <!-- MODAL: Crear Cuenta (Correo, Contraseña y Captcha) -->
-    <div class="modal-overlay" id="registerModal">
-        <div class="login-card">
-            <div class="logo-area">
-                <div class="app-logo">D</div>
-                <div>
-                    <h2>Crear Cuenta Pro</h2>
-                    <span style="font-size:11px; color:var(--text-secondary);">Registro de Credenciales</span>
-                </div>
-            </div>
-            <p>Regístra tu cuenta para guardar tus datos de forma segura.</p>
-            
-            <label>Correo Electrónico</label>
-            <input type="email" id="inputRegEmail" placeholder="correo@ejemplo.com">
-            
-            <label>Contraseña</label>
-            <input type="password" id="inputRegPassword" placeholder="••••••••">
+            <div class="chat-container" id="chatContainer">
+                <div class="message ai-message">
+                    Hola, <span id="welcomeUserName">Pietro</span>. El motor de hiper-inteligencia analítica está activo con capacidades avanzadas. Indícame tus requerimientos de desarrollo o scripts para comenzar.
+                </div>
+            </div>
 
-            <!-- reCAPTCHA en Registro -->
-            <div class="recaptcha-box" id="recaptchaRegBox" onclick="triggerRegVerification()">
-                <div class="recaptcha-left">
-                    <div class="recaptcha-checkbox">
-                        <div class="recaptcha-checkmark">✓</div>
-                    </div>
-                    <span class="recaptcha-text" id="recaptchaRegText">No soy un robot</span>
-                </div>
-                <div class="recaptcha-right">
-                    <div class="recaptcha-spinner" id="recaptchaRegSpinner"></div>
-                </div>
-            </div>
+            <div class="input-area-wrapper">
+                <div class="input-box">
+                    <div class="textarea-wrapper">
+                        <textarea id="userInput" placeholder="Escribe tu consulta o pega tu código aquí..." rows="1" oninput="autoResize(this)" onkeypress="handleKeyPress(event)"></textarea>
+                    </div>
+                    
+                    <div class="input-bottom-actions">
+                        <div class="tools-group">
+                            <label class="tool-btn" title="Adjuntar imagen">
+                                <span>📎</span> <span>Imagen</span>
+                                <input type="file" id="imageUploader" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+                            </label>
+                            <div class="attachment-tag" id="imageTagContainer">
+                                <img id="tagThumb" src="" alt="preview">
+                                <span id="tagName">archivo.png</span>
+                                <span onclick="removeAttachedImage()" style="cursor:pointer; color:var(--danger); font-weight:bold; margin-left:2px;">✕</span>
+                            </div>
+                        </div>
 
-            <button class="action-btn" onclick="executeRegister()">Registrar Cuenta</button>
-            <button class="secondary-action-btn" onclick="closeAllModals()">Cancelar</button>
-        </div>
-    </div>
+                        <button class="send-btn" onclick="sendMessage()">Procesar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- MODAL: Panel de Administración Exclusivo para el Dueño -->
-    <div class="modal-overlay" id="adminPanelModal">
-        <div class="admin-panel-card">
-            <h3><span>🛡️</span> Panel de Control del Dueño (pietrocervo8@gmail.com)</h3>
-            <p style="font-size:12px; color:var://text-secondary; margin-bottom:10px;">Gestión avanzada de usuarios registrados en el sistema:</p>
-            
-            <div class="user-management-list" id="userManagementList">
-                <!-- Se llena dinámicamente -->
-            </div>
+    <!-- Modal de Configuración -->
+    <div class="modal-overlay" id="accountModal">
+        <div class="modal-card">
+            <h3>Configuración de cuenta</h3>
+            <label>Nombre</label>
+            <input type="text" id="modalAccountName">
+            <label>Correo Electrónico</label>
+            <input type="email" id="modalAccountEmail">
+            <div class="modal-buttons">
+                <button class="send-btn" onclick="saveAccountSettings()" style="flex:1;">Guardar</button>
+                <button onclick="closeAccountModal()" style="background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:6px; padding:8px; cursor:pointer; flex:1; font-size:12px;">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
-            <div style="display:flex; justify-content:flex-end; margin-top:14px;">
-                <button onclick="closeAdminModal()" class="send-btn" style="background:var(--border); color:var(--text-main);">Cerrar Panel</button>
-            </div>
-        </div>
-    </div>
+    <script>
+        let globalUserName = "Pietro";
+        let globalUserEmail = "pietro@devai.com";
+        let chatSessions = [];
+        let activeChatId = null;
+        let attachedImageBase64 = null;
+        let attachedImageName = "";
+        let isRobotVerified = false;
 
-    <!-- MODAL: Modificar Usuario (Admin) -->
-    <div class="modal-overlay" id="editUserModal">
-        <div class="login-card">
-            <h3>Modificar Usuario</h3>
-            <p style="font-size:12px;">Edita las credenciales de este usuario.</p>
-            <input type="hidden" id="editUserOldEmail">
-            <label>Nuevo Correo</label>
-            <input type="email" id="editUserNewEmail">
-            <label>Nueva Contraseña</label>
-            <input type="text" id="editUserNewPassword">
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <button class="action-btn" onclick="saveEditedUser()">Guardar Cambios</button>
-                <button class="secondary-action-btn" onclick="closeEditModal()" style="margin-top:0;">Cancelar</button>
-            </div>
-        </div>
-    </div>
+        window.onload = function() {
+            createNewChat();
+        };
 
-    <script>
-        // Base de datos local segura persistente en localStorage
-        let registeredUsers = JSON.parse(localStorage.getItem('devai_users')) || [
-            { email: "pietrocervo8@gmail.com", password: "adminPassword123", banned: false }
-        ];
+        function triggerVerification() {
+            if(isRobotVerified) return;
+            const box = document.getElementById('recaptchaBox');
+            box.classList.add('verifying');
 
-        let currentUser = JSON.parse(localStorage.getItem('devai_current_user')) || null;
-        let chatSessions = [];
-        let activeChatId = null;
-        let attachedImageBase64 = null;
-        let attachedImageName = "";
+            setTimeout(() => {
+                box.classList.remove('verifying');
+                box.classList.add('verified');
+                isRobotVerified = true;
+            }, 1000);
+        }
 
-        let isLoginVerified = false;
-        let isRegVerified = false;
+        function proceedToPassword() {
+            const name = document.getElementById('inputLoginName').value.trim();
+            const email = document.getElementById('inputLoginEmail').value.trim();
 
-        window.onload = function() {
-            if(currentUser) {
-                if(currentUser.banned) {
-                    alert("Tu cuenta ha sido suspendida (baneada) por el administrador.");
-                    logoutSession();
-                    return;
-                }
-                applyUserSessionUI();
-            } else {
-                createNewChatWithWelcomeMessage();
-            }
-        };
+            if(!name || !email) {
+                alert('Por favor completa todos los campos.');
+                return;
+            }
+            if(!email.includes('@')) {
+                alert('Introduce un correo electrónico válido.');
+                return;
+            }
+            if(!isRobotVerified) {
+                alert('Por favor confirma que no eres un robot haciendo clic en la casilla.');
+                return;
+            }
 
-        function openLoginModal() {
-            isLoginVerified = false;
-            d
+            globalUserName = name;
+            globalUserEmail = email;
+
+            document.getElementById('loginCardStep1').style.display = 'none';
+            document.getElementById('loginCardLoading1').style.display = 'block';
+
+            setTimeout(() => {
+                document.getElementById('loginCardLoading1').style.display = 'none';
+                document.getElementById('loginCardStep2').style.display = 'block';
+            }, 1400);
+        }
+
+        function verifyPasswordAction() {
+            const pass = document.getElementById('inputLoginPassword').value.trim();
+            if(!pass) {
+                alert('Por favor introduce tu contraseña.');
+                return;
+            }
+
+            document.getElementById('loginCardStep2').style.display = 'none';
+            document.getElementById('loginCardLoading2').style.display = 'block';
+
+            setTimeout(() => {
+                document.getElementById('loginCardLoading2').style.display = 'none';
+                document.getElementById('welcomeUserSub').textContent = `Hola, ${globalUserName}. Acceso autorizado correctamente.`;
+                document.getElementById('loginCardWelcome').style.display = 'block';
+            }, 1400);
+        }
+
+        function enterApplication() {
+            document.getElementById('sidebarName').textContent = globalUserName;
+            document.getElementById('welcomeUserName').textContent = globalUserName;
+            document.getElementById('sidebarEmail').textContent = globalUserEmail;
+            document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
+
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'flex';
+
+            renderChatList();
+            renderActiveChatContent();
+        }
+
+        function logoutSession() {
+            location.reload();
+        }
+
+        function openAccountModal() {
+            document.getElementById('modalAccountName').value = globalUserName;
+            document.getElementById('modalAccountEmail').value = globalUserEmail;
+            document.getElementById('accountModal').style.display = 'flex';
+        }
+
+        function closeAccountModal() {
+            document.getElementById('accountModal').style.display = 'none';
+        }
+
+        function saveAccountSettings() {
+            const newName = document.getElementById('modalAccountName').value.trim();
+            const newEmail = document.getElementById('modalAccountEmail').value.trim();
+
+            if(!newName || !newEmail) {
+                alert('Los campos no pueden estar vacíos.');
+                return;
+            }
+
+            globalUserName = newName;
+            globalUserEmail = newEmail;
+
+            document.getElementById('sidebarName').textContent = globalUserName;
+            document.getElementById('welcomeUserName').textContent = globalUserName;
+            document.getElementById('sidebarEmail').textContent = globalUserEmail;
+            document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
+
+            closeAccountModal();
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        function createNewChat() {
+            const newId = Date.now();
+            const chatObj = {
+                id: newId,
+                title: "Nuevo chat",
+                messages: [
+                    { sender: 'ai', text: `Entorno de hiper-inteligencia inicializado para ${globalUserName}. El núcleo cognitivo está listo para procesar consultas complejas.` }
+                ]
+            };
+            chatSessions.unshift(chatObj);
+            activeChatId = newId;
+            renderChatList();
+            renderActiveChatContent();
+        }
+
+        function renderChatList() {
+            const list = document.getElementById('chatsList');
+            list.innerHTML = '';
+
+            if(chatSessions.length === 0) {
+                list.innerHTML = `<div class="no-chats" id="noChatsMsg">Sin chats recientes.</div>`;
+                return;
+            }
+
+            chatSessions.forEach(chat => {
+                const item = document.createElement('div');
+                item.className = `chat-item ${chat.id === activeChatId ? 'active' : ''}`;
+                item.textContent = chat.title;
+                item.onclick = () => {
+                    activeChatId = chat.id;
+                    renderChatList();
+                    renderActiveChatContent();
+                };
+                list.appendChild(item);
+            });
+        }
+
+        function renderActiveChatContent() {
+            const container = document.getElementById('chatContainer');
+            container.innerHTML = '';
+
+            const currentChat = chatSessions.find(c => c.id === activeChatId);
+            if(!currentChat) return;
+
+            document.getElementById('currentChatTitle').textContent = currentChat.title;
+
+            currentChat.messages.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = `message ${msg.sender === 'user' ? 'user-message' : 'ai-message'}`;
+
+                let html = '';
+                if(msg.image) {
+                    html += `<img src="${msg.image}" class="msg-img" alt="adjunto">`;
+                }
+                html += `<div>${msg.text}</div>`;
+                div.innerHTML = html;
+                container.appendChild(div);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearCurrentChatHistory() {
+            const currentChat = chatSessions.find(c => c.id === activeChatId);
+            if(currentChat) {
+                currentChat.messages = [
+                    { sender: 'ai', text: "Historial cognitivo restablecido. ¿Qué proyecto deseas estructurar hoy?" }
+                ];
+                renderActiveChatContent();
+            }
+        }
+
+        function exportCurrentChat() {
+            const currentChat = chatSessions.find(c => c.id === activeChatId);
+            if(!currentChat) return;
+
+            let exportText = `--- REGISTRO COGNITIVO DEVAI PRO: ${currentChat.title} ---\n\n`;
+            currentChat.messages.forEach(m => {
+                exportText += `[${m.sender.toUpperCase()}]: ${m.text}\n\n`;
+            });
+
+            const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `DevAI_Pro_${Date.now()}.txt`;
+            a.click();
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+
+            attachedImageName = file.name;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                attachedImageBase64 = evt.target.result;
+                document.getElementById('tagThumb').src = attachedImageBase64;
+                document.getElementById('tagName').textContent = file.name;
+                document.getElementById('imageTagContainer').style.display = 'flex';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeAttachedImage() {
+            attachedImageBase64 = null;
+            attachedImageName = "";
+            document.getElementById('imageUploader').value = "";
+            document.getElementById('imageTagContainer').style.display = 'none';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            const currentImg = attachedImageBase64;
+
+            if(text === '' && !currentImg) return;
+
+            const activeChat = chatSessions.find(c => c.id === activeChatId);
+            if(activeChat) {
+                if(activeChat.title === "Nuevo chat" && text !== '') {
+                    activeChat.title = text.length > 22 ? text.substring(0, 20) + '...' : text;
+                    renderChatList();
+                }
+                activeChat.messages.push({ sender: 'user', text: text, image: currentImg });
+            }
+
+            input.value = '';
+            input.style.height = 'auto';
+            removeAttachedImage();
+            renderActiveChatContent();
+
+            const container = document.getElementById('chatContainer');
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.className = 'thinking-indicator';
+            thinkingDiv.id = 'thinkingIndicator';
+            thinkingDiv.innerHTML = `
+                <div class="thinking-header">
+                    <div class="spinner"></div> <span>Procesando hiper-inteligencia analítica...</span>
+                </div>
+                <div class="thinking-steps" id="thinkingStepText">Analizando patrones de sintaxis y arquitectura...</div>
+            `;
+            container.appendChild(thinkingDiv);
+            container.scrollTop = container.scrollHeight;
+
+            setTimeout(() => {
+                const stepEl = document.getElementById('thinkingStepText');
+                if(stepEl) stepEl.textContent = "Optimización de nodos y lógica algorítmica...";
+            }, 800);
+
+            setTimeout(() => {
+                const indicator = document.getElementById('thinkingIndicator');
+                if(indicator) indicator.remove();
+
+                let expertResponse = "💡 **Informe Analítico Pro:**<br>He procesado tu requerimiento con éxito. La estructura lógica ha sido optimizada para garantizar el máximo rendimiento en tu entorno.";
+                
+                if(activeChat) {
+                    activeChat.messages.push({ sender: 'ai', text: expertResponse, image: null });
+                }
+                renderActiveChatContent();
+            }, 1800);
+        }
+
+        function handleKeyPress(e) {
+            if(e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>
