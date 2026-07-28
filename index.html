@@ -32,7 +32,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Pantalla de Inicio / Verificación PRO */
+        /* Pantalla de Inicio / Acceso Directo con Botón de Crear Cuenta */
         #loginOverlay {
             position: fixed;
             top: 0;
@@ -45,6 +45,28 @@
             align-items: center;
             z-index: 2000;
         }
+        
+        .top-right-create-btn {
+            position: absolute;
+            top: 24px;
+            right: 32px;
+            background-color: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            box-shadow: 0 0 15px rgba(88, 166, 255, 0.15);
+        }
+        .top-right-create-btn:hover {
+            background-color: var(--accent);
+            color: var(--bg-base);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
         .login-card {
             background: var(--bg-surface);
             padding: 36px;
@@ -129,7 +151,7 @@
             border-color: var(--accent);
             box-shadow: 0 0 0 3px var(--accent-glow);
         }
-        .login-card button {
+        .login-card button.action-btn {
             width: 100%;
             padding: 12px;
             background-color: #238636;
@@ -142,9 +164,27 @@
             transition: all 0.2s;
             box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);
         }
-        .login-card button:hover {
+        .login-card button.action-btn:hover {
             background-color: #2ea043;
             box-shadow: 0 6px 16px rgba(46, 160, 67, 0.4);
+        }
+        .login-card button.secondary-action-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+        .login-card button.secondary-action-btn:hover {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            border-color: var(--border-hover);
         }
 
         /* Widget de verificación robot PRO */
@@ -685,11 +725,14 @@
 </head>
 <body>
 
-    <!-- Pantalla de Inicio / Verificación Secuencial PRO -->
+    <!-- Pantalla de Inicio / Acceso con Botón de Crear Cuenta en la esquina superior -->
     <div id="loginOverlay">
         
-        <!-- PASO 1: Nombre, Correo y reCAPTCHA interactivo -->
-        <div class="login-card" id="loginCardStep1">
+        <!-- Botón superior derecho para abrir el flujo de crear cuenta -->
+        <button class="top-right-create-btn" onclick="openCreateAccountFlow()">Crear Cuenta</button>
+
+        <!-- PASO 1: Ingreso predeterminado (o pantalla de bienvenida de acceso) -->
+        <div class="login-card" id="loginCardWelcome">
             <div class="logo-area">
                 <div class="app-logo">D</div>
                 <div>
@@ -697,11 +740,32 @@
                     <span style="font-size:11px; color:var(--text-secondary);">Motor de Hiper-Inteligencia</span>
                 </div>
             </div>
-            <p>Identifícate en el sistema y verifica tus credenciales.</p>
-            <label>Nombre</label>
-            <input type="text" id="inputLoginName" placeholder="Tu nombre">
+            <p>Bienvenido al sistema inteligente. Inicia sesión o crea una cuenta nueva desde el botón superior.</p>
+            
             <label>Correo Electrónico</label>
             <input type="email" id="inputLoginEmail" placeholder="correo@ejemplo.com">
+            
+            <label>Contraseña</label>
+            <input type="password" id="inputLoginPassword" placeholder="••••••••">
+
+            <button class="action-btn" onclick="directLoginAction()">Iniciar Sesión</button>
+            <button class="secondary-action-btn" onclick="openCreateAccountFlow()">¿No tienes cuenta? Regístrate aquí</button>
+        </div>
+
+        <!-- PASO 2: Flujo de Crear Cuenta (Nombre, Correo y reCAPTCHA) -->
+        <div class="login-card" id="loginCardStep1" style="display:none;">
+            <div class="logo-area">
+                <div class="app-logo">D</div>
+                <div>
+                    <h2>Crear Cuenta Pro</h2>
+                    <span style="font-size:11px; color:var(--text-secondary);">Registro en el Sistema</span>
+                </div>
+            </div>
+            <p>Introduce tus datos para registrar una nueva cuenta en DevAI.</p>
+            <label>Nombre</label>
+            <input type="text" id="inputRegName" placeholder="Tu nombre">
+            <label>Correo Electrónico</label>
+            <input type="email" id="inputRegEmail" placeholder="correo@ejemplo.com">
             
             <!-- Widget de verificación de robot PRO -->
             <div class="recaptcha-box" id="recaptchaBox" onclick="triggerVerification()">
@@ -716,35 +780,36 @@
                 </div>
             </div>
 
-            <button onclick="proceedToPassword()">Continuar</button>
+            <button class="action-btn" onclick="proceedToPasswordSetup()">Continuar</button>
+            <button class="secondary-action-btn" onclick="backToWelcome()">Volver al inicio</button>
         </div>
 
-        <!-- PASO 2: Verificando (Carga 1) -->
+        <!-- PASO 3: Verificando identidad (Carga 1) -->
         <div class="login-card" id="loginCardLoading1" style="display:none;">
             <div class="loading-screen">
                 <div class="cyber-loader"></div>
-                <div class="loading-text">Verificando identidad...</div>
+                <div class="loading-text">Registrando credenciales...</div>
             </div>
         </div>
 
-        <!-- PASO 3: Contraseña y Confirmar Contraseña -->
+        <!-- PASO 4: Contraseña y Confirmar Contraseña -->
         <div class="login-card" id="loginCardStep2" style="display:none;">
             <div class="logo-area">
                 <div class="app-logo">D</div>
                 <div>
                     <h2>Seguridad Avanzada</h2>
-                    <span style="font-size:11px; color:var(--text-secondary);">Credencial de Acceso</span>
+                    <span style="font-size:11px; color:var(--text-secondary);">Contraseña y Confirmación</span>
                 </div>
             </div>
-            <p>Crea y confirma tu contraseña cifrada para desbloquear el núcleo.</p>
+            <p>Crea y confirma tu contraseña cifrada para proteger tu cuenta.</p>
             <label>Contraseña</label>
-            <input type="password" id="inputLoginPassword" placeholder="••••••••">
+            <input type="password" id="inputRegPassword" placeholder="••••••••">
             <label>Confirmar Contraseña</label>
-            <input type="password" id="inputLoginConfirmPassword" placeholder="••••••••">
-            <button onclick="verifyPasswordAction()">Verificar contraseña</button>
+            <input type="password" id="inputRegConfirmPassword" placeholder="••••••••">
+            <button class="action-btn" onclick="verifyAndFinishRegistration()">Verificar contraseña</button>
         </div>
 
-        <!-- PASO 4: Verificando (Carga 2) -->
+        <!-- PASO 5: Verificación final de cifrado (Carga 2) -->
         <div class="login-card" id="loginCardLoading2" style="display:none;">
             <div class="loading-screen">
                 <div class="cyber-loader"></div>
@@ -800,7 +865,7 @@
             </header>
 
             <div class="chat-container" id="chatContainer">
-                <!-- Los mensajes se inyectan dinámicamente incluyendo el de bienvenida al entrar -->
+                <!-- Los mensajes se inyectan dinámicamente -->
             </div>
 
             <div class="input-area-wrapper">
@@ -853,6 +918,16 @@
         let attachedImageName = "";
         let isRobotVerified = false;
 
+        function openCreateAccountFlow() {
+            document.getElementById('loginCardWelcome').style.display = 'none';
+            document.getElementById('loginCardStep1').style.display = 'block';
+        }
+
+        function backToWelcome() {
+            document.getElementById('loginCardStep1').style.display = 'none';
+            document.getElementById('loginCardWelcome').style.display = 'block';
+        }
+
         function triggerVerification() {
             if(isRobotVerified) return;
             const box = document.getElementById('recaptchaBox');
@@ -865,9 +940,9 @@
             }, 1000);
         }
 
-        function proceedToPassword() {
-            const name = document.getElementById('inputLoginName').value.trim();
-            const email = document.getElementById('inputLoginEmail').value.trim();
+        function proceedToPasswordSetup() {
+            const name = document.getElementById('inputRegName').value.trim();
+            const email = document.getElementById('inputRegEmail').value.trim();
 
             if(!name || !email) {
                 alert('Por favor completa todos los campos.');
@@ -894,9 +969,9 @@
             }, 1400);
         }
 
-        function verifyPasswordAction() {
-            const pass = document.getElementById('inputLoginPassword').value.trim();
-            const confirmPass = document.getElementById('inputLoginConfirmPassword').value.trim();
+        function verifyAndFinishRegistration() {
+            const pass = document.getElementById('inputRegPassword').value.trim();
+            const confirmPass = document.getElementById('inputRegConfirmPassword').value.trim();
 
             if(!pass || !confirmPass) {
                 alert('Por favor introduce y confirma tu contraseña.');
@@ -911,15 +986,40 @@
             document.getElementById('loginCardLoading2').style.display = 'block';
 
             setTimeout(() => {
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('appContainer').style.display = 'flex';
-
-                document.getElementById('sidebarName').textContent = globalUserName;
-                document.getElementById('sidebarEmail').textContent = globalUserEmail;
-                document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
-
-                createNewChatWithWelcomeMessage();
+                enterAppAsVerifiedUser();
             }, 1600);
+        }
+
+        function directLoginAction() {
+            const email = document.getElementById('inputLoginEmail').value.trim();
+            const pass = document.getElementById('inputLoginPassword').value.trim();
+
+            if(!email || !pass) {
+                alert('Por favor introduce tu correo y contraseña.');
+                return;
+            }
+            if(!email.includes('@')) {
+                alert('Introduce un correo válido.');
+                return;
+            }
+
+            globalUserEmail = email;
+            // Extraer nombre base del correo si es genérico
+            let extractedName = email.split('@')[0];
+            globalUserName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1);
+
+            enterAppAsVerifiedUser();
+        }
+
+        function enterAppAsVerifiedUser() {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'flex';
+
+            document.getElementById('sidebarName').textContent = globalUserName;
+            document.getElementById('sidebarEmail').textContent = globalUserEmail;
+            document.getElementById('sidebarAvatar').textContent = globalUserName.charAt(0).toUpperCase();
+
+            createNewChatWithWelcomeMessage();
         }
 
         function logoutSession() {
