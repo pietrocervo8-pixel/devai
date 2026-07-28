@@ -934,9 +934,495 @@
             }
         }
 
+    
+        /* ===== DEVAI PRO UI v2 ===== */
+        .toast-stack {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 5000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .devai-toast {
+            min-width: 280px;
+            max-width: 380px;
+            padding: 13px 15px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: rgba(13,17,23,.94);
+            box-shadow: 0 18px 45px rgba(0,0,0,.42);
+            backdrop-filter: blur(16px);
+            color: var(--text-main);
+            font-size: 12px;
+            line-height: 1.45;
+            animation: toastIn .25s ease-out;
+        }
+
+        .devai-toast strong {
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .devai-toast.success { border-color: rgba(46,160,67,.55); }
+        .devai-toast.error { border-color: rgba(248,81,73,.55); }
+        .devai-toast.info { border-color: rgba(88,166,255,.55); }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(12px) scale(.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .verify-code-wrap {
+            display: none;
+            margin: 4px 0 16px;
+            padding: 13px;
+            border-radius: 11px;
+            border: 1px solid rgba(88,166,255,.24);
+            background: rgba(88,166,255,.045);
+        }
+
+        .verify-code-wrap.visible {
+            display: block;
+            animation: messageIn .2s ease-out;
+        }
+
+        .verify-code-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .verify-code-help {
+            font-size: 10px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            margin-bottom: 9px;
+        }
+
+        .verify-code-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .verify-code-row input {
+            margin: 0 !important;
+            letter-spacing: 5px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 15px !important;
+        }
+
+        .verify-code-row button {
+            width: auto !important;
+            min-width: 92px;
+            padding: 10px !important;
+            margin: 0 !important;
+        }
+
+        .resend-code {
+            margin-top: 8px;
+            color: var(--accent);
+            font-size: 10px;
+            cursor: pointer;
+            border: 0;
+            background: transparent;
+            padding: 0;
+        }
+
+        .resend-code:disabled {
+            color: var(--text-muted);
+            cursor: default;
+        }
+
+        .auth-status {
+            min-height: 16px;
+            margin: -7px 0 12px;
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        .auth-status.ok { color: var(--success); }
+        .auth-status.bad { color: var(--danger); }
+
+        .engine-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border: 1px solid rgba(88,166,255,.2);
+            background: rgba(88,166,255,.045);
+            border-radius: 999px;
+            color: var(--text-secondary);
+            font-size: 9px;
+            letter-spacing: .35px;
+        }
+
+        .engine-chip::before {
+            content: "";
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 8px rgba(46,160,67,.8);
+        }
+
+        .assistant-label {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--text-muted);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: .65px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .assistant-label span {
+            color: var(--accent);
+        }
+
+        .message pre {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 600px) {
+            .toast-stack {
+                right: 10px;
+                left: 10px;
+                bottom: 10px;
+            }
+
+            .devai-toast {
+                min-width: 0;
+                max-width: none;
+            }
+
+            .verify-code-row {
+                flex-direction: column;
+            }
+
+            .verify-code-row button {
+                width: 100% !important;
+            }
+        }
+
+    
+        /* =========================================================
+           DEVAI PRO — SUPER PRO VISUAL SYSTEM
+           ========================================================= */
+        :root {
+            --pro-cyan: #58a6ff;
+            --pro-blue: #1f6feb;
+            --pro-violet: #8b5cf6;
+            --pro-green: #39d353;
+            --pro-panel: rgba(13,17,23,.88);
+        }
+
+        body {
+            background:
+                radial-gradient(circle at 18% 12%, rgba(88,166,255,.09), transparent 26%),
+                radial-gradient(circle at 80% 75%, rgba(139,92,246,.07), transparent 25%),
+                var(--bg-base);
+        }
+
+        .devai-brand-pro {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            flex: 0 0 38px;
+            border: 1px solid rgba(88,166,255,.45);
+            background: #07121e;
+            box-shadow:
+                0 0 0 1px rgba(88,166,255,.08),
+                0 0 22px rgba(31,111,235,.24),
+                inset 0 0 18px rgba(88,166,255,.1);
+        }
+
+        .devai-brand-pro img {
+            width: 250%;
+            height: 250%;
+            max-width: none;
+            object-fit: cover;
+            position: absolute;
+            left: -76%;
+            top: -20%;
+            filter: saturate(1.18) contrast(1.08);
+        }
+
+        .devai-brand-orbit {
+            position: absolute;
+            inset: 4px;
+            border: 1px solid rgba(88,166,255,.22);
+            border-radius: 10px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .brand-wordmark {
+            font-weight: 800;
+            letter-spacing: -.4px;
+        }
+
+        .brand-wordmark small {
+            color: var(--pro-cyan);
+            font-size: 8px;
+            letter-spacing: 1.4px;
+            margin-left: 3px;
+        }
+
+        .pro-tools {
+            padding: 8px 0;
+            margin: 5px 0;
+            border-top: 1px solid rgba(48,54,61,.5);
+            border-bottom: 1px solid rgba(48,54,61,.5);
+        }
+
+        .pro-sidebar-btn {
+            margin-bottom: 3px !important;
+        }
+
+        .pro-sidebar-btn:hover {
+            border-color: rgba(88,166,255,.24);
+            background: rgba(88,166,255,.055);
+        }
+
+        .pro-modal-card {
+            width: min(440px, calc(100vw - 28px));
+            max-height: 88vh;
+            overflow-y: auto;
+            position: relative;
+            background:
+                linear-gradient(145deg, rgba(20,27,36,.97), rgba(8,12,18,.97));
+            border: 1px solid rgba(88,166,255,.28);
+            box-shadow:
+                0 35px 100px rgba(0,0,0,.58),
+                0 0 55px rgba(31,111,235,.10);
+        }
+
+        .pro-modal-icon {
+            width: 46px;
+            height: 46px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(88,166,255,.3);
+            background: rgba(88,166,255,.06);
+            box-shadow: inset 0 0 22px rgba(88,166,255,.06);
+            font-size: 20px;
+        }
+
+        .account-security-card {
+            margin: 10px 0 16px;
+            padding: 12px;
+            border: 1px solid rgba(46,160,67,.2);
+            background: rgba(46,160,67,.035);
+            border-radius: 10px;
+            font-size: 11px;
+            color: var(--text-main);
+        }
+
+        .account-security-card small {
+            display: block;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .pro-status-pill {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            z-index: 1200;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(46,160,67,.18);
+            background: rgba(13,17,23,.82);
+            backdrop-filter: blur(12px);
+            color: var(--text-muted);
+            font-size: 9px;
+            pointer-events: none;
+        }
+
+        .pro-status-pill span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--pro-green);
+            box-shadow: 0 0 10px rgba(57,211,83,.8);
+        }
+
+        textarea, select {
+            width: 100%;
+            border: 1px solid var(--border);
+            background: var(--bg-input, #0d1117);
+            color: var(--text-main);
+            border-radius: 8px;
+            padding: 10px;
+            outline: none;
+            font-family: inherit;
+            font-size: 12px;
+            margin-bottom: 13px;
+        }
+
+        textarea {
+            min-height: 115px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        select {
+            height: 38px;
+        }
+
+        textarea:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(88,166,255,.06);
+        }
+
+        .pro-modal-card::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .pro-modal-card::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+    
+        /* ===== OWNER-ONLY CONTROL CENTER ===== */
+        .owner-only {
+            display: none !important;
+        }
+        .owner-only.owner-visible {
+            display: flex !important;
+        }
+        .owner-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            border: 1px solid rgba(139,92,246,.35);
+            background: rgba(139,92,246,.08);
+            color: #c4b5fd;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+        }
+        .owner-panel-card {
+            width: min(900px, calc(100vw - 24px));
+            max-height: 90vh;
+            overflow: auto;
+        }
+        .owner-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .owner-stat {
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: rgba(255,255,255,.018);
+        }
+        .owner-stat strong {
+            display: block;
+            font-size: 20px;
+            margin-top: 4px;
+        }
+        .owner-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .owner-row {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr auto;
+            gap: 10px;
+            align-items: center;
+            padding: 11px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: rgba(255,255,255,.015);
+        }
+        .owner-row small {
+            color: var(--text-muted);
+        }
+        .owner-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .owner-actions button {
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            background: var(--bg-input);
+            color: var(--text-main);
+            padding: 7px 9px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        .owner-actions button:hover {
+            border-color: var(--accent);
+        }
+        .owner-actions .danger {
+            color: #ff7b72;
+            border-color: rgba(248,81,73,.25);
+        }
+        .owner-actions .safe {
+            color: #56d364;
+            border-color: rgba(46,160,67,.25);
+        }
+        .owner-report {
+            padding: 13px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: rgba(255,255,255,.015);
+        }
+        .owner-report + .owner-report {
+            margin-top: 8px;
+        }
+        .owner-report-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 7px;
+        }
+        .owner-report-meta {
+            color: var(--text-muted);
+            font-size: 9px;
+        }
+        .owner-report-body {
+            white-space: pre-wrap;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+        @media (max-width: 720px) {
+            .owner-grid { grid-template-columns: 1fr; }
+            .owner-row { grid-template-columns: 1fr; }
+            .owner-actions { justify-content: flex-start; }
+        }
+
     </style>
 </head>
 <body>
+    <div class="toast-stack" id="toastStack"></div>
 
     <!-- Botones Superiores (Siempre visibles en la página principal) -->
     <div class="top-auth-buttons" id="topAuthButtons">
@@ -949,19 +1435,8 @@
         <sidebar>
             <div class="sidebar-top">
                 <div class="sidebar-brand">
-                    <div class="app-logo-mini">D</div>
-                    <span>DevAI Pro</span>
-                </div>
-                <div class="programming-only">⚡ IA especializada en programación</div>
-                
-                <button class="sidebar-btn" onclick="createNewChat()"><span>＋</span> Nuevo chat</button>
-                <button class="sidebar-btn" onclick="clearCurrentChatHistory()"><span>⟳</span> Limpiar chat</button>
-                <button class="sidebar-btn" onclick="exportCurrentChat()"><span>↓</span> Exportar registro</button>
-                
-                <div class="chats-title">Conversaciones</div>
-                <div class="chats-list" id="chatsList">
-                    <div class="no-chats" id="noChatsMsg">Sin chats recientes.</div>
-                </div>
+                    
+<div class="app-logo-mini"><span>⌬</span></div>
             </div>
 
             <div class="sidebar-footer" id="sidebarFooter">
@@ -984,7 +1459,7 @@
                 </div>
                 <div style="font-size: 11px; color: var(--text-secondary); display:flex; align-items:center; gap:6px;">
                     <div style="width:6px; height:6px; background:var(--success); border-radius:50%; box-shadow: 0 0 6px var(--success);"></div>
-                    Hyper-Intelligence Engine Pro v7.5
+                    <span class="engine-chip">Programming Engine · Online</span>
                 </div>
             </header>
 
@@ -1054,8 +1529,29 @@
                 <div class="identity-check-text">Para confirmar que eres tú, vuelve a escribir tu contraseña.</div>
                 <input type="password" id="inputLoginIdentity" placeholder="Confirma tu contraseña">
             </div>
+            <div class="auth-status" id="loginStatus"></div>
+            <button type="button" id="forgotPasswordButton"
+                    class="resend-code"
+                    onclick="showToast('Recuperación', 'La recuperación por correo estará disponible cuando conectemos el backend.', 'info')">
+                ¿Olvidaste tu contraseña?
+            </button>
+            <div class="verify-code-wrap" id="loginCodeWrap">
+                <div class="verify-code-title">🔐 Verificación de seguridad</div>
+                <div class="verify-code-help">
+                    Encontramos tu cuenta. Te enviaremos un código de 6 dígitos al correo registrado para confirmar que eres tú.
+                </div>
+                <div class="verify-code-row">
+                    <input type="text" id="loginCodeInput" inputmode="numeric" maxlength="6" placeholder="000000">
+                    <button class="action-btn" onclick="verifyLoginCode()">Verificar</button>
+                </div>
+                <button class="resend-code" id="loginResendButton" onclick="sendLoginCode()" disabled>
+                    Reenviar código
+                </button>
+            </div>
 
-            <button class="action-btn" onclick="executeLogin()">Iniciar Sesión</button>
+            </div>
+
+            <button class="action-btn" id="loginMainButton" onclick="executeLogin()">Iniciar Sesión</button>
             <button class="secondary-action-btn" onclick="closeAllModals()">Cancelar</button>
         </div>
     </div>
@@ -1078,6 +1574,22 @@
             <label>Contraseña</label>
             <input type="password" id="inputRegPassword" placeholder="••••••••">
 
+            <div class="auth-status" id="registerStatus"></div>
+
+            <div class="verify-code-wrap" id="registerCodeWrap">
+                <div class="verify-code-title">✉️ Código de verificación</div>
+                <div class="verify-code-help">
+                    Te enviaremos un código de 6 dígitos al correo indicado. Escríbelo aquí para confirmar que el correo es tuyo.
+                </div>
+                <div class="verify-code-row">
+                    <input type="text" id="registerCodeInput" inputmode="numeric" maxlength="6" placeholder="000000">
+                    <button class="action-btn" onclick="verifyRegisterCode()">Verificar</button>
+                </div>
+                <button class="resend-code" id="resendCodeButton" onclick="sendRegisterCode()" disabled>
+                    Reenviar código
+                </button>
+            </div>
+
             <!-- reCAPTCHA en Registro -->
             <div class="recaptcha-box" id="recaptchaRegBox" onclick="triggerRegVerification()">
                 <div class="recaptcha-left">
@@ -1091,7 +1603,7 @@
                 </div>
             </div>
 
-            <button class="action-btn" onclick="executeRegister()">Registrar Cuenta</button>
+            <button class="action-btn" id="registerMainButton" onclick="executeRegister()">Enviar código al correo</button>
             <button class="secondary-action-btn" onclick="closeAllModals()">Cancelar</button>
         </div>
     </div>
@@ -1132,9 +1644,372 @@
         </div>
     </div>
 
-    <script>
-        // Base de datos local segura persistente en localStorage
-        const OWNER_EMAIL = "pietrocervo8@gmail.com";
+    <!--
+    EMAIL VERIFICATION:
+    This frontend is prepared for EmailJS.
+    Add your real values in EMAIL_CONFIG below.
+    EmailJS is required because a plain HTML file cannot securely send email by itself.
+-->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+        // ==========================================================
+        // SUPER PRO ACCOUNT / REPORTING LAYER
+        // ==========================================================
+        function closeProModal(id) {
+            const el = document.getElementById(id);
+            if (el) el.style.display = "none";
+        }
+
+        function openAccountSettings() {
+            if (!currentUser) {
+                showToast("Cuenta de invitado", "Inicia sesión para modificar tu perfil.", "info");
+                openLoginModal();
+                return;
+            }
+
+            document.getElementById("accountNameInput").value =
+                currentUser.name || currentUser.email.split("@")[0];
+            document.getElementById("accountEmailInput").value = currentUser.email;
+            document.getElementById("accountPasswordInput").value = "";
+            document.getElementById("accountSettingsModal").style.display = "flex";
+        }
+
+        function saveAccountSettings() {
+            if (!currentUser) return;
+
+            const name = document.getElementById("accountNameInput").value.trim();
+            const email = document.getElementById("accountEmailInput").value.trim().toLowerCase();
+            const password = document.getElementById("accountPasswordInput").value.trim();
+
+            if (!name || !email) {
+                showToast("Faltan datos", "Completa tu nombre y correo.", "error");
+                return;
+            }
+
+            if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 _-]+$/.test(name)) {
+                showToast("Nombre inválido", "Usa solamente letras, números, espacios, guiones o guion bajo.", "error");
+                return;
+            }
+
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showToast("Correo inválido", "Escribe un correo válido.", "error");
+                return;
+            }
+
+            const oldEmail = currentUser.email;
+            const conflict = registeredUsers.find(
+                u => u.email.toLowerCase() === email && u.email.toLowerCase() !== oldEmail.toLowerCase()
+            );
+
+            if (conflict) {
+                showToast("Correo ocupado", "Ese correo ya pertenece a otra cuenta.", "error");
+                return;
+            }
+
+            const user = registeredUsers.find(u => u.email.toLowerCase() === oldEmail.toLowerCase());
+            if (!user) return;
+
+            user.name = name;
+            user.email = email;
+            if (password) {
+                if (password.length < 6) {
+                    showToast("Contraseña demasiado corta", "Usa al menos 6 caracteres.", "error");
+                    return;
+                }
+                user.password = password;
+            }
+
+            currentUser = user;
+            
+            refreshOwnerAccess();
+            localStorage.setItem("devai_users", JSON.stringify(registeredUsers));
+            localStorage.setItem("devai_current_user", JSON.stringify(currentUser));
+
+            applyUserSessionUI();
+            closeProModal("accountSettingsModal");
+            showToast("Cuenta actualizada", "Tus cambios se guardaron correctamente.", "success");
+        }
+
+        function openBugReport() {
+            document.getElementById("bugReportText").value = "";
+            document.getElementById("bugReportModal").style.display = "flex";
+        }
+
+        function submitBugReport() {
+            const description = document.getElementById("bugReportText").value.trim();
+            const area = document.getElementById("bugReportArea").value;
+            const severity = document.getElementById("bugReportSeverity").value;
+
+            if (!description) {
+                showToast("Falta información", "Describe brevemente el error.", "error");
+                return;
+            }
+
+            const reports = safeJSONParse(localStorage.getItem("devai_bug_reports") || "[]");
+
+            reports.push({
+                id: "BUG-" + Date.now().toString(36).toUpperCase(),
+                description,
+                area,
+                severity,
+                email: currentUser?.email || "guest",
+                date: new Date().toISOString(),
+                userAgent: navigator.userAgent
+            });
+
+            localStorage.setItem("devai_bug_reports", JSON.stringify(reports));
+            closeProModal("bugReportModal");
+            showToast("Reporte enviado", "Gracias. El error quedó registrado en este dispositivo.", "success");
+        }
+
+        function openFeedback() {
+            document.getElementById("feedbackText").value = "";
+            document.getElementById("feedbackModal").style.display = "flex";
+        }
+
+        function submitFeedback() {
+            const text = document.getElementById("feedbackText").value.trim();
+
+            if (!text) {
+                showToast("Falta información", "Escribe tu sugerencia.", "error");
+                return;
+            }
+
+            const feedback = safeJSONParse(localStorage.getItem("devai_feedback") || "[]");
+
+            feedback.push({
+                text,
+                email: currentUser?.email || "guest",
+                date: new Date().toISOString()
+            });
+
+            localStorage.setItem("devai_feedback", JSON.stringify(feedback));
+            closeProModal("feedbackModal");
+            showToast("Sugerencia guardada", "Gracias por ayudar a mejorar DevAI.", "success");
+        }
+
+        // Catch unexpected frontend errors instead of leaving a silent broken UI.
+        window.addEventListener("error", function(event) {
+            const pill = document.getElementById("proStatusPill");
+            if (pill) {
+                pill.innerHTML = '<span style="background:var(--danger);box-shadow:0 0 10px rgba(248,81,73,.8)"></span> DevAI Pro · Error detectado';
+            }
+            console.error("DevAI runtime error:", event.error || event.message);
+        });
+
+        window.addEventListener("unhandledrejection", function(event) {
+            console.error("DevAI promise error:", event.reason);
+        });
+
+    </script>
+<script>
+
+        // ==========================================================
+        // DEVAI EMAIL VERIFICATION
+        // Replace these three values with your EmailJS configuration.
+        // ==========================================================
+        const EMAIL_CONFIG = {
+            publicKey: "TU_PUBLIC_KEY",
+            serviceId: "TU_SERVICE_ID",
+            templateId: "TU_TEMPLATE_ID"
+        };
+
+        let pendingLoginVerification = null;
+        let pendingLoginUser = null;
+        let loginCodeTimer = null;
+        let loginCodeSeconds = 0;
+
+        let pendingVerification = null;
+        let registerCodeVerified = false;
+        let resendTimer = null;
+        let resendSeconds = 0;
+
+        function emailServiceReady() {
+            return EMAIL_CONFIG.publicKey !== "TU_PUBLIC_KEY" &&
+                   EMAIL_CONFIG.serviceId !== "TU_SERVICE_ID" &&
+                   EMAIL_CONFIG.templateId !== "TU_TEMPLATE_ID";
+        }
+
+        function showToast(title, message, type = "info") {
+            const stack = document.getElementById("toastStack");
+            const toast = document.createElement("div");
+            toast.className = `devai-toast ${type}`;
+            toast.innerHTML = `<strong>${escapeHtml(title)}</strong>${escapeHtml(message)}`;
+            stack.appendChild(toast);
+            setTimeout(() => toast.remove(), 4200);
+        }
+
+        function setAuthStatus(id, message, type = "") {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = message;
+            el.className = `auth-status ${type}`;
+        }
+
+        function generateVerificationCode() {
+            return String(Math.floor(100000 + Math.random() * 900000));
+        }
+
+        function startResendTimer() {
+            clearInterval(resendTimer);
+            resendSeconds = 30;
+            const button = document.getElementById("resendCodeButton");
+            if (!button) return;
+
+            button.disabled = true;
+            button.textContent = `Reenviar en ${resendSeconds}s`;
+
+            resendTimer = setInterval(() => {
+                resendSeconds--;
+                if (resendSeconds <= 0) {
+                    clearInterval(resendTimer);
+                    button.disabled = false;
+                    button.textContent = "Reenviar código";
+                } else {
+                    button.textContent = `Reenviar en ${resendSeconds}s`;
+                }
+            }, 1000);
+        }
+
+        async function sendRegisterCode() {
+            const name = document.getElementById("inputRegName").value.trim();
+            const email = document.getElementById("inputRegEmail").value.trim().toLowerCase();
+            const password = document.getElementById("inputRegPassword").value.trim();
+
+            if (!name || !email || !password) {
+                setAuthStatus("registerStatus", "Completa nombre, correo y contraseña.", "bad");
+                return;
+            }
+
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                setAuthStatus("registerStatus", "Escribe un correo válido.", "bad");
+                return;
+            }
+
+            if (password.length < 6) {
+                setAuthStatus("registerStatus", "La contraseña necesita al menos 6 caracteres.", "bad");
+                return;
+            }
+
+            if (registeredUsers.some(u => u.email.toLowerCase() === email)) {
+                setAuthStatus("registerStatus", "Ese correo ya está registrado.", "bad");
+                return;
+            }
+
+            if (!emailServiceReady()) {
+                setAuthStatus(
+                    "registerStatus",
+                    "Falta configurar EmailJS. Completa EMAIL_CONFIG en el código.",
+                    "bad"
+                );
+                showToast("Correo no configurado", "Agrega tu Public Key, Service ID y Template ID de EmailJS.", "error");
+                return;
+            }
+
+            const code = generateVerificationCode();
+
+            pendingVerification = {
+                name,
+                email,
+                password,
+                code,
+                expiresAt: Date.now() + 10 * 60 * 1000
+            };
+
+            try {
+                emailjs.init({
+                    publicKey: EMAIL_CONFIG.publicKey
+                });
+
+                await emailjs.send(EMAIL_CONFIG.serviceId, EMAIL_CONFIG.templateId, {
+                    to_email: email,
+                    to_name: name,
+                    verification_code: code,
+                    app_name: "DevAI Pro",
+                    reply_to: OWNER_EMAIL
+                });
+
+                registerCodeVerified = false;
+                document.getElementById("registerCodeWrap").classList.add("visible");
+                document.getElementById("registerMainButton").textContent = "Verificar correo";
+                setAuthStatus("registerStatus", `Código enviado a ${maskEmail(email)}.`, "ok");
+                showToast("Código enviado", "Revisa tu correo y escribe el código de 6 dígitos.", "success");
+                startResendTimer();
+
+            } catch (error) {
+                console.error("EmailJS:", error);
+                pendingVerification = null;
+                setAuthStatus("registerStatus", "No se pudo enviar el código. Revisa la configuración de EmailJS.", "bad");
+                showToast("No se pudo enviar", "Comprueba EmailJS y vuelve a intentarlo.", "error");
+            }
+        }
+
+        function maskEmail(email) {
+            const [user, domain] = email.split("@");
+            if (!user || !domain) return email;
+            const visible = user.length <= 2 ? user[0] : user.slice(0, 2);
+            return `${visible}${"•".repeat(Math.max(1, user.length - visible.length))}@${domain}`;
+        }
+
+        function verifyRegisterCode() {
+            const input = document.getElementById("registerCodeInput");
+            const entered = input.value.trim();
+
+            if (!pendingVerification) {
+                setAuthStatus("registerStatus", "Primero solicita un código.", "bad");
+                return;
+            }
+
+            if (Date.now() > pendingVerification.expiresAt) {
+                setAuthStatus("registerStatus", "El código expiró. Solicita uno nuevo.", "bad");
+                return;
+            }
+
+            if (entered !== pendingVerification.code) {
+                setAuthStatus("registerStatus", "Código incorrecto.", "bad");
+                input.select();
+                return;
+            }
+
+            registerCodeVerified = true;
+            setAuthStatus("registerStatus", "Correo verificado correctamente.", "ok");
+            document.getElementById("registerMainButton").textContent = "Crear cuenta";
+            showToast("Correo verificado", "Ahora puedes crear tu cuenta.", "success");
+        }
+
+        function finishAccountCreation() {
+            if (!pendingVerification || !registerCodeVerified) return;
+
+            const { name, email, password } = pendingVerification;
+
+            if (registeredUsers.some(u => String(u.email).toLowerCase() === email.toLowerCase())) {
+                showToast("Cuenta existente", "Ese correo ya tiene una cuenta.", "error");
+                return;
+            }
+
+            registeredUsers.push({
+                name,
+                email,
+                password,
+                banned: false
+            });
+
+            localStorage.setItem("devai_users", JSON.stringify(registeredUsers));
+
+            pendingVerification = null;
+            registerCodeVerified = false;
+
+            document.getElementById("registerCodeWrap").classList.remove("visible");
+            document.getElementById("registerCodeInput").value = "";
+            document.getElementById("registerMainButton").textContent = "Enviar código al correo";
+            setAuthStatus("registerStatus", "");
+
+            showToast("Cuenta creada", "Tu cuenta DevAI está lista. Ahora inicia sesión.", "success");
+            closeAllModals();
+            setTimeout(openLoginModal, 250);
+        }
+
+        // Base de datos local persistente en localStorage
+        const OWNER_EMAIL = "pietrocervo08@gmail.com";
 
         let registeredUsers = JSON.parse(localStorage.getItem('devai_users')) || [
             { name: "Pietro", email: OWNER_EMAIL, password: "adminPassword123", banned: false }
@@ -1173,6 +2048,19 @@
         };
 
         function openLoginModal() {
+            pendingLoginUser = null;
+            pendingLoginVerification = null;
+            const loginWrap = document.getElementById("loginCodeWrap");
+            if (loginWrap) loginWrap.classList.remove("visible");
+            const loginInput = document.getElementById("loginCodeInput");
+            if (loginInput) loginInput.value = "";
+            const loginButton = document.getElementById("loginMainButton");
+            if (loginButton) {
+                loginButton.disabled = false;
+                loginButton.textContent = "Iniciar Sesión";
+            }
+            setAuthStatus("loginStatus", "");
+
             isLoginVerified = false;
             document.getElementById('recaptchaLoginBox').classList.remove('verified');
             document.getElementById('inputLoginEmail').value = '';
@@ -1187,6 +2075,12 @@
             document.getElementById('inputRegName').value = '';
             document.getElementById('inputRegEmail').value = '';
             document.getElementById('inputRegPassword').value = '';
+            document.getElementById('registerCodeInput').value = '';
+            document.getElementById('registerCodeWrap').classList.remove('visible');
+            document.getElementById('registerMainButton').textContent = 'Enviar código al correo';
+            setAuthStatus('registerStatus', '');
+            pendingVerification = null;
+            registerCodeVerified = false;
             document.getElementById('registerModal').style.display = 'flex';
         }
 
@@ -1220,101 +2114,200 @@
         }
 
         function executeRegister() {
-            const name = document.getElementById('inputRegName').value.trim();
-            const email = document.getElementById('inputRegEmail').value.trim().toLowerCase();
-            const password = document.getElementById('inputRegPassword').value.trim();
-
-            if(!name || !email || !password) {
-                alert("Por favor completa todos los campos.");
+            if (registerCodeVerified) {
+                finishAccountCreation();
                 return;
             }
 
-            if(name.length < 2 || name.length > 24) {
-                alert("El nombre debe tener entre 2 y 24 caracteres.");
-                return;
-            }
-
-            if(!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 _-]+$/.test(name)) {
-                alert("El nombre contiene caracteres no permitidos.");
-                return;
-            }
-
-            if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                alert("Introduce un correo electrónico válido.");
-                return;
-            }
-
-            if(password.length < 6) {
-                alert("La contraseña debe tener al menos 6 caracteres.");
-                return;
-            }
-
-            if(!isRegVerified) {
-                alert("Completa la prueba de robot.");
-                return;
-            }
-
-            const exists = registeredUsers.find(u => u.email.toLowerCase() === email);
-            if(exists) {
-                alert("Este correo ya está registrado. Inicia sesión.");
-                return;
-            }
-
-            registeredUsers.push({
-                name,
-                email,
-                password,
-                banned: false
-            });
-
-            localStorage.setItem('devai_users', JSON.stringify(registeredUsers));
-
-            alert("¡Cuenta creada! Ahora inicia sesión.");
-            closeAllModals();
-            openLoginModal();
+            sendRegisterCode();
         }
 
-        function executeLogin() {
-            const email = document.getElementById('inputLoginEmail').value.trim().toLowerCase();
-            const password = document.getElementById('inputLoginPassword').value.trim();
-            const identityPassword = document.getElementById('inputLoginIdentity').value.trim();
+        async function executeLogin() {
+            const email = document.getElementById("inputLoginEmail").value.trim().toLowerCase();
+            const password = document.getElementById("inputLoginPassword").value;
+            const identityPassword = document.getElementById("inputLoginIdentity").value;
 
-            if(!email || !password || !identityPassword) {
-                alert("Completa correo, contraseña y la verificación de identidad.");
+            if (!email || !password || !identityPassword) {
+                setAuthStatus("loginStatus", "Completa correo, contraseña y verificación de identidad.", "bad");
                 return;
             }
 
-            if(!isLoginVerified) {
-                alert("Completa la prueba de robot.");
-                return;
-            }
-
-            if(password !== identityPassword) {
-                alert("La verificación de identidad no coincide con tu contraseña.");
+            if (!isLoginVerified) {
+                setAuthStatus("loginStatus", "Completa la prueba de robot.", "bad");
                 return;
             }
 
             const user = registeredUsers.find(
-                u => u.email.toLowerCase() === email && u.password === password
+                u => String(u.email || "").toLowerCase() === email
             );
 
-            if(!user) {
-                alert("Credenciales incorrectas o usuario no encontrado.");
+            // Never reveal account existence through different wording.
+            if (!user || user.password !== password || user.password !== identityPassword) {
+                setAuthStatus("loginStatus", "Correo o contraseña incorrectos.", "bad");
                 return;
             }
 
-            if(user.banned) {
-                alert("Esta cuenta se encuentra baneada.");
+            if (user.banned) {
+                setAuthStatus("loginStatus", "No puedes acceder con esta cuenta.", "bad");
                 return;
             }
 
-            currentUser = user;
-            localStorage.setItem('devai_current_user', JSON.stringify(currentUser));
-            closeAllModals();
+            if (!emailServiceReady()) {
+                setAuthStatus(
+                    "loginStatus",
+                    "Falta configurar el envío de correo de verificación.",
+                    "bad"
+                );
+                showToast("Correo no configurado", "Completa EMAIL_CONFIG para activar la verificación.", "error");
+                return;
+            }
+
+            const code = generateVerificationCode();
+            pendingLoginUser = user;
+            pendingLoginVerification = {
+                code,
+                expiresAt: Date.now() + 10 * 60 * 1000
+            };
+
+            try {
+                emailjs.init({ publicKey: EMAIL_CONFIG.publicKey });
+
+                await emailjs.send(
+                    EMAIL_CONFIG.serviceId,
+                    EMAIL_CONFIG.templateId,
+                    {
+                        to_email: user.email,
+                        to_name: user.name || user.email.split("@")[0],
+                        verification_code: code,
+                        app_name: "DevAI Pro",
+                        email_type: "Inicio de sesión",
+                        reply_to: OWNER_EMAIL
+                    }
+                );
+
+                document.getElementById("loginCodeWrap").classList.add("visible");
+                document.getElementById("loginMainButton").textContent = "Esperando verificación...";
+                document.getElementById("loginMainButton").disabled = true;
+
+                setAuthStatus(
+                    "loginStatus",
+                    `Código enviado a ${maskEmail(user.email)}.`,
+                    "ok"
+                );
+
+                showToast("Verificación enviada", "Revisa tu correo para continuar.", "success");
+                startLoginResendTimer();
+
+            } catch (error) {
+                console.error(error);
+                pendingLoginUser = null;
+                pendingLoginVerification = null;
+                setAuthStatus("loginStatus", "No se pudo enviar el código de verificación.", "bad");
+            }
+        }
+
+        function startLoginResendTimer() {
+            clearInterval(loginCodeTimer);
+            loginCodeSeconds = 30;
+
+            const button = document.getElementById("loginResendButton");
+            if (!button) return;
+
+            button.disabled = true;
+            button.textContent = `Reenviar en ${loginCodeSeconds}s`;
+
+            loginCodeTimer = setInterval(() => {
+                loginCodeSeconds--;
+
+                if (loginCodeSeconds <= 0) {
+                    clearInterval(loginCodeTimer);
+                    button.disabled = false;
+                    button.textContent = "Reenviar código";
+                } else {
+                    button.textContent = `Reenviar en ${loginCodeSeconds}s`;
+                }
+            }, 1000);
+        }
+
+        async function sendLoginCode() {
+            if (!pendingLoginUser) {
+                setAuthStatus("loginStatus", "Inicia sesión primero.", "bad");
+                return;
+            }
+
+            const code = generateVerificationCode();
+
+            pendingLoginVerification = {
+                code,
+                expiresAt: Date.now() + 10 * 60 * 1000
+            };
+
+            try {
+                emailjs.init({ publicKey: EMAIL_CONFIG.publicKey });
+
+                await emailjs.send(
+                    EMAIL_CONFIG.serviceId,
+                    EMAIL_CONFIG.templateId,
+                    {
+                        to_email: pendingLoginUser.email,
+                        to_name: pendingLoginUser.name || pendingLoginUser.email.split("@")[0],
+                        verification_code: code,
+                        app_name: "DevAI Pro",
+                        email_type: "Nuevo código de inicio de sesión",
+                        reply_to: OWNER_EMAIL
+                    }
+                );
+
+                setAuthStatus("loginStatus", "Nuevo código enviado.", "ok");
+                showToast("Código reenviado", "Revisa tu correo.", "success");
+                startLoginResendTimer();
+
+            } catch (error) {
+                console.error(error);
+                setAuthStatus("loginStatus", "No se pudo reenviar el código.", "bad");
+            }
+        }
+
+        function verifyLoginCode() {
+            const input = document.getElementById("loginCodeInput");
+            const entered = input.value.trim();
+
+            if (!pendingLoginVerification || !pendingLoginUser) {
+                setAuthStatus("loginStatus", "Solicita un código primero.", "bad");
+                return;
+            }
+
+            if (Date.now() > pendingLoginVerification.expiresAt) {
+                setAuthStatus("loginStatus", "El código expiró. Solicita uno nuevo.", "bad");
+                return;
+            }
+
+            if (entered !== pendingLoginVerification.code) {
+                setAuthStatus("loginStatus", "Código incorrecto.", "bad");
+                input.select();
+                return;
+            }
+
+            currentUser = pendingLoginUser;
+            localStorage.setItem("devai_current_user", JSON.stringify(currentUser));
+
+            pendingLoginUser = null;
+            pendingLoginVerification = null;
+
             applyUserSessionUI();
+            refreshOwnerAccess();
+
+            document.getElementById("loginCodeWrap").classList.remove("visible");
+            document.getElementById("loginCodeInput").value = "";
+            document.getElementById("loginMainButton").disabled = false;
+            document.getElementById("loginMainButton").textContent = "Iniciar Sesión";
+
+            closeAllModals();
+            showToast("Sesión iniciada", "Tu identidad fue verificada correctamente.", "success");
         }
 
         function applyUserSessionUI() {
+            refreshOwnerAccess();
             document.getElementById('topAuthButtons').style.display = 'none';
 
             const formattedName = currentUser.name || currentUser.email.split('@')[0];
@@ -1354,10 +2347,10 @@
             location.reload();
         }
 
-        /* Funciones del Panel de Dueño (Exclusivo pietrocervo8@gmail.com) */
+        /* Funciones del Panel de Dueño (Exclusivo pietrocervo08@gmail.com) */
         function openAdminPanel() {
             if(!currentUser || currentUser.email.toLowerCase() !== OWNER_EMAIL) {
-                alert("Acceso denegado. Solo el dueño (pietrocervo8@gmail.com) puede acceder.");
+                alert("Acceso denegado. Solo el dueño (pietrocervo08@gmail.com) puede acceder.");
                 return;
             }
             renderUserManagementList();
@@ -1483,7 +2476,7 @@
                     applyUserSessionUI();
                 }
 
-                alert("Usuario modificado con éxito.");
+                showToast("Usuario actualizado", "Los cambios se guardaron correctamente.", "success");
                 closeEditModal();
                 renderUserManagementList();
             }
@@ -1580,6 +2573,9 @@
                 let html = '';
                 if(msg.image) {
                     html += `<img src="${msg.image}" class="msg-img" alt="adjunto">`;
+                }
+                if(msg.sender !== 'user') {
+                    html += `<div class="assistant-label"><span>●</span> DevAI · Programación</div>`;
                 }
                 html += `<div>${msg.text}</div>`;
                 div.innerHTML = html;
@@ -1745,9 +2741,10 @@
     }</code></pre>`;
             }
 
-            return `⚡ **DevAI Programming Engine**<br><br>
-            Requerimiento detectado. Estoy listo para ayudarte a desarrollar el sistema,
-            revisar código, encontrar errores o mejorar la arquitectura.<br><br>
+            return `⚡ <b>DevAI Programming Engine</b><br><br>
+            Esta IA fue hecha para ayudarte a <b>programar</b>: crear código,
+            entender proyectos, encontrar errores, mejorar scripts y construir
+            aplicaciones paso a paso.<br><br>
             <b>Modo:</b> PROGRAMACIÓN<br>
             <b>Usuario:</b> ${escapeHtml(authorName)}<br>
             <b>Estado:</b> ONLINE`;
@@ -1759,6 +2756,328 @@
                 sendMessage();
             }
         }
-    </script>
+    
+        // ==========================================================
+        // OWNER-ONLY SECURITY LAYER
+        // IMPORTANT: This protects the UI in this local HTML app.
+        // Real server-side security requires a backend.
+        // ==========================================================
+        const DEVAI_OWNER_EMAIL = "pietrocervo08@gmail.com";
+
+        function isOwnerAccount(user = currentUser) {
+            return !!user &&
+                   String(user.email || "").trim().toLowerCase() === DEVAI_OWNER_EMAIL;
+        }
+
+        function refreshOwnerAccess() {
+            const tools = document.getElementById("ownerTools");
+            if (!tools) return;
+
+            if (isOwnerAccount()) {
+                tools.classList.add("owner-visible");
+            } else {
+                tools.classList.remove("owner-visible");
+                closeProModal("ownerPanelModal");
+            }
+        }
+
+        function requireOwner() {
+            if (!isOwnerAccount()) {
+                showToast("Acceso privado", "Esta sección solo está disponible para la cuenta del propietario.", "error");
+                return false;
+            }
+            return true;
+        }
+
+        function openOwnerPanel() {
+            if (!requireOwner()) return;
+            renderOwnerPanel();
+            document.getElementById("ownerPanelModal").style.display = "flex";
+        }
+
+        function renderOwnerPanel() {
+            if (!requireOwner()) return;
+
+            const reports = safeJSONParse(localStorage.getItem("devai_bug_reports") || "[]");
+            const feedback = safeJSONParse(localStorage.getItem("devai_feedback") || "[]");
+
+            document.getElementById("ownerUserCount").textContent = registeredUsers.length;
+            document.getElementById("ownerReportCount").textContent = reports.length;
+            document.getElementById("ownerFeedbackCount").textContent = feedback.length;
+
+            const usersList = document.getElementById("ownerUsersList");
+            usersList.innerHTML = "";
+
+            if (!registeredUsers.length) {
+                usersList.innerHTML = '<div class="owner-report-body">No hay cuentas registradas.</div>';
+            } else {
+                registeredUsers.forEach((user, index) => {
+                    const row = document.createElement("div");
+                    row.className = "owner-row";
+
+                    const identity = document.createElement("div");
+                    identity.innerHTML = `<strong>${escapeHtml(user.name || "Sin nombre")}</strong><br><small>${escapeHtml(user.email)}</small>`;
+
+                    const state = document.createElement("div");
+                    state.innerHTML = user.email.toLowerCase() === DEVAI_OWNER_EMAIL
+                        ? '<span class="owner-badge">👑 Propietario</span>'
+                        : (user.banned
+                            ? '<span style="color:#ff7b72;font-size:10px;">● Baneado</span>'
+                            : '<span style="color:#56d364;font-size:10px;">● Activo</span>');
+
+                    const actions = document.createElement("div");
+                    actions.className = "owner-actions";
+
+                    if (user.email.toLowerCase() !== DEVAI_OWNER_EMAIL) {
+                        actions.innerHTML = `
+                            <button onclick="ownerEditUser(${index})">✏️ Editar</button>
+                            <button class="${user.banned ? "safe" : "danger"}" onclick="ownerToggleBan(${index})">
+                                ${user.banned ? "Desbanear" : "Banear"}
+                            </button>
+                            <button class="danger" onclick="ownerDeleteUser(${index})">🗑️ Borrar</button>
+                        `;
+                    } else {
+                        actions.innerHTML = '<small>Cuenta protegida</small>';
+                    }
+
+                    row.append(identity, state, actions);
+                    usersList.appendChild(row);
+                });
+            }
+
+            const reportsList = document.getElementById("ownerReportsList");
+            reportsList.innerHTML = "";
+            if (!reports.length) {
+                reportsList.innerHTML = '<div class="owner-report-body">Todavía no hay reportes.</div>';
+            } else {
+                reports.slice().reverse().forEach(report => {
+                    const box = document.createElement("div");
+                    box.className = "owner-report";
+                    box.innerHTML = `
+                        <div class="owner-report-head">
+                            <strong>${escapeHtml(report.id || "BUG")}</strong>
+                            <span class="owner-report-meta">${escapeHtml(report.date || "")}</span>
+                        </div>
+                        <div class="owner-report-meta">
+                            ${escapeHtml(report.area || "Otro")} · ${escapeHtml(report.severity || "Normal")} · ${escapeHtml(report.email || "guest")}
+                        </div>
+                        <div class="owner-report-body">${escapeHtml(report.description || "")}</div>
+                    `;
+                    reportsList.appendChild(box);
+                });
+            }
+
+            const feedbackList = document.getElementById("ownerFeedbackList");
+            feedbackList.innerHTML = "";
+            if (!feedback.length) {
+                feedbackList.innerHTML = '<div class="owner-report-body">Todavía no hay sugerencias.</div>';
+            } else {
+                feedback.slice().reverse().forEach(item => {
+                    const box = document.createElement("div");
+                    box.className = "owner-report";
+                    box.innerHTML = `
+                        <div class="owner-report-head">
+                            <strong>Sugerencia</strong>
+                            <span class="owner-report-meta">${escapeHtml(item.date || "")}</span>
+                        </div>
+                        <div class="owner-report-meta">${escapeHtml(item.email || "guest")}</div>
+                        <div class="owner-report-body">${escapeHtml(item.text || "")}</div>
+                    `;
+                    feedbackList.appendChild(box);
+                });
+            }
+        }
+
+        function ownerEditUser(index) {
+            if (!requireOwner()) return;
+
+            const user = registeredUsers[index];
+            if (!user || user.email.toLowerCase() === DEVAI_OWNER_EMAIL) return;
+
+            const name = prompt("Nuevo nombre:", user.name || "");
+            if (name === null) return;
+
+            const cleanName = name.trim();
+            if (!cleanName) {
+                showToast("Nombre inválido", "El nombre no puede estar vacío.", "error");
+                return;
+            }
+
+            user.name = cleanName;
+            localStorage.setItem("devai_users", JSON.stringify(registeredUsers));
+            renderOwnerPanel();
+            showToast("Cuenta actualizada", "El nombre fue modificado.", "success");
+        }
+
+        function ownerToggleBan(index) {
+            if (!requireOwner()) return;
+
+            const user = registeredUsers[index];
+            if (!user || user.email.toLowerCase() === DEVAI_OWNER_EMAIL) return;
+
+            user.banned = !user.banned;
+            localStorage.setItem("devai_users", JSON.stringify(registeredUsers));
+            renderOwnerPanel();
+
+            showToast(
+                user.banned ? "Cuenta baneada" : "Cuenta restaurada",
+                user.banned ? "El usuario ya no puede iniciar sesión." : "El usuario puede volver a iniciar sesión.",
+                user.banned ? "error" : "success"
+            );
+        }
+
+        function ownerDeleteUser(index) {
+            if (!requireOwner()) return;
+
+            const user = registeredUsers[index];
+            if (!user || user.email.toLowerCase() === DEVAI_OWNER_EMAIL) return;
+
+            if (!confirm(`¿Borrar definitivamente la cuenta de ${user.name || user.email}?`)) return;
+
+            registeredUsers.splice(index, 1);
+            localStorage.setItem("devai_users", JSON.stringify(registeredUsers));
+            renderOwnerPanel();
+            showToast("Cuenta eliminada", "La cuenta fue eliminada de este dispositivo.", "success");
+        }
+
+
+        function safeJSONParse(value, fallback = []) {
+            try {
+                const parsed = JSON.parse(value);
+                return parsed ?? fallback;
+            } catch {
+                return fallback;
+            }
+        }
+</script>
+
+<!-- ===== DEVAI PRO: ACCOUNT SETTINGS ===== -->
+<div class="modal-overlay" id="accountSettingsModal" style="display:none;">
+    <div class="login-card pro-modal-card">
+        <button class="close-modal" onclick="closeProModal('accountSettingsModal')">×</button>
+        <div class="pro-modal-icon">⚙</div>
+        <h2>Ajustes de cuenta</h2>
+        <p class="modal-subtitle">Personaliza tu perfil de DevAI Pro.</p>
+
+        <label>Nombre de usuario</label>
+        <input type="text" id="accountNameInput" placeholder="Tu nombre">
+
+        <label>Correo electrónico</label>
+        <input type="email" id="accountEmailInput" placeholder="correo@ejemplo.com">
+
+        <label>Nueva contraseña</label>
+        <input type="password" id="accountPasswordInput" placeholder="Deja vacío para conservarla">
+
+        <div class="account-security-card">
+            <div>🛡️ Seguridad</div>
+            <small>Tu sesión actual se mantiene localmente en este dispositivo.</small>
+        </div>
+
+        <button class="action-btn" onclick="saveAccountSettings()">Guardar cambios</button>
+        <button class="secondary-action-btn" onclick="closeProModal('accountSettingsModal')">Cancelar</button>
+    </div>
+</div>
+
+<!-- ===== DEVAI PRO: BUG REPORT ===== -->
+<div class="modal-overlay" id="bugReportModal" style="display:none;">
+    <div class="login-card pro-modal-card">
+        <button class="close-modal" onclick="closeProModal('bugReportModal')">×</button>
+        <div class="pro-modal-icon">🐞</div>
+        <h2>Enviar error</h2>
+        <p class="modal-subtitle">Ayuda a mejorar DevAI. No necesitas explicar todo perfectamente.</p>
+
+        <label>¿Qué ocurrió?</label>
+        <textarea id="bugReportText" placeholder="Describe el problema..."></textarea>
+
+        <label>Sección afectada</label>
+        <select id="bugReportArea">
+            <option>Chat / IA</option>
+            <option>Inicio de sesión</option>
+            <option>Crear cuenta</option>
+            <option>Cuenta / Perfil</option>
+            <option>Panel de dueño</option>
+            <option>Interfaz</option>
+            <option>Otro</option>
+        </select>
+
+        <label>Nivel del problema</label>
+        <select id="bugReportSeverity">
+            <option>Normal</option>
+            <option>Importante</option>
+            <option>Crítico</option>
+        </select>
+
+        <button class="action-btn" onclick="submitBugReport()">Enviar reporte</button>
+        <button class="secondary-action-btn" onclick="closeProModal('bugReportModal')">Cancelar</button>
+    </div>
+</div>
+
+<!-- ===== DEVAI PRO: FEEDBACK ===== -->
+<div class="modal-overlay" id="feedbackModal" style="display:none;">
+    <div class="login-card pro-modal-card">
+        <button class="close-modal" onclick="closeProModal('feedbackModal')">×</button>
+        <div class="pro-modal-icon">💡</div>
+        <h2>Enviar sugerencia</h2>
+        <p class="modal-subtitle">Cuéntame qué función te gustaría ver en DevAI.</p>
+        <textarea id="feedbackText" placeholder="Tu idea..."></textarea>
+        <button class="action-btn" onclick="submitFeedback()">Enviar sugerencia</button>
+        <button class="secondary-action-btn" onclick="closeProModal('feedbackModal')">Cancelar</button>
+    </div>
+</div>
+
+<!-- ===== DEVAI PRO: ERROR CONSOLE ===== -->
+<div class="pro-status-pill" id="proStatusPill">
+    <span></span> DevAI Pro · Sistema estable
+</div>
+
+
+<div class="modal-overlay" id="ownerPanelModal" style="display:none;">
+    <div class="login-card owner-panel-card">
+        <button class="close-modal" onclick="closeProModal('ownerPanelModal')">×</button>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;">
+            <div>
+                <div class="owner-badge">👑 OWNER ACCESS</div>
+                <h2 style="margin-top:9px;">Centro privado</h2>
+                <p class="modal-subtitle">Solo disponible para pietrocervo08@gmail.com</p>
+            </div>
+        </div>
+
+        <div class="owner-grid">
+            <div class="owner-stat">
+                <span>Usuarios registrados</span>
+                <strong id="ownerUserCount">0</strong>
+            </div>
+            <div class="owner-stat">
+                <span>Reportes recibidos</span>
+                <strong id="ownerReportCount">0</strong>
+            </div>
+            <div class="owner-stat">
+                <span>Sugerencias</span>
+                <strong id="ownerFeedbackCount">0</strong>
+            </div>
+            <div class="owner-stat">
+                <span>Estado</span>
+                <strong style="font-size:14px;color:#56d364;">● Protegido</strong>
+            </div>
+        </div>
+
+        <div style="margin-top:20px;">
+            <h3>👤 Cuentas</h3>
+            <div class="owner-list" id="ownerUsersList"></div>
+        </div>
+
+        <div style="margin-top:22px;">
+            <h3>🐞 Reportes</h3>
+            <div class="owner-list" id="ownerReportsList"></div>
+        </div>
+
+        <div style="margin-top:22px;">
+            <h3>💡 Sugerencias</h3>
+            <div class="owner-list" id="ownerFeedbackList"></div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
