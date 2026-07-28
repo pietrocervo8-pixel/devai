@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevAI Ultimate Pro - Hyper-Intelligence Engine</title>
+    <title>DevAI Pro — Programming Intelligence</title>
     <style>
         :root {
             --bg-base: #07090e;
@@ -728,6 +728,212 @@
         .btn-del:hover { background: #da3633; }
         .btn-edit { background: var(--border); color: var(--text-main); }
         .btn-edit:hover { background: var(--border-hover); }
+    
+        /* ===== DEVAI PRO ENHANCEMENTS ===== */
+        * { box-sizing: border-box; }
+
+        ::selection {
+            background: rgba(88,166,255,.28);
+            color: var(--text-main);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            background:
+                radial-gradient(circle at 15% 10%, rgba(88,166,255,.07), transparent 30%),
+                radial-gradient(circle at 85% 85%, rgba(31,111,235,.05), transparent 28%);
+        }
+
+        sidebar {
+            box-shadow: 12px 0 35px rgba(0,0,0,.16);
+            backdrop-filter: blur(14px);
+        }
+
+        .sidebar-brand {
+            padding: 9px 8px 14px;
+            border-bottom: 1px solid rgba(48,54,61,.55);
+            margin-bottom: 4px;
+        }
+
+        .app-logo-mini {
+            box-shadow: 0 0 18px rgba(88,166,255,.22);
+        }
+
+        .sidebar-btn, .chat-item, .tool-btn, .auth-top-btn,
+        .send-btn, .login-card button, .mgmt-btn {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .sidebar-btn:hover {
+            transform: translateX(2px);
+        }
+
+        .sidebar-btn:active, .tool-btn:active, .send-btn:active,
+        .auth-top-btn:active, .mgmt-btn:active {
+            transform: scale(.97);
+        }
+
+        .chat-container {
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        .chat-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-container::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        .message {
+            animation: messageIn .25s ease-out both;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .message:hover {
+            transform: translateY(-1px);
+        }
+
+        .ai-message {
+            background: linear-gradient(145deg, rgba(13,17,23,.98), rgba(18,24,32,.94));
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #1f6feb, #388bfd 65%, #58a6ff);
+        }
+
+        @keyframes messageIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-area-wrapper {
+            border-top: 1px solid rgba(48,54,61,.25);
+            background: linear-gradient(to top, var(--bg-base), rgba(7,9,14,.82));
+        }
+
+        .input-box {
+            box-shadow: 0 12px 35px rgba(0,0,0,.22);
+            backdrop-filter: blur(12px);
+        }
+
+        .input-box:focus-within {
+            transform: translateY(-1px);
+        }
+
+        .send-btn {
+            min-width: 92px;
+            background: linear-gradient(135deg, #238636, #2ea043);
+        }
+
+        .send-btn:hover {
+            box-shadow: 0 5px 18px rgba(46,160,67,.35);
+            transform: translateY(-1px);
+        }
+
+        .modal-overlay {
+            animation: modalFade .18s ease-out;
+        }
+
+        .login-card, .admin-panel-card {
+            animation: modalPop .22s cubic-bezier(.2,.8,.2,1);
+        }
+
+        @keyframes modalFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: translateY(12px) scale(.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .identity-check {
+            margin: 4px 0 18px;
+            padding: 12px;
+            border: 1px solid rgba(88,166,255,.22);
+            border-radius: 10px;
+            background: rgba(88,166,255,.045);
+        }
+
+        .identity-check-title {
+            font-size: 12px;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .identity-check-text {
+            color: var(--text-secondary);
+            font-size: 11px;
+            line-height: 1.4;
+            margin-bottom: 9px;
+        }
+
+        .identity-check input {
+            margin-bottom: 0;
+        }
+
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 7px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 800;
+            color: var(--admin-gold);
+            border: 1px solid rgba(241,224,90,.28);
+            background: rgba(241,224,90,.06);
+            letter-spacing: .4px;
+        }
+
+        .programming-only {
+            margin-top: 4px;
+            padding: 7px 10px;
+            border: 1px solid rgba(88,166,255,.14);
+            border-radius: 7px;
+            font-size: 10px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        @media (max-width: 760px) {
+            sidebar {
+                width: 210px;
+            }
+
+            .chat-container {
+                padding: 18px 12px;
+            }
+
+            .input-area-wrapper {
+                padding: 12px;
+            }
+
+            .top-auth-buttons {
+                right: 10px;
+                gap: 5px;
+            }
+
+            .auth-top-btn {
+                padding: 6px 9px;
+                font-size: 10px;
+            }
+
+            header {
+                padding-right: 150px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -746,6 +952,7 @@
                     <div class="app-logo-mini">D</div>
                     <span>DevAI Pro</span>
                 </div>
+                <div class="programming-only">⚡ IA especializada en programación</div>
                 
                 <button class="sidebar-btn" onclick="createNewChat()"><span>＋</span> Nuevo chat</button>
                 <button class="sidebar-btn" onclick="clearCurrentChatHistory()"><span>⟳</span> Limpiar chat</button>
@@ -842,6 +1049,12 @@
                 </div>
             </div>
 
+            <div class="identity-check">
+                <div class="identity-check-title">🔐 Verificación de identidad</div>
+                <div class="identity-check-text">Para confirmar que eres tú, vuelve a escribir tu contraseña.</div>
+                <input type="password" id="inputLoginIdentity" placeholder="Confirma tu contraseña">
+            </div>
+
             <button class="action-btn" onclick="executeLogin()">Iniciar Sesión</button>
             <button class="secondary-action-btn" onclick="closeAllModals()">Cancelar</button>
         </div>
@@ -886,8 +1099,8 @@
     <!-- MODAL: Panel de Administración Exclusivo para el Dueño -->
     <div class="modal-overlay" id="adminPanelModal">
         <div class="admin-panel-card">
-            <h3><span>🛡️</span> Panel de Control del Dueño (pietrocervo8@gmail.com)</h3>
-            <p style="font-size:12px; color:var://text-secondary; margin-bottom:10px;">Gestión avanzada de usuarios registrados en el sistema:</p>
+            <h3><span>🛡️</span> Panel de Control del Dueño</h3>
+            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">Gestión avanzada de usuarios registrados en el sistema:</p>
             
             <div class="user-management-list" id="userManagementList">
                 <!-- Se llena dinámicamente -->
@@ -905,6 +1118,9 @@
             <h3>Modificar Usuario</h3>
             <p style="font-size:12px;">Edita las credenciales de este usuario.</p>
             <input type="hidden" id="editUserOldEmail">
+            <label>Nuevo Nombre</label>
+            <input type="text" id="editUserNewName">
+
             <label>Nuevo Correo</label>
             <input type="email" id="editUserNewEmail">
             <label>Nueva Contraseña</label>
@@ -918,9 +1134,19 @@
 
     <script>
         // Base de datos local segura persistente en localStorage
+        const OWNER_EMAIL = "pietrocervo8@gmail.com";
+
         let registeredUsers = JSON.parse(localStorage.getItem('devai_users')) || [
-            { email: "pietrocervo8@gmail.com", password: "adminPassword123", banned: false }
+            { name: "Pietro", email: OWNER_EMAIL, password: "adminPassword123", banned: false }
         ];
+
+        // Compatibilidad con cuentas antiguas creadas por versiones anteriores.
+        registeredUsers = registeredUsers.map(u => ({
+            name: u.name || (u.email ? u.email.split("@")[0] : "Usuario"),
+            email: u.email,
+            password: u.password,
+            banned: !!u.banned
+        }));
 
         let currentUser = JSON.parse(localStorage.getItem('devai_current_user')) || null;
         let chatSessions = [];
@@ -930,6 +1156,8 @@
 
         let isLoginVerified = false;
         let isRegVerified = false;
+
+        localStorage.setItem('devai_users', JSON.stringify(registeredUsers));
 
         window.onload = function() {
             if(currentUser) {
@@ -949,12 +1177,14 @@
             document.getElementById('recaptchaLoginBox').classList.remove('verified');
             document.getElementById('inputLoginEmail').value = '';
             document.getElementById('inputLoginPassword').value = '';
+            document.getElementById('inputLoginIdentity').value = '';
             document.getElementById('loginModal').style.display = 'flex';
         }
 
         function openRegisterModal() {
             isRegVerified = false;
             document.getElementById('recaptchaRegBox').classList.remove('verified');
+            document.getElementById('inputRegName').value = '';
             document.getElementById('inputRegEmail').value = '';
             document.getElementById('inputRegPassword').value = '';
             document.getElementById('registerModal').style.display = 'flex';
@@ -990,56 +1220,89 @@
         }
 
         function executeRegister() {
-            const email = document.getElementById('inputRegEmail').value.trim();
+            const name = document.getElementById('inputRegName').value.trim();
+            const email = document.getElementById('inputRegEmail').value.trim().toLowerCase();
             const password = document.getElementById('inputRegPassword').value.trim();
 
-            if(!email || !password) {
+            if(!name || !email || !password) {
                 alert("Por favor completa todos los campos.");
                 return;
             }
-            if(!email.includes('@')) {
-                alert("Introduce un correo electrónico válido.");
-                return;
-            }
-            if(!isRegVerified) {
-                alert("Por favor verifica que no eres un robot.");
+
+            if(name.length < 2 || name.length > 24) {
+                alert("El nombre debe tener entre 2 y 24 caracteres.");
                 return;
             }
 
-            // Verificar si ya existe
-            const exists = registeredUsers.find(u => u.email === email);
+            if(!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 _-]+$/.test(name)) {
+                alert("El nombre contiene caracteres no permitidos.");
+                return;
+            }
+
+            if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                alert("Introduce un correo electrónico válido.");
+                return;
+            }
+
+            if(password.length < 6) {
+                alert("La contraseña debe tener al menos 6 caracteres.");
+                return;
+            }
+
+            if(!isRegVerified) {
+                alert("Completa la prueba de robot.");
+                return;
+            }
+
+            const exists = registeredUsers.find(u => u.email.toLowerCase() === email);
             if(exists) {
                 alert("Este correo ya está registrado. Inicia sesión.");
                 return;
             }
 
-            // Guardar usuario nuevo en la base de datos segura
-            registeredUsers.push({ email, password, banned: false });
+            registeredUsers.push({
+                name,
+                email,
+                password,
+                banned: false
+            });
+
             localStorage.setItem('devai_users', JSON.stringify(registeredUsers));
 
-            alert("¡Cuenta creada y guardada con éxito! Ya puedes iniciar sesión.");
+            alert("¡Cuenta creada! Ahora inicia sesión.");
             closeAllModals();
             openLoginModal();
         }
 
         function executeLogin() {
-            const email = document.getElementById('inputLoginEmail').value.trim();
+            const email = document.getElementById('inputLoginEmail').value.trim().toLowerCase();
             const password = document.getElementById('inputLoginPassword').value.trim();
+            const identityPassword = document.getElementById('inputLoginIdentity').value.trim();
 
-            if(!email || !password) {
-                alert("Por favor introduce correo y contraseña.");
+            if(!email || !password || !identityPassword) {
+                alert("Completa correo, contraseña y la verificación de identidad.");
                 return;
             }
+
             if(!isLoginVerified) {
-                alert("Por favor verifica que no eres un robot.");
+                alert("Completa la prueba de robot.");
                 return;
             }
 
-            const user = registeredUsers.find(u => u.email === email && u.password === password);
+            if(password !== identityPassword) {
+                alert("La verificación de identidad no coincide con tu contraseña.");
+                return;
+            }
+
+            const user = registeredUsers.find(
+                u => u.email.toLowerCase() === email && u.password === password
+            );
+
             if(!user) {
                 alert("Credenciales incorrectas o usuario no encontrado.");
                 return;
             }
+
             if(user.banned) {
                 alert("Esta cuenta se encuentra baneada.");
                 return;
@@ -1052,26 +1315,33 @@
         }
 
         function applyUserSessionUI() {
-            // Ocultar botones superiores de login/registro y mostrar perfil en sidebar con opciones si es dueño
             document.getElementById('topAuthButtons').style.display = 'none';
 
-            let namePart = currentUser.email.split('@')[0];
-            let formattedName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
-            let isOwner = (currentUser.email.toLowerCase() === "pietrocervo8@gmail.com");
+            const formattedName = currentUser.name || currentUser.email.split('@')[0];
+            const isOwner = currentUser.email.toLowerCase() === OWNER_EMAIL;
 
             let footerHtml = `
-                ${isOwner ? `<button class="sidebar-btn" onclick="openAdminPanel()" style="color:var(--admin-gold); border-color:rgba(241,224,90,0.3); margin-bottom:4px;"><span>🛡️</span> Panel de Dueño</button>` : ''}
+                ${isOwner ? `
+                    <button class="sidebar-btn" onclick="openAdminPanel()"
+                        style="color:var(--admin-gold); border-color:rgba(241,224,90,0.3); margin-bottom:4px;">
+                        <span>🛡️</span> Panel de Dueño
+                    </button>
+                ` : ''}
                 <div class="user-profile-row">
                     <div class="user-info">
-                        <div class="user-avatar">${formattedName.charAt(0)}</div>
+                        <div class="user-avatar">${escapeHtml(formattedName.charAt(0).toUpperCase())}</div>
                         <div style="overflow:hidden;">
-                            <div class="user-meta-name">${formattedName}</div>
-                            <div class="user-meta-email">${currentUser.email}</div>
+                            <div class="user-meta-name">${escapeHtml(formattedName)}</div>
+                            <div class="user-meta-email">${escapeHtml(currentUser.email)}</div>
                         </div>
                     </div>
-                    <button onclick="logoutSession()" style="background:transparent; border:none; color:var(--text-secondary); cursor:pointer; font-size:11px;" title="Cerrar sesión">✕</button>
+                    ${isOwner ? '<span class="admin-badge">OWNER</span>' : ''}
+                    <button onclick="logoutSession()"
+                        style="background:transparent;border:none;color:var(--text-secondary);cursor:pointer;font-size:11px;"
+                        title="Cerrar sesión">✕</button>
                 </div>
             `;
+
             document.getElementById('sidebarFooter').innerHTML = footerHtml;
 
             if(chatSessions.length === 0) {
@@ -1086,7 +1356,7 @@
 
         /* Funciones del Panel de Dueño (Exclusivo pietrocervo8@gmail.com) */
         function openAdminPanel() {
-            if(!currentUser || currentUser.email.toLowerCase() !== "pietrocervo8@gmail.com") {
+            if(!currentUser || currentUser.email.toLowerCase() !== OWNER_EMAIL) {
                 alert("Acceso denegado. Solo el dueño (pietrocervo8@gmail.com) puede acceder.");
                 return;
             }
@@ -1114,13 +1384,15 @@
                 item.className = 'user-mgmt-item';
                 item.innerHTML = `
                     <div>
-                        <b>${u.email}</b> ${u.banned ? '<span style="color:var(--danger); font-size:10px;">[BANEADO]</span>' : ''}
-                        <div style="font-size:10px; color:var(--text-muted);">Pass: ${u.password}</div>
+                        <b>${escapeHtml(u.name || "Usuario")}</b>
+                        ${u.email.toLowerCase() === OWNER_EMAIL ? '<span class="admin-badge">OWNER</span>' : ''}
+                        ${u.banned ? '<span style="color:var(--danger); font-size:10px;">[BANEADO]</span>' : ''}
+                        <div style="font-size:10px; color:var(--text-muted);">${escapeHtml(u.email)}</div>
                     </div>
                     <div class="mgmt-actions">
-                        <button class="mgmt-btn btn-edit" onclick="openEditUserModal('${u.email}')">Modificar</button>
-                        <button class="mgmt-btn btn-ban" onclick="toggleBanUser('${u.email}')">${u.banned ? 'Desbanear' : 'Banear'}</button>
-                        ${u.email.toLowerCase() !== 'pietrocervo8@gmail.com' ? `<button class="mgmt-btn btn-del" onclick="deleteUserAccount('${u.email}')">Borrar</button>` : ''}
+                        ${u.email.toLowerCase() !== OWNER_EMAIL ? `<button class="mgmt-btn btn-edit" onclick="openEditUserModal('${escapeJs(u.email)}')">Modificar</button>` : '<span class="admin-badge">PROTEGIDO</span>'}
+                        ${u.email.toLowerCase() !== OWNER_EMAIL ? `<button class="mgmt-btn btn-ban" onclick="toggleBanUser('${escapeJs(u.email)}')">${u.banned ? 'Desbanear' : 'Banear'}</button>` : ''}
+                        ${u.email.toLowerCase() !== OWNER_EMAIL ? `<button class="mgmt-btn btn-del" onclick="deleteUserAccount('${escapeJs(u.email)}')">Borrar</button>` : ''}
                     </div>
                 `;
                 container.appendChild(item);
@@ -1128,7 +1400,7 @@
         }
 
         function toggleBanUser(email) {
-            if(email.toLowerCase() === 'pietrocervo8@gmail.com') {
+            if(email.toLowerCase() === OWNER_EMAIL) {
                 alert("No puedes banear la cuenta del dueño principal.");
                 return;
             }
@@ -1141,7 +1413,7 @@
         }
 
         function deleteUserAccount(email) {
-            if(email.toLowerCase() === 'pietrocervo8@gmail.com') {
+            if(email.toLowerCase() === OWNER_EMAIL) {
                 alert("No puedes eliminar la cuenta principal del dueño.");
                 return;
             }
@@ -1157,6 +1429,7 @@
             if(!user) return;
 
             document.getElementById('editUserOldEmail').value = user.email;
+            document.getElementById('editUserNewName').value = user.name || user.email.split('@')[0];
             document.getElementById('editUserNewEmail').value = user.email;
             document.getElementById('editUserNewPassword').value = user.password;
             document.getElementById('editUserModal').style.display = 'flex';
@@ -1168,23 +1441,65 @@
 
         function saveEditedUser() {
             let oldEmail = document.getElementById('editUserOldEmail').value;
-            let newEmail = document.getElementById('editUserNewEmail').value.trim();
+            let newName = document.getElementById('editUserNewName').value.trim();
+            let newEmail = document.getElementById('editUserNewEmail').value.trim().toLowerCase();
             let newPass = document.getElementById('editUserNewPassword').value.trim();
 
-            if(!newEmail || !newPass) {
+            if(!newName || !newEmail || !newPass) {
                 alert("Los campos no pueden estar vacíos.");
+                return;
+            }
+
+            if(!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 _-]+$/.test(newName)) {
+                alert("El nombre contiene caracteres no permitidos.");
+                return;
+            }
+
+            if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+                alert("El correo no es válido.");
                 return;
             }
 
             let user = registeredUsers.find(u => u.email === oldEmail);
             if(user) {
+                const duplicate = registeredUsers.find(
+                    u => u.email.toLowerCase() === newEmail && u.email !== oldEmail
+                );
+
+                if(duplicate) {
+                    alert("Ese correo ya pertenece a otra cuenta.");
+                    return;
+                }
+
+                user.name = newName;
                 user.email = newEmail;
                 user.password = newPass;
+
                 localStorage.setItem('devai_users', JSON.stringify(registeredUsers));
+
+                if(currentUser && currentUser.email === oldEmail) {
+                    currentUser = user;
+                    localStorage.setItem('devai_current_user', JSON.stringify(currentUser));
+                    applyUserSessionUI();
+                }
+
                 alert("Usuario modificado con éxito.");
                 closeEditModal();
                 renderUserManagementList();
             }
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function escapeJs(value) {
+            return String(value ?? "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
         }
 
         /* Lógica del Chat e Inteligencia */
@@ -1200,7 +1515,9 @@
                 id: newId,
                 title: "Bienvenida a DevAI",
                 messages: [
-                    { sender: 'ai', text: `🚀 **¡Bienvenido a DEVAI, ${displayName}!** Entorno cognitivo activo. Puedes usar la interfaz libremente o registrarte / iniciar sesión en la esquina superior. ¿Qué deseas construir hoy?` }
+                    { sender: 'ai', text: `🚀 **¡Bienvenido a DEVAI, ${displayName}!**<br><br>
+                    🤖 IA especializada exclusivamente en <b>programación y desarrollo de software</b>.<br>
+                    Puedes usarla sin cuenta o iniciar sesión para guardar tu perfil.` }
                 ]
             };
             chatSessions.unshift(chatObj);
@@ -1215,7 +1532,8 @@
                 id: newId,
                 title: "Nuevo chat",
                 messages: [
-                    { sender: 'ai', text: `Entorno PRO inicializado. ¿Qué consulta deseas procesar?` }
+                    { sender: 'ai', text: `Entorno PRO de programación inicializado.<br>
+                    ¿Qué quieres programar, depurar u optimizar?` }
                 ]
             };
             chatSessions.unshift(chatObj);
@@ -1366,26 +1684,73 @@
         }
 
         function generateProIntelligenceResponse(userQuery) {
-            const queryLower = userQuery.toLowerCase();
-            const authorName = currentUser ? currentUser.email.split('@')[0] : "Invitado";
-            
-            if(queryLower.includes('script') || queryLower.includes('codigo') || queryLower.includes('roblox') || queryLower.includes('python')) {
-                return `⚡ **Análisis de Código Pro:**<br>Estructura optimizada y lista para producción:<br><pre><code>-- DevAI Hyper-Engine Optimizer v7.5
-local SystemCore = {
-    Author = "${authorName}",
-    Status = "Fully Operational",
-    Timestamp = os.time()
-}
+            const query = userQuery.trim();
+            const queryLower = query.toLowerCase();
+            const authorName = currentUser
+                ? (currentUser.name || currentUser.email.split('@')[0])
+                : "Invitado";
 
-function SystemCore:ExecuteProTask()
-    print("Ejecutando rutinas avanzadas para: " .. self.Author)
-    return true
-end
+            const programmingTerms = [
+                'codigo','código','script','programar','programación','programacion',
+                'python','javascript','html','css','json','api','sql','java','c++',
+                'c#','lua','roblox','roblox studio','unity','unreal','react','node',
+                'npm','git','github','bug','error','debug','funcion','función',
+                'class','clase','variable','array','lista','diccionario','framework',
+                'web','frontend','backend','software','app','aplicación','aplicacion',
+                'algoritmo','terminal','linux','windows','electron','typescript'
+            ];
 
-return SystemCore:ExecuteProTask()</code></pre>`;
-            } else {
-                return `💡 **Informe Analítico Avanzado:**<br>Requerimiento procesado con éxito bajo parámetros de ultra-precisión para el usuario actual. ¿Deseas continuar con el desarrollo de tu proyecto?`;
+            const isProgramming = programmingTerms.some(term => queryLower.includes(term));
+
+            if(!isProgramming) {
+                return `🤖 **DevAI está especializada en programación.**<br><br>
+                Puedo ayudarte con <b>Python, JavaScript, HTML, CSS, Lua/Roblox,
+                APIs, errores, optimización, algoritmos, aplicaciones y desarrollo
+                de software.</b><br><br>
+                💡 Escríbeme qué quieres programar o pega tu código y lo analizamos.`;
             }
+
+            if(queryLower.includes('error') || queryLower.includes('bug') || queryLower.includes('arregla')) {
+                return `🛠️ **Modo Debug Pro activado**<br><br>
+                Usuario: <b>${escapeHtml(authorName)}</b><br>
+                He recibido tu problema. Pega el <b>error completo</b> y el fragmento
+                de código relacionado para localizar la causa y proponerte una solución
+                limpia y explicada.<br><br>
+                <pre><code>// DevAI Debugger
+// 1. Detectar causa
+// 2. Localizar línea problemática
+// 3. Corregir
+// 4. Optimizar
+// 5. Explicar el cambio</code></pre>`;
+            }
+
+            if(queryLower.includes('roblox') || queryLower.includes('lua')) {
+                return `🎮 **Roblox / Lua — DevAI**<br><br>
+                Entorno de programación detectado. Puedo ayudarte con
+                <b>LocalScripts, Scripts, ModuleScripts, RemoteEvents, GUIs,
+                DataStore, TeleportService, ProximityPrompt y sistemas de juego.</b><br><br>
+                Pega el script o dime exactamente qué sistema quieres crear.`;
+            }
+
+            if(queryLower.includes('python')) {
+                return `🐍 **Python — DevAI**<br><br>
+                Puedo ayudarte a construir, depurar y optimizar programas Python,
+                incluyendo interfaces, APIs, archivos, automatización y aplicaciones
+                de escritorio.<br><br>
+                <pre><code>def devai_status():
+    return {
+        "engine": "DevAI Pro",
+        "mode": "Programming",
+        "status": "READY"
+    }</code></pre>`;
+            }
+
+            return `⚡ **DevAI Programming Engine**<br><br>
+            Requerimiento detectado. Estoy listo para ayudarte a desarrollar el sistema,
+            revisar código, encontrar errores o mejorar la arquitectura.<br><br>
+            <b>Modo:</b> PROGRAMACIÓN<br>
+            <b>Usuario:</b> ${escapeHtml(authorName)}<br>
+            <b>Estado:</b> ONLINE`;
         }
 
         function handleKeyPress(e) {
