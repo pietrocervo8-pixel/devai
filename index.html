@@ -6,19 +6,18 @@
     <title>DevAI Ultimate Pro - Hyper-Intelligence Engine</title>
     <style>
         :root {
-            --bg-base: #0f1115;
-            --bg-surface: #161920;
-            --bg-card: #1c212c;
-            --border: #262c38;
-            --border-hover: #3b4459;
-            --accent: #6366f1;
-            --accent-hover: #4f46e5;
-            --accent-glow: rgba(99, 102, 241, 0.25);
-            --text-main: #f3f4f6;
-            --text-secondary: #9ca3af;
-            --text-muted: #6b7280;
-            --danger: #ef4444;
-            --success: #10b981;
+            --bg-base: #07090e;
+            --bg-surface: #0d1117;
+            --bg-card: #161b22;
+            --border: #30363d;
+            --border-hover: #58a6ff;
+            --accent: #58a6ff;
+            --accent-glow: rgba(88, 166, 255, 0.3);
+            --text-main: #f0f6fc;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            --danger: #f85149;
+            --success: #2ea043;
         }
 
         body {
@@ -33,14 +32,14 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Pantalla de Inicio / Verificación */
+        /* Pantalla de Inicio / Verificación PRO */
         #loginOverlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #0b0d10 0%, #161920 100%);
+            background: radial-gradient(circle at center, #111b2b 0%, #07090e 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -49,37 +48,54 @@
         .login-card {
             background: var(--bg-surface);
             padding: 36px;
-            border-radius: 14px;
+            border-radius: 16px;
             border: 1px solid var(--border);
             text-align: left;
             width: 100%;
-            max-width: 380px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            max-width: 400px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.7), 0 0 20px rgba(88, 166, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            animation: scanLine 3s linear infinite;
+        }
+        @keyframes scanLine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
         .login-card .logo-area {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 20px;
         }
         .app-logo {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, var(--accent), #a855f7);
-            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), #1f6feb);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
+            font-weight: 900;
             color: white;
-            font-size: 18px;
-            box-shadow: 0 4px 12px var(--accent-glow);
+            font-size: 20px;
+            box-shadow: 0 0 15px var(--accent-glow);
         }
         .login-card h2 {
             color: var(--text-main);
-            margin: 0 0 6px 0;
-            font-size: 20px;
-            font-weight: 600;
+            margin: 0 0 4px 0;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
         .login-card p {
             color: var(--text-secondary);
@@ -89,14 +105,16 @@
         }
         .login-card label {
             display: block;
-            font-size: 12px;
-            font-weight: 500;
+            font-size: 11px;
+            font-weight: 600;
             color: var(--text-secondary);
             margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .login-card input {
             width: 100%;
-            padding: 11px 14px;
+            padding: 12px 14px;
             margin-bottom: 16px;
             background-color: var(--bg-base);
             border: 1px solid var(--border);
@@ -104,119 +122,123 @@
             color: var(--text-main);
             box-sizing: border-box;
             font-size: 13px;
+            transition: all 0.2s;
         }
         .login-card input:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 2px var(--accent-glow);
+            box-shadow: 0 0 0 3px var(--accent-glow);
         }
         .login-card button {
             width: 100%;
-            padding: 11px;
-            background-color: var(--accent);
+            padding: 12px;
+            background-color: #238636;
             color: white;
             border: none;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             font-size: 13px;
-            transition: background 0.15s;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);
         }
         .login-card button:hover {
-            background-color: var(--accent-hover);
+            background-color: #2ea043;
+            box-shadow: 0 6px 16px rgba(46, 160, 67, 0.4);
         }
 
-        /* Widget de verificación personalizado */
+        /* Widget de verificación robot PRO */
         .recaptcha-box {
-            background: #f9f9f9;
-            border: 1px solid #d3d3d3;
-            border-radius: 3px;
-            padding: 12px 14px;
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-            user-select: none;
-            width: 100%;
-            box-sizing: border-box;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .recaptcha-box:hover {
+            border-color: var(--border-hover);
         }
         .recaptcha-left {
             display: flex;
             align-items: center;
             gap: 12px;
-            cursor: pointer;
         }
         .recaptcha-checkbox {
             width: 24px;
             height: 24px;
-            background: #fff;
-            border: 2px solid #c1c1c1;
-            border-radius: 2px;
+            background: var(--bg-surface);
+            border: 2px solid var(--border);
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
         }
         .recaptcha-box.verified .recaptcha-checkbox {
-            border-color: #f9f9f9;
-            background: #f9f9f9;
+            border-color: var(--success);
+            background: rgba(46, 160, 67, 0.1);
         }
         .recaptcha-checkmark {
             display: none;
-            color: #0b8043;
-            font-size: 18px;
+            color: var(--success);
+            font-size: 16px;
             font-weight: bold;
-            line-height: 1;
         }
         .recaptcha-box.verified .recaptcha-checkmark {
             display: block;
         }
         .recaptcha-text {
             font-size: 13px;
-            color: #000;
-            font-family: Roboto, helvetica, arial, sans-serif;
+            color: var(--text-main);
             font-weight: 500;
         }
         .recaptcha-right {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
         }
-        .recaptcha-logo {
-            width: 32px;
-            height: 32px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
+        .recaptcha-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
         }
-        .recaptcha-box.verifying .recaptcha-logo {
-            animation: spinRecap 0.8s linear infinite;
-        }
-        @keyframes spinRecap {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .recaptcha-box.verifying .recaptcha-spinner {
+            display: block;
         }
 
-        /* Pantalla de carga / Verificando */
+        /* Pantallas de carga con efectos cibernéticos */
         .loading-screen {
             text-align: center;
-            padding: 20px 0;
+            padding: 30px 0;
         }
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
+        .cyber-loader {
+            width: 60px;
+            height: 60px;
             border: 3px solid var(--border);
             border-top: 3px solid var(--accent);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 16px auto;
+            animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+            margin: 0 auto 20px auto;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         .loading-text {
             font-size: 14px;
-            color: var(--text-main);
-            font-weight: 500;
+            color: var(--accent);
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         /* Estructura Principal */
@@ -227,7 +249,6 @@
             flex-direction: row;
         }
 
-        /* Barra Lateral */
         sidebar {
             width: 260px;
             background-color: var(--bg-surface);
@@ -247,7 +268,7 @@
         }
         .sidebar-brand {
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-main);
             padding: 6px 8px;
             margin-bottom: 6px;
@@ -258,7 +279,7 @@
         .sidebar-brand .app-logo-mini {
             width: 24px;
             height: 24px;
-            background: linear-gradient(135deg, var(--accent), #a855f7);
+            background: linear-gradient(135deg, var(--accent), #1f6feb);
             border-radius: 6px;
             display: flex;
             align-items: center;
@@ -270,7 +291,7 @@
         .sidebar-btn {
             background-color: transparent;
             color: var(--text-secondary);
-            border: none;
+            border: 1px solid transparent;
             padding: 9px 10px;
             border-radius: 6px;
             text-align: left;
@@ -280,18 +301,19 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            transition: background 0.1s, color 0.1s;
+            transition: all 0.15s;
         }
         .sidebar-btn:hover {
             background-color: var(--bg-card);
             color: var(--text-main);
+            border-color: var(--border);
         }
         .chats-title {
             font-size: 11px;
             color: var(--text-muted);
-            font-weight: 600;
+            font-weight: 700;
             padding: 16px 10px 6px 10px;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
             text-transform: uppercase;
         }
         .chats-list {
@@ -317,7 +339,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            transition: background 0.1s, color 0.1s;
+            transition: all 0.15s;
         }
         .chat-item:hover {
             background-color: var(--bg-card);
@@ -325,8 +347,9 @@
         }
         .chat-item.active {
             background-color: var(--bg-card);
-            color: var(--text-main);
-            font-weight: 500;
+            color: var(--accent);
+            font-weight: 600;
+            border: 1px solid var(--border);
         }
         .no-chats {
             font-size: 12px;
@@ -334,7 +357,6 @@
             padding: 10px;
         }
 
-        /* Footer Sidebar */
         .sidebar-footer {
             border-top: 1px solid var(--border);
             padding-top: 10px;
@@ -361,18 +383,18 @@
         .user-avatar {
             width: 28px;
             height: 28px;
-            background-color: var(--accent);
+            background: linear-gradient(135deg, var(--accent), #1f6feb);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
+            font-weight: 700;
             color: white;
             font-size: 12px;
             flex-shrink: 0;
         }
         .user-meta-name {
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-main);
             font-size: 12px;
             white-space: nowrap;
@@ -387,7 +409,6 @@
             text-overflow: ellipsis;
         }
 
-        /* Área Principal de Chat */
         .main-area {
             flex: 1;
             display: flex;
@@ -422,17 +443,17 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
-            max-width: 760px;
+            max-width: 800px;
             width: 100%;
             margin: 0 auto;
             box-sizing: border-box;
         }
         .message {
-            padding: 12px 16px;
-            border-radius: 10px;
+            padding: 14px 18px;
+            border-radius: 12px;
             max-width: 88%;
             font-size: 13px;
-            line-height: 1.5;
+            line-height: 1.6;
             word-break: break-word;
         }
         .ai-message {
@@ -440,11 +461,13 @@
             color: var(--text-main);
             align-self: flex-start;
             border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         .user-message {
-            background-color: var(--accent);
+            background: linear-gradient(135deg, #1f6feb, #388bfd);
             color: white;
             align-self: flex-end;
+            box-shadow: 0 4px 12px rgba(31, 111, 235, 0.3);
         }
         .msg-img {
             max-width: 220px;
@@ -456,25 +479,24 @@
         }
         pre {
             background: var(--bg-base);
-            padding: 12px;
-            border-radius: 6px;
+            padding: 14px;
+            border-radius: 8px;
             overflow-x: auto;
             border: 1px solid var(--border);
-            color: #a5b4fc;
+            color: #79c0ff;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             font-size: 12px;
-            margin-top: 8px;
-            line-height: 1.4;
+            margin-top: 10px;
+            line-height: 1.5;
         }
 
-        /* Animación de Pensamiento Avanzada */
         .thinking-indicator {
             display: flex;
             flex-direction: column;
             gap: 6px;
             background-color: var(--bg-surface);
-            padding: 12px 16px;
-            border-radius: 10px;
+            padding: 14px 18px;
+            border-radius: 12px;
             border: 1px solid var(--border);
             align-self: flex-start;
             font-size: 12px;
@@ -487,7 +509,7 @@
             align-items: center;
             gap: 10px;
             color: var(--text-main);
-            font-weight: 500;
+            font-weight: 600;
         }
         .spinner {
             width: 16px;
@@ -497,10 +519,6 @@
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
         .thinking-steps {
             font-size: 11px;
             color: var(--text-muted);
@@ -508,7 +526,6 @@
             font-family: monospace;
         }
 
-        /* Área de Input */
         .input-area-wrapper {
             padding: 16px 24px 20px 24px;
             background-color: var(--bg-base);
@@ -516,20 +533,20 @@
             justify-content: center;
         }
         .input-box {
-            max-width: 760px;
+            max-width: 800px;
             width: 100%;
             background-color: var(--bg-surface);
             border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 8px 12px;
+            border-radius: 12px;
+            padding: 10px 14px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            transition: border-color 0.15s, box-shadow 0.15s;
+            gap: 8px;
+            transition: all 0.2s;
         }
         .input-box:focus-within {
             border-color: var(--accent);
-            box-shadow: 0 0 0 2px var(--accent-glow);
+            box-shadow: 0 0 0 3px var(--accent-glow);
         }
         .textarea-wrapper textarea {
             width: 100%;
@@ -547,7 +564,7 @@
             justify-content: space-between;
             align-items: center;
             border-top: 1px solid var(--border);
-            padding-top: 6px;
+            padding-top: 8px;
         }
         .tools-group {
             display: flex;
@@ -556,28 +573,29 @@
         }
         .tool-btn {
             background: transparent;
-            border: none;
+            border: 1px solid transparent;
             color: var(--text-secondary);
             cursor: pointer;
             font-size: 12px;
-            padding: 5px 8px;
+            padding: 6px 10px;
             border-radius: 6px;
             display: flex;
             align-items: center;
-            gap: 5px;
-            transition: background 0.1s, color 0.1s;
+            gap: 6px;
+            transition: all 0.15s;
         }
         .tool-btn:hover {
             background: var(--bg-card);
             color: var(--text-main);
+            border-color: var(--border);
         }
         .attachment-tag {
             display: none;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             background: var(--bg-card);
-            padding: 3px 8px;
-            border-radius: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
             font-size: 11px;
             color: var(--text-main);
             border: 1px solid var(--border);
@@ -589,21 +607,21 @@
             border-radius: 3px;
         }
         .send-btn {
-            background: var(--accent);
+            background: #238636;
             color: white;
             border: none;
             border-radius: 6px;
-            padding: 6px 14px;
-            font-weight: 500;
+            padding: 7px 16px;
+            font-weight: 600;
             cursor: pointer;
             font-size: 12px;
-            transition: background 0.1s;
+            transition: all 0.15s;
+            box-shadow: 0 2px 8px rgba(35, 134, 54, 0.3);
         }
         .send-btn:hover {
-            background: var(--accent-hover);
+            background: #2ea043;
         }
 
-        /* Modal de Configuración */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -611,131 +629,133 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
             justify-content: center;
             align-items: center;
             z-index: 3000;
         }
         .modal-card {
             background: var(--bg-surface);
-            padding: 24px;
-            border-radius: 12px;
+            padding: 28px;
+            border-radius: 14px;
             border: 1px solid var(--border);
-            max-width: 380px;
+            max-width: 400px;
             width: 100%;
             box-sizing: border-box;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
         }
         .modal-card h3 {
             color: var(--text-main);
             margin-top: 0;
             font-size: 16px;
-            margin-bottom: 14px;
-            font-weight: 600;
+            margin-bottom: 16px;
+            font-weight: 700;
         }
         .modal-card label {
             font-size: 11px;
             color: var(--text-secondary);
-            font-weight: 500;
+            font-weight: 600;
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
         }
         .modal-card input {
             width: 100%;
-            padding: 10px;
+            padding: 11px;
             background: var(--bg-base);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 8px;
             color: var(--text-main);
             font-size: 13px;
             box-sizing: border-box;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
         .modal-card input:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
         }
         .modal-buttons {
             display: flex;
-            gap: 8px;
-            margin-top: 6px;
+            gap: 10px;
+            margin-top: 8px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Pantalla de Inicio / Verificación Secuencial -->
+    <!-- Pantalla de Inicio / Verificación Secuencial PRO -->
     <div id="loginOverlay">
         
-        <!-- PASO 1: Nombre, Correo y no soy robot -->
+        <!-- PASO 1: Nombre, Correo y reCAPTCHA interactivo -->
         <div class="login-card" id="loginCardStep1">
             <div class="logo-area">
                 <div class="app-logo">D</div>
                 <div>
-                    <h2 style="font-size:16px; margin:0;">DevAI Pro</h2>
-                    <span style="font-size:11px; color:var(--text-secondary);">Sistema Seguro de Acceso</span>
+                    <h2>DevAI Ultimate Pro</h2>
+                    <span style="font-size:11px; color:var(--text-secondary);">Motor de Hiper-Inteligencia</span>
                 </div>
             </div>
-            <p>Ingresa tus datos y confirma que no eres un robot para continuar.</p>
+            <p>Identifícate en el sistema y verifica tus credenciales.</p>
             <label>Nombre</label>
             <input type="text" id="inputLoginName" placeholder="Tu nombre">
             <label>Correo Electrónico</label>
             <input type="email" id="inputLoginEmail" placeholder="correo@ejemplo.com">
             
-            <!-- Widget de verificación de robot -->
+            <!-- Widget de verificación de robot PRO -->
             <div class="recaptcha-box" id="recaptchaBox" onclick="triggerVerification()">
                 <div class="recaptcha-left">
                     <div class="recaptcha-checkbox">
                         <div class="recaptcha-checkmark">✓</div>
                     </div>
-                    <span class="recaptcha-text" id="recaptchaText">I'm not a robot</span>
+                    <span class="recaptcha-text" id="recaptchaText">No soy un robot</span>
                 </div>
                 <div class="recaptcha-right">
-                    <div class="recaptcha-logo" id="recaptchaLogo"></div>
+                    <div class="recaptcha-spinner" id="recaptchaSpinner"></div>
                 </div>
             </div>
 
-            <button id="nextToPasswordBtn" onclick="proceedToPassword()">Continuar</button>
+            <button onclick="proceedToPassword()">Continuar</button>
         </div>
 
-        <!-- PASO 2: Pantalla de Verificando (Carga 1) -->
+        <!-- PASO 2: Verificando (Carga 1) -->
         <div class="login-card" id="loginCardLoading1" style="display:none;">
             <div class="loading-screen">
-                <div class="loading-spinner"></div>
-                <div class="loading-text" id="loadingText1">Verificando...</div>
+                <div class="cyber-loader"></div>
+                <div class="loading-text" id="loadingText1">Verificando identidad...</div>
             </div>
         </div>
 
-        <!-- PASO 3: Pon tu contraseña -->
+        <!-- PASO 3: Contraseña -->
         <div class="login-card" id="loginCardStep2" style="display:none;">
             <div class="logo-area">
                 <div class="app-logo">D</div>
                 <div>
-                    <h2 style="font-size:16px; margin:0;">Seguridad</h2>
-                    <span style="font-size:11px; color:var(--text-secondary);">Credenciales de acceso</span>
+                    <h2>Seguridad Avanzada</h2>
+                    <span style="font-size:11px; color:var(--text-secondary);">Credencial de Acceso</span>
                 </div>
             </div>
-            <p>Introduce tu contraseña para validar tu identidad en el sistema.</p>
+            <p>Introduce tu contraseña cifrada para desbloquear el núcleo.</p>
             <label>Contraseña</label>
             <input type="password" id="inputLoginPassword" placeholder="••••••••">
             <button onclick="verifyPasswordAction()">Verificar contraseña</button>
         </div>
 
-        <!-- PASO 4: Pantalla de Verificando (Carga 2) -->
+        <!-- PASO 4: Verificando (Carga 2) -->
         <div class="login-card" id="loginCardLoading2" style="display:none;">
             <div class="loading-screen">
-                <div class="loading-spinner"></div>
-                <div class="loading-text" id="loadingText2">Verificando...</div>
+                <div class="cyber-loader"></div>
+                <div class="loading-text" id="loadingText2">Validando cifrado...</div>
             </div>
         </div>
 
         <!-- PASO 5: Bienvenido a Devai -->
         <div class="login-card" id="loginCardWelcome" style="display:none; text-align:center;">
-            <div style="font-size:42px; margin-bottom:12px;">🎉</div>
+            <div style="font-size:48px; margin-bottom:12px; filter: drop-shadow(0 0 10px rgba(88,166,255,0.4));">🚀</div>
             <h2 style="font-size:20px; margin-bottom:8px; color:var(--text-main);">Bienvenido a Devai</h2>
-            <p id="welcomeUserSub" style="color:var(--text-secondary); font-size:13px; margin-bottom:20px;">Entorno inicializado con éxito.</p>
-            <button onclick="enterApplication()">Entrar al sistema</button>
+            <p id="welcomeUserSub" style="color:var(--text-secondary); font-size:13px; margin-bottom:24px;">Núcleo cognitivo sincronizado correctamente.</p>
+            <button onclick="enterApplication()" style="background: linear-gradient(135deg, #1f6feb, #388bfd);">Entrar al sistema</button>
         </div>
 
     </div>
@@ -780,14 +800,14 @@
                     <span>Sesión activa:</span> <b id="currentChatTitle">Nuevo chat</b>
                 </div>
                 <div style="font-size: 11px; color: var(--text-secondary); display:flex; align-items:center; gap:6px;">
-                    <div style="width:6px; height:6px; background:var(--success); border-radius:50%;"></div>
-                    Hiper-Inteligencia v6.0 (Razonamiento Profundo)
+                    <div style="width:6px; height:6px; background:var(--success); border-radius:50%; box-shadow: 0 0 6px var(--success);"></div>
+                    Hyper-Intelligence Engine Pro v7.0
                 </div>
             </header>
 
             <div class="chat-container" id="chatContainer">
                 <div class="message ai-message">
-                    Hola, <span id="welcomeUserName">Pietro</span>. El motor de hiper-inteligencia analítica está en línea. Indícame tus requerimientos de desarrollo, lógica de scripts avanzados o ingeniería inversa profunda para comenzar.
+                    Hola, <span id="welcomeUserName">Pietro</span>. El motor de hiper-inteligencia analítica está activo con capacidades avanzadas. Indícame tus requerimientos de desarrollo o scripts para comenzar.
                 </div>
             </div>
 
@@ -848,14 +868,13 @@
         function triggerVerification() {
             if(isRobotVerified) return;
             const box = document.getElementById('recaptchaBox');
-
             box.classList.add('verifying');
 
             setTimeout(() => {
                 box.classList.remove('verifying');
                 box.classList.add('verified');
                 isRobotVerified = true;
-            }, 1200);
+            }, 1000);
         }
 
         function proceedToPassword() {
@@ -871,21 +890,20 @@
                 return;
             }
             if(!isRobotVerified) {
-                alert('Por favor confirma que no eres un robot.');
+                alert('Por favor confirma que no eres un robot haciendo clic en la casilla.');
                 return;
             }
 
             globalUserName = name;
             globalUserEmail = email;
 
-            // Mostrar pantalla de carga "verificando..." (Carga 1)
             document.getElementById('loginCardStep1').style.display = 'none';
             document.getElementById('loginCardLoading1').style.display = 'block';
 
             setTimeout(() => {
                 document.getElementById('loginCardLoading1').style.display = 'none';
                 document.getElementById('loginCardStep2').style.display = 'block';
-            }, 1500);
+            }, 1400);
         }
 
         function verifyPasswordAction() {
@@ -895,7 +913,6 @@
                 return;
             }
 
-            // Mostrar pantalla de carga "verificando..." (Carga 2)
             document.getElementById('loginCardStep2').style.display = 'none';
             document.getElementById('loginCardLoading2').style.display = 'block';
 
@@ -903,7 +920,7 @@
                 document.getElementById('loginCardLoading2').style.display = 'none';
                 document.getElementById('welcomeUserSub').textContent = `Hola, ${globalUserName}. Acceso autorizado correctamente.`;
                 document.getElementById('loginCardWelcome').style.display = 'block';
-            }, 1500);
+            }, 1400);
         }
 
         function enterApplication() {
@@ -1023,7 +1040,7 @@
             const currentChat = chatSessions.find(c => c.id === activeChatId);
             if(currentChat) {
                 currentChat.messages = [
-                    { sender: 'ai', text: "Historial cognitivo restablecido. ¿Qué proyecto o script deseas estructurar?" }
+                    { sender: 'ai', text: "Historial cognitivo restablecido. ¿Qué proyecto deseas estructurar hoy?" }
                 ];
                 renderActiveChatContent();
             }
@@ -1033,7 +1050,7 @@
             const currentChat = chatSessions.find(c => c.id === activeChatId);
             if(!currentChat) return;
 
-            let exportText = `--- REGISTRO COGNITIVO DEVAI: ${currentChat.title} ---\n\n`;
+            let exportText = `--- REGISTRO COGNITIVO DEVAI PRO: ${currentChat.title} ---\n\n`;
             currentChat.messages.forEach(m => {
                 exportText += `[${m.sender.toUpperCase()}]: ${m.text}\n\n`;
             });
@@ -1042,7 +1059,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `DevAI_HiperInteligencia_${Date.now()}.txt`;
+            a.download = `DevAI_Pro_${Date.now()}.txt`;
             a.click();
         }
 
@@ -1104,36 +1121,20 @@
 
             setTimeout(() => {
                 const stepEl = document.getElementById('thinkingStepText');
-                if(stepEl) stepEl.textContent = "Realizando ingeniería inversa y optimización de nodos...";
-            }, 900);
-
-            setTimeout(() => {
-                const stepEl = document.getElementById('thinkingStepText');
-                if(stepEl) stepEl.textContent = "Sintetizando bloques de código de alto rendimiento...";
-            }, 1800);
+                if(stepEl) stepEl.textContent = "Optimización de nodos y lógica algorítmica...";
+            }, 800);
 
             setTimeout(() => {
                 const indicator = document.getElementById('thinkingIndicator');
                 if(indicator) indicator.remove();
 
-                let expertResponse = "";
-                const lower = text.toLowerCase();
-
-                if(currentImg) {
-                    expertResponse = `🧠 **Análisis Cognitivo y Visión Computacional Avanzada:**<br>He decodificado la estructura visual proporcionada y evaluado sus dependencias lógicas con precisión absoluta.<br><pre>-- Módulo de Diagnóstico Avanzado\nlocal visionNode = script.Parent\nlocal confidenceLevel = 0.998\nprint("[Hiper-Inteligencia]: Estructura validada con éxito.")</pre>`;
-                } else if(lower.includes('roblox') || lower.includes('lua') || lower.includes('script')) {
-                    expertResponse = `⚡ **Refactorización Experta de Hiper-Inteligencia (Luau Avanzado):**<br>He optimizado el rendimiento y la seguridad del algoritmo para evitar fugas de memoria:<br><pre>-- Arquitectura Optimizada por IA Pro\nlocal ReplicatedStorage = game:GetService("ReplicatedStorage")\nlocal Players = game:GetService("Players")\n\nlocal function executeAdvancedCore()\n    print("[DevAI Hiper-Inteligencia]: Sistema Luau sincronizado sin latencia.")\nend\nexecuteAdvancedCore()</pre>`;
-                } else if(lower.includes('python') || lower.includes('codigo') || lower.includes('programar')) {
-                    expertResponse = `🚀 **Generación de Código de Alto Rendimiento:**<br>He estructurado una solución escalable basada en tus parámetros:<br><pre># Módulo de Control Inteligente\nimport sys\n\ndef run_core_diagnostics():\n    print("[DevAI]: Núcleo operativo funcionando al máximo rendimiento.")\n\nif __name__ == "__main__":\n    run_core_diagnostics()</pre>`;
-                } else {
-                    expertResponse = `💡 **Informe Analítico de Hiper-Inteligencia:**<br>He procesado tu consulta cruzando bases de datos lógicas multivariable. La estrategia sugerida maximiza la eficiencia y minimiza los errores de ejecución en tu entorno de desarrollo.`;
-                }
-
+                let expertResponse = "💡 **Informe Analítico Pro:**<br>He procesado tu requerimiento con éxito. La estructura lógica ha sido optimizada para garantizar el máximo rendimiento en tu entorno.";
+                
                 if(activeChat) {
                     activeChat.messages.push({ sender: 'ai', text: expertResponse, image: null });
                 }
                 renderActiveChatContent();
-            }, 2700);
+            }, 1800);
         }
 
         function handleKeyPress(e) {
