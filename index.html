@@ -1,97 +1,71 @@
 #!/usr/bin/env bash
 set -euo pipefail
+ROOT="devai"
+echo "Generando proyecto DEVAI en ./${ROOT} ..."
 
-ROOT_DIR="devai"
-echo "Creando proyecto DEVAI en ./${ROOT_DIR} ..."
+# create helper dirs
+mkdir -p "${ROOT}/frontend/src/components"
+mkdir -p "${ROOT}/frontend/src/styles"
+mkdir -p "${ROOT}/backend/app/routers"
+mkdir -p "${ROOT}/backend/app"
+mkdir -p "${ROOT}/assets"
+mkdir -p "${ROOT}/infra"
 
-# Helper to write files with heredoc
-write_file() {
-  local path="$1"
-  local content="$2"
-  mkdir -p "$(dirname "$path")"
-  cat > "$path" <<'EOF'
-'"$content"'
-EOF
-}
+# README
+cat > "${ROOT}/README.md" <<'EOF'
+# DEVAI — Professional AI Assistant (Example)
 
-# Create folders
-mkdir -p "${ROOT_DIR}/frontend/src/components"
-mkdir -p "${ROOT_DIR}/backend/app/routers"
-mkdir -p "${ROOT_DIR}/assets"
+Stack:
+- Frontend: React + Vite + TypeScript + Tailwind CSS
+- Backend: Python + FastAPI + SQLAlchemy (async) + JWT
+- DB: SQLite by default (swap to PostgreSQL in .env)
+- Dockerized: docker-compose for local full-stack
 
-############################
-# README.md
-############################
-cat > "${ROOT_DIR}/README.md" <<'EOF'
-# DEVAI
+Quick start (local)
+1) Generate project (this repo): run the provided script
+2) Backend
+   cd backend
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r ../requirements.txt
+   cp .env.example .env
+   # edit .env, set SECRET_KEY and FRONTEND_URL
+   uvicorn app.main:app --reload --port 8000
 
-Proyecto ejemplo: aplicación web de IA con frontend (React + Vite) y backend (FastAPI).
+3) Frontend
+   cd ../frontend
+   npm install
+   npm run dev
+   # open http://localhost:5173
 
-Características
-- UI oscura, responsive y moderna
-- Registro / Login (JWT)
-- Chat de IA con historial y memoria
-- Herramientas para generar/explicar/corregir código (endpoints placeholder)
-- Preparado para deploy y dominio propio
-
-Requisitos
-- Python 3.10+
-- Node 16/18+
-- Docker (opcional)
-
-Instalación local (sin Docker)
-1. Backend
-   - cd backend
-   - python -m venv .venv
-   - source .venv/bin/activate
-   - pip install -r ../requirements.txt
-   - cp .env.example .env  # editar variables (SECRET_KEY, OPENAI_API_KEY opcional)
-   - uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-
-2. Frontend
-   - cd frontend
-   - npm install
-   - npm run dev  # por defecto en http://localhost:5173
-
-Con Docker (completo)
+Docker (all-in-one)
 - docker-compose up --build
 
-Deploy
-- Subir repositorio a GitHub
-- Deploy frontend en Vercel / Netlify
-- Deploy backend en Render / Railway / Fly (asegura variables de entorno y HTTPS)
+Deploy notes
+- Use managed services: Vercel for frontend, Render/Railway/Fly for backend.
+- Point DNS: api.devai.com -> backend, app.devai.com or devai.com -> frontend (CNAME/A per provider).
+- Use PostgreSQL in production and set DATABASE_URL.
 
-Seguridad y producción
-- Cambia SECRET_KEY a un valor seguro
-- Usa PostgreSQL o similar en producción
-- Habilita HTTPS
-- Mantén claves en variables de entorno / secretos
 EOF
 
-############################
-# requirements.txt
-############################
-cat > "${ROOT_DIR}/requirements.txt" <<'EOF'
+# requirements
+cat > "${ROOT}/requirements.txt" <<'EOF'
 fastapi
 uvicorn[standard]
-sqlalchemy
+sqlalchemy>=1.4
+asyncpg
 databases
-alembic
 pydantic
 passlib[bcrypt]
 python-jose[cryptography]
 python-dotenv
 requests
-python-multipart
-email-validator
 aiohttp
 aiosqlite
 EOF
 
-############################
-# docker-compose.yml
-############################
-cat > "${ROOT_DIR}/docker-compose.yml" <<'EOF'
+# docker-compose
+cat > "${ROOT}/docker-compose.yml" <<'EOF'
 version: "3.8"
 services:
   backend:
@@ -112,10 +86,18 @@ services:
       - "5173:5173"
 EOF
 
-############################
-# backend/Dockerfile
-############################
-cat > "${ROOT_DIR}/backend/Dockerfile" <<'EOF'
+# assets
+cat > "${ROOT}/assets/logo.svg" <<'EOF'
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80" viewBox="0 0 320 80">
+  <rect width="320" height="80" rx="12" fill="#0f1724"/>
+  <text x="28" y="54" font-family="Inter,Segoe UI,Roboto,Arial" font-size="36" fill="#7de3ff" font-weight="700">DEVAI</text>
+</svg>
+EOF
+
+#######################
+# BACKEND files
+#######################
+cat > "${ROOT}/backend/Dockerfile" <<'EOF'
 FROM python:3.11-slim
 WORKDIR /app
 COPY ../requirements.txt /app/requirements.txt
@@ -126,25 +108,19 @@ ENV PYTHONPATH=/app
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 EOF
 
-############################
-# backend/.env.example
-############################
-cat > "${ROOT_DIR}/backend/.env.example" <<'EOF'
+cat > "${ROOT}/backend/.env.example" <<'EOF'
 # Copy to .env and edit
-SECRET_KEY=devai_super_secret_change_me
+SECRET_KEY=replace_with_a_strong_secret
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=43200
 DATABASE_URL=sqlite+aiosqlite:///./devai.db
-OPENAI_API_KEY=   # opcional, si quieres usar OpenAI completions
 FRONTEND_URL=http://localhost:5173
+OPENAI_API_KEY=
 USE_GPT4=0
 EOF
 
-############################
-# backend/app/database.py
-############################
-cat > "${ROOT_DIR}/backend/app/database.py" <<'EOF'
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, AsyncSession
+cat > "${ROOT}/backend/app/database.py" <<'EOF'
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 from dotenv import load_dotenv
@@ -152,9 +128,8 @@ from dotenv import load_dotenv
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./devai.db")
 
-engine: AsyncEngine = create_async_engine(DATABASE_URL, echo=False, future=True)
+engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
-
 Base = declarative_base()
 
 async def get_db():
@@ -162,10 +137,7 @@ async def get_db():
         yield session
 EOF
 
-############################
-# backend/app/models.py
-############################
-cat > "${ROOT_DIR}/backend/app/models.py" <<'EOF'
+cat > "${ROOT}/backend/app/models.py" <<'EOF'
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -178,7 +150,6 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     full_name = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-
     chats = relationship("Chat", back_populates="owner")
 
 class Chat(Base):
@@ -187,7 +158,6 @@ class Chat(Base):
     title = Column(String, default="Nueva conversación")
     user_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-
     owner = relationship("User", back_populates="chats")
     messages = relationship("Message", back_populates="chat", cascade="all, delete")
 
@@ -195,25 +165,13 @@ class Message(Base):
     __tablename__ = "messages"
     id = Column(Integer, primary_key=True, index=True)
     chat_id = Column(Integer, ForeignKey("chats.id"))
-    role = Column(String)  # user / assistant / system
+    role = Column(String)
     content = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-
     chat = relationship("Chat", back_populates="messages")
-
-class Memory(Base):
-    __tablename__ = "memories"
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    key = Column(String, index=True)
-    value = Column(Text)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
 EOF
 
-############################
-# backend/app/schemas.py
-############################
-cat > "${ROOT_DIR}/backend/app/schemas.py" <<'EOF'
+cat > "${ROOT}/backend/app/schemas.py" <<'EOF'
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from datetime import datetime
@@ -221,9 +179,6 @@ from datetime import datetime
 class Token(BaseModel):
     access_token: str
     token_type: str
-
-class TokenData(BaseModel):
-    email: Optional[str] = None
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -235,7 +190,6 @@ class UserOut(BaseModel):
     email: EmailStr
     full_name: Optional[str]
     created_at: Optional[datetime]
-
     class Config:
         orm_mode = True
 
@@ -243,16 +197,11 @@ class MessageCreate(BaseModel):
     role: str
     content: str
 
-class ChatCreate(BaseModel):
-    title: Optional[str] = "Nueva conversación"
-    messages: Optional[List[MessageCreate]] = []
-
 class MessageOut(BaseModel):
     id: int
     role: str
     content: str
     created_at: datetime
-
     class Config:
         orm_mode = True
 
@@ -261,33 +210,29 @@ class ChatOut(BaseModel):
     title: str
     user_id: int
     messages: List[MessageOut] = []
-
     class Config:
         orm_mode = True
 EOF
 
-############################
-# backend/app/auth.py
-############################
-cat > "${ROOT_DIR}/backend/app/auth.py" <<'EOF'
+cat > "${ROOT}/backend/app/auth.py" <<'EOF'
 import os
 from datetime import datetime, timedelta
-from jose import JWTError, jwt
+from jose import jwt, JWTError
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 
 load_dotenv()
-SECRET_KEY = os.getenv("SECRET_KEY", "devai_super_secret_change_me")
+SECRET_KEY = os.getenv("SECRET_KEY", "replace_with_a_strong_secret")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "43200"))
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+def get_password_hash(password: str) -> str:
+    return pwd.hash(password)
 
-def get_password_hash(password):
-    return pwd_context.hash(password)
+def verify_password(plain: str, hashed: str) -> bool:
+    return pwd.verify(plain, hashed)
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
@@ -296,8 +241,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     else:
         expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 def decode_token(token: str):
     try:
@@ -307,17 +251,14 @@ def decode_token(token: str):
         return None
 EOF
 
-############################
-# backend/app/crud.py
-############################
-cat > "${ROOT_DIR}/backend/app/crud.py" <<'EOF'
+cat > "${ROOT}/backend/app/crud.py" <<'EOF'
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from . import models, auth
 
 async def get_user_by_email(db: AsyncSession, email: str):
-    result = await db.execute(select(models.User).where(models.User.email == email))
-    return result.scalar_one_or_none()
+    res = await db.execute(select(models.User).where(models.User.email == email))
+    return res.scalar_one_or_none()
 
 async def create_user(db: AsyncSession, email: str, password: str, full_name: str | None):
     hashed = auth.get_password_hash(password)
@@ -342,28 +283,21 @@ async def add_message(db: AsyncSession, chat_id: int, role: str, content: str):
     return msg
 
 async def get_chats_for_user(db: AsyncSession, user_id: int):
-    result = await db.execute(select(models.Chat).where(models.Chat.user_id == user_id).order_by(models.Chat.created_at.desc()))
-    return result.scalars().all()
+    res = await db.execute(select(models.Chat).where(models.Chat.user_id == user_id).order_by(models.Chat.created_at.desc()))
+    return res.scalars().all()
 
 async def get_chat_with_messages(db: AsyncSession, chat_id: int):
-    result = await db.execute(select(models.Chat).where(models.Chat.id == chat_id))
-    chat = result.scalar_one_or_none()
-    if chat:
-        # eager load messages via relationship when accessed
-        return chat
-    return None
+    res = await db.execute(select(models.Chat).where(models.Chat.id == chat_id))
+    return res.scalar_one_or_none()
 EOF
 
-############################
-# backend/app/routers/auth.py
-############################
-cat > "${ROOT_DIR}/backend/app/routers/auth.py" <<'EOF'
+cat > "${ROOT}/backend/app/routers/auth.py" <<'EOF'
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.security import OAuth2PasswordRequestForm
 from .. import schemas, crud
 from ..database import get_db
 from ..auth import create_access_token, verify_password
-from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -371,136 +305,109 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 async def register(user_in: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
     existing = await crud.get_user_by_email(db, user_in.email)
     if existing:
-        raise HTTPException(status_code=400, detail="Email ya registrado")
+        raise HTTPException(status_code=400, detail="Email already registered")
     user = await crud.create_user(db, user_in.email, user_in.password, user_in.full_name)
     return user
 
 @router.post("/token", response_model=schemas.Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+async def token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     user = await crud.get_user_by_email(db, form_data.username)
     if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     access_token = create_access_token({"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
 EOF
 
-############################
-# backend/app/routers/user.py
-############################
-cat > "${ROOT_DIR}/backend/app/routers/user.py" <<'EOF'
+cat > "${ROOT}/backend/app/routers/user.py" <<'EOF'
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..database import get_db
 from .. import crud, models, schemas
+from ..database import get_db
 from ..auth import decode_token
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/token")
 router = APIRouter(prefix="/users", tags=["users"])
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
+async def current_user(token: str = Depends(oauth2), db: AsyncSession = Depends(get_db)):
     payload = decode_token(token)
     if not payload or "sub" not in payload:
-        raise HTTPException(status_code=401, detail="Token inválido")
+        raise HTTPException(status_code=401, detail="Invalid token")
     email = payload["sub"]
     user = await crud.get_user_by_email(db, email)
     if not user:
-        raise HTTPException(status_code=401, detail="Usuario no encontrado")
+        raise HTTPException(status_code=401, detail="User not found")
     return user
 
 @router.get("/me", response_model=schemas.UserOut)
-async def read_users_me(current_user: models.User = Depends(get_current_user)):
-    return current_user
+async def me(user: models.User = Depends(current_user)):
+    return user
 EOF
 
-############################
-# backend/app/routers/chat.py
-############################
-cat > "${ROOT_DIR}/backend/app/routers/chat.py" <<'EOF'
+cat > "${ROOT}/backend/app/routers/chat.py" <<'EOF'
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.security import OAuth2PasswordBearer
 from typing import List
+import os, requests
+from .. import schemas, crud
 from ..database import get_db
-from .. import crud, schemas
 from ..auth import decode_token
-import os
-import requests
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/token")
 router = APIRouter(prefix="/chat", tags=["chat"])
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
+async def current_user(token: str = Depends(oauth2), db: AsyncSession = Depends(get_db)):
     payload = decode_token(token)
     if not payload or "sub" not in payload:
-        raise HTTPException(status_code=401, detail="Token inválido")
-    email = payload["sub"]
-    user = await crud.get_user_by_email(db, email)
+        raise HTTPException(status_code=401, detail="Invalid token")
+    user = await crud.get_user_by_email(db, payload["sub"])
     if not user:
-        raise HTTPException(status_code=401, detail="Usuario no encontrado")
+        raise HTTPException(status_code=401, detail="User not found")
     return user
 
 @router.post("/create", response_model=schemas.ChatOut)
-async def create_chat_endpoint(chat_in: schemas.ChatCreate, db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
-    chat = await crud.create_chat(db, current_user.id, chat_in.title or "Nueva conversación")
-    # optionally add initial messages
-    for m in chat_in.messages or []:
-        await crud.add_message(db, chat.id, m.role, m.content)
-    # refresh chat
+async def create_chat(chat_in: schemas.ChatOut, db: AsyncSession = Depends(get_db), user=Depends(current_user)):
+    chat = await crud.create_chat(db, user.id, chat_in.title or "Conversación")
     return await crud.get_chat_with_messages(db, chat.id)
 
 @router.get("/list", response_model=List[schemas.ChatOut])
-async def list_chats(db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
-    chats = await crud.get_chats_for_user(db, current_user.id)
-    return chats
+async def list_chats(db: AsyncSession = Depends(get_db), user=Depends(current_user)):
+    return await crud.get_chats_for_user(db, user.id)
 
 @router.post("/respond")
-async def respond(chat_id: int, message: schemas.MessageCreate, db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
-    # store user message
+async def respond(chat_id: int, message: schemas.MessageCreate, db: AsyncSession = Depends(get_db), user=Depends(current_user)):
     chat = await crud.get_chat_with_messages(db, chat_id)
-    if not chat:
-        raise HTTPException(status_code=404, detail="Chat no encontrado")
-    user_msg = await crud.add_message(db, chat_id, message.role, message.content)
-
-    # Call LLM provider if OPENAI_API_KEY provided; otherwise echo for demo
+    if not chat or chat.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    await crud.add_message(db, chat_id, message.role, message.content)
     openai_key = os.getenv("OPENAI_API_KEY")
     if openai_key:
-        headers = {"Authorization": f"Bearer {openai_key}", "Content-Type": "application/json"}
-        data = {
-            "model": "gpt-4o-mini" if os.getenv("USE_GPT4") else "gpt-3.5-turbo",
-            "messages": [{"role": "user", "content": message.content}],
-            "max_tokens": 800,
-            "temperature": 0.2
-        }
+        payload = {"model": "gpt-3.5-turbo", "messages": [{"role":"user","content":message.content}], "max_tokens":500}
         try:
-            resp = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data, timeout=30)
+            resp = requests.post("https://api.openai.com/v1/chat/completions", headers={"Authorization":f"Bearer {openai_key}"}, json=payload, timeout=20)
             resp.raise_for_status()
-            resp_json = resp.json()
-            answer = resp_json["choices"][0]["message"]["content"]
+            result = resp.json()
+            answer = result["choices"][0]["message"]["content"]
         except Exception as e:
-            answer = f"[ERROR llamando LLM: {e}]"
+            answer = f"[LLM error: {e}]"
     else:
-        # Simple echo fallback (so app works without API key)
         answer = f"Echo: {message.content}"
-
-    assistant_msg = await crud.add_message(db, chat_id, "assistant", answer)
-    return {"assistant": assistant_msg.content, "assistant_id": assistant_msg.id}
+    msg = await crud.add_message(db, chat_id, "assistant", answer)
+    return {"assistant": msg.content, "assistant_id": msg.id}
 EOF
 
-############################
-# backend/app/main.py
-############################
-cat > "${ROOT_DIR}/backend/app/main.py" <<'EOF'
+cat > "${ROOT}/backend/app/main.py" <<'EOF'
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
 from .routers import auth, user, chat
-import asyncio
+from dotenv import load_dotenv
 
+load_dotenv()
 app = FastAPI(title="DEVAI API")
 
-# CORS (adjust origins in production)
 origins = [os.getenv("FRONTEND_URL", "http://localhost:5173")]
 app.add_middleware(CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
@@ -509,30 +416,19 @@ app.include_router(user.router)
 app.include_router(chat.router)
 
 @app.on_event("startup")
-async def on_startup():
-    # create DB tables
+async def startup():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-@app.get("/")
-async def root():
-    return {"message": "DEVAI backend up"}
+@app.get("/health")
+async def health():
+    return {"status":"ok"}
 EOF
 
-############################
-# assets/logo.svg
-############################
-cat > "${ROOT_DIR}/assets/logo.svg" <<'EOF'
-<svg xmlns="http://www.w3.org/2000/svg" width="240" height="80" viewBox="0 0 240 80">
-  <rect width="240" height="80" rx="12" fill="#0f1724"/>
-  <text x="32" y="52" font-family="Segoe UI, Roboto, Arial" font-size="36" fill="#00d4ff" font-weight="700">DEVAI</text>
-</svg>
-EOF
-
-############################
-# frontend/Dockerfile
-############################
-cat > "${ROOT_DIR}/frontend/Dockerfile" <<'EOF'
+#######################
+# FRONTEND files (Vite + React + TS + Tailwind)
+#######################
+cat > "${ROOT}/frontend/Dockerfile" <<'EOF'
 FROM node:18-alpine
 WORKDIR /app
 COPY package.json package-lock.json* ./
@@ -541,10 +437,7 @@ COPY . .
 CMD ["npm", "run", "dev", "--", "--host"]
 EOF
 
-############################
-# frontend/package.json
-############################
-cat > "${ROOT_DIR}/frontend/package.json" <<'EOF'
+cat > "${ROOT}/frontend/package.json" <<'EOF'
 {
   "name": "devai-frontend",
   "version": "0.1.0",
@@ -556,385 +449,397 @@ cat > "${ROOT_DIR}/frontend/package.json" <<'EOF'
   },
   "dependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "axios": "^1.4.0"
   },
   "devDependencies": {
-    "vite": "^5.0.0"
+    "vite": "^5.0.0",
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0",
+    "typescript": "^5.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0"
   }
 }
 EOF
 
-############################
-# frontend/index.html
-############################
-cat > "${ROOT_DIR}/frontend/index.html" <<'EOF'
+cat > "${ROOT}/frontend/vite.config.ts" <<'EOF'
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+export default defineConfig({
+  plugins: [react()],
+  server: { port: 5173 }
+})
+EOF
+
+cat > "${ROOT}/frontend/tsconfig.json" <<'EOF'
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["DOM", "ES2020"],
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}
+EOF
+
+cat > "${ROOT}/frontend/index.html" <<'EOF'
 <!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>DEVAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   </head>
-  <body>
+  <body class="bg-gradient-to-b from-[#050816] to-[#071028] text-slate-100">
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
 EOF
 
-############################
-# frontend/src/main.jsx
-############################
-cat > "${ROOT_DIR}/frontend/src/main.jsx" <<'EOF'
+cat > "${ROOT}/frontend/tailwind.config.cjs" <<'EOF'
+module.exports = {
+  content: ["./index.html","./src/**/*.{ts,tsx,js,jsx}"],
+  theme: {
+    extend: {
+      colors: {
+        devai: '#00d4ff'
+      }
+    }
+  },
+  plugins: []
+}
+EOF
+
+cat > "${ROOT}/frontend/postcss.config.cjs" <<'EOF'
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+EOF
+
+cat > "${ROOT}/frontend/src/main.tsx" <<'EOF'
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
-import "./styles.css";
+import "./styles/tailwind.css";
 
-createRoot(document.getElementById("root")).render(<App />);
+createRoot(document.getElementById("root")!).render(<App />);
 EOF
 
-############################
-# frontend/src/App.jsx
-############################
-cat > "${ROOT_DIR}/frontend/src/App.jsx" <<'EOF'
+cat > "${ROOT}/frontend/src/App.tsx" <<'EOF'
 import React, { useState } from "react";
+import Home from "./components/Home";
+import Chat from "./components/Chat";
 import Login from "./components/Login";
 import Register from "./components/Register";
-import Chat from "./components/Chat";
-import Profile from "./components/Profile";
-import logo from "/../assets/logo.svg";
 
-export default function App() {
-  const [token, setToken] = useState(localStorage.getItem("devai_token"));
-  const [view, setView] = useState("home");
+export default function App(){
+  const [token, setToken] = useState<string | null>(localStorage.getItem("devai_token"));
+  const [view, setView] = useState<"home"|"chat"|"login"|"register">("home");
 
-  const onLogin = (t) => {
-    localStorage.setItem("devai_token", t);
-    setToken(t);
-    setView("chat");
-  };
-
-  const logout = () => {
-    localStorage.removeItem("devai_token");
-    setToken(null);
-    setView("home");
-  };
+  const onLogin = (t: string) => { localStorage.setItem("devai_token", t); setToken(t); setView("chat"); }
+  const logout = ()=> { localStorage.removeItem("devai_token"); setToken(null); setView("home"); }
 
   return (
-    <div className="app">
-      <header className="topbar">
-        <img src={logo} alt="DEVAI" className="logo" />
-        <nav>
-          <button onClick={() => setView("chat")}>Chat</button>
-          <button onClick={() => setView("profile")}>Perfil</button>
-          {!token ? <button onClick={() => setView("login")}>Login</button> : <button onClick={logout}>Logout</button>}
+    <div className="min-h-screen flex flex-col">
+      <header className="flex items-center justify-between p-4 bg-transparent">
+        <div className="flex items-center gap-3">
+          <img src="/assets/logo.svg" alt="DEVAI" className="h-10" />
+          <h1 className="text-xl font-extrabold text-devai hidden md:block">DEVAI</h1>
+        </div>
+        <nav className="flex gap-3">
+          <button onClick={()=>setView("chat")} className="text-slate-300 hover:text-white">Chat</button>
+          <button onClick={()=>setView("home")} className="text-slate-300 hover:text-white">Inicio</button>
+          {!token ? <button onClick={()=>setView("login")} className="btn">Login</button> : <button onClick={logout} className="btn">Logout</button>}
         </nav>
       </header>
-      <main>
-        {!token && view === "home" && (
-          <section className="hero">
-            <h1>DEVAI — Tu asistente de desarrollo potenciado por IA</h1>
-            <p>Regístrate o inicia sesión para empezar a chatear con la IA.</p>
-            <div className="cta">
-              <button onClick={() => setView("register")}>Regístrate</button>
-              <button onClick={() => setView("login")}>Iniciar sesión</button>
-            </div>
-          </section>
-        )}
-        {view === "login" && <Login onLogin={onLogin} />}
-        {view === "register" && <Register onLogin={onLogin} />}
-        {view === "chat" && <Chat token={token} />}
-        {view === "profile" && <Profile token={token} />}
+      <main className="flex-1 p-6">
+        {view==="home" && <Home onStart={()=> setView("register") }/>}
+        {view==="login" && <Login onLogin={onLogin} />}
+        {view==="register" && <Register onLogin={onLogin} />}
+        {view==="chat" && <Chat token={token} />}
       </main>
-      <footer className="footer">© DEVAI</footer>
+      <footer className="p-4 text-center text-slate-400">© DEVAI</footer>
     </div>
-  );
+  )
 }
 EOF
 
-############################
-# frontend/src/styles.css
-############################
-cat > "${ROOT_DIR}/frontend/src/styles.css" <<'EOF'
-:root{
-  --bg:#0b1020;
-  --panel:#0f1724;
-  --muted:#9aa4b2;
-  --accent:#00d4ff;
-  --glass: rgba(255,255,255,0.03);
-}
-*{box-sizing:border-box}
-body,html,#root{height:100%;margin:0;background:linear-gradient(180deg,#061025 0%, #071028 100%);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto, "Helvetica Neue", Arial;}
-.app{display:flex;flex-direction:column;min-height:100vh;color:#dbe7f5}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:transparent}
-.logo{height:42px;filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6))}
-nav button{background:transparent;border:1px solid transparent;color:var(--muted);padding:8px 12px;margin-left:8px;border-radius:8px;cursor:pointer}
-nav button:hover{color:white;border-color:rgba(255,255,255,0.04)}
-main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:28px}
-.hero{max-width:900px;padding:36px;background:var(--panel);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.6)}
-.hero h1{margin:0;color:var(--accent);font-size:28px}
-.hero p{color:var(--muted)}
-.cta button{margin-right:12px;padding:10px 14px;border-radius:8px;background:linear-gradient(90deg,var(--accent),#7ee7ff);border:none;color:#042634;font-weight:700;cursor:pointer}
-.footer{text-align:center;padding:16px;color:var(--muted);font-size:14px}
+cat > "${ROOT}/frontend/src/styles/tailwind.css" <<'EOF'
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Chat layout */
-.chat-container{width:100%;max-width:900px;background:var(--panel);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px}
-.messages{height:60vh;overflow:auto;padding:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border-radius:8px}
-.message{margin-bottom:12px;padding:10px;border-radius:8px;max-width:80%}
-.message.user{background:linear-gradient(90deg, rgba(0,212,255,0.06), rgba(0,212,255,0.02));align-self:flex-end}
-.message.assistant{background:var(--glass);align-self:flex-start}
-.input-row{display:flex;gap:8px}
-.input-row textarea{flex:1;border-radius:8px;padding:10px;background:#06101a;border:1px solid rgba(255,255,255,0.03);color:#dbe7f5}
-.input-row button{padding:10px 14px;border-radius:8px;background:var(--accent);border:none;color:#032023;cursor:pointer}
-@media(max-width:720px){
-  .hero{padding:18px}
-  .messages{height:50vh}
+:root {
+  --panel: #0f1724;
+  --muted: #9aa4b2;
+  --accent: #00d4ff;
+}
+
+.btn{
+  @apply px-3 py-2 rounded-md bg-gradient-to-r from-[#00d4ff] to-[#7ee7ff] font-semibold text-slate-900;
 }
 EOF
 
-############################
-# frontend/src/components/Login.jsx
-############################
-cat > "${ROOT_DIR}/frontend/src/components/Login.jsx" <<'EOF'
-import React, { useState } from "react";
+# Home component
+cat > "${ROOT}/frontend/src/components/Home.tsx" <<'EOF'
+import React from "react";
 
-export default function Login({ onLogin }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
-
-  const submit = async (e) => {
-    e.preventDefault();
-    const data = new URLSearchParams();
-    data.append("username", email);
-    data.append("password", password);
-    const res = await fetch(`${API}/auth/token`, { method: "POST", body: data });
-    if (res.ok) {
-      const j = await res.json();
-      onLogin(j.access_token);
-    } else {
-      alert("Error login");
-    }
-  };
-
+export default function Home({ onStart }:{onStart:()=>void}){
   return (
-    <div className="chat-container">
-      <h2>Iniciar sesión</h2>
-      <form onSubmit={submit}>
-        <label>Email</label>
-        <input value={email} onChange={(e) => setEmail(e.target.value)} />
-        <label>Password</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button type="submit">Entrar</button>
-      </form>
-    </div>
-  );
-}
-EOF
-
-############################
-# frontend/src/components/Register.jsx
-############################
-cat > "${ROOT_DIR}/frontend/src/components/Register.jsx" <<'EOF'
-import React, { useState } from "react";
-
-export default function Register({ onLogin }) {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
-  const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
-
-  const submit = async (e) => {
-    e.preventDefault();
-    const res = await fetch(`${API}/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, full_name: name })
-    });
-    if (res.ok) {
-      // auto-login
-      const data = new URLSearchParams();
-      data.append("username", email);
-      data.append("password", password);
-      const tok = await fetch(`${API}/auth/token`, { method: "POST", body: data });
-      const j = await tok.json();
-      onLogin(j.access_token);
-    } else {
-      const err = await res.json();
-      alert("Error: " + (err.detail || "Registro fallido"));
-    }
-  };
-
-  return (
-    <div className="chat-container">
-      <h2>Registro</h2>
-      <form onSubmit={submit}>
-        <label>Nombre</label>
-        <input value={name} onChange={(e) => setName(e.target.value)} />
-        <label>Email</label>
-        <input value={email} onChange={(e) => setEmail(e.target.value)} />
-        <label>Password</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button type="submit">Crear cuenta</button>
-      </form>
-    </div>
-  );
-}
-EOF
-
-############################
-# frontend/src/components/Chat.jsx
-############################
-cat > "${ROOT_DIR}/frontend/src/components/Chat.jsx" <<'EOF'
-import React, { useEffect, useState, useRef } from "react";
-
-export default function Chat({ token }) {
-  const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
-  const [chats, setChats] = useState([]);
-  const [active, setActive] = useState(null);
-  const [text, setText] = useState("");
-  const [messages, setMessages] = useState([]);
-  const messagesRef = useRef();
-
-  useEffect(() => {
-    if (!token) return;
-    fetchChats();
-  }, [token]);
-
-  const fetchChats = async () => {
-    const res = await fetch(`${API}/chat/list`, { headers: { Authorization: `Bearer ${token}` } });
-    if (res.ok) {
-      const j = await res.json();
-      setChats(j);
-      if (j.length) {
-        selectChat(j[0]);
-      }
-    }
-  };
-
-  const selectChat = (c) => {
-    setActive(c);
-    setMessages(c.messages || []);
-  };
-
-  const send = async () => {
-    if (!active) {
-      // create chat
-      const res = await fetch(`${API}/chat/create`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ title: "Conversación" })
-      });
-      const chat = await res.json();
-      setChats([chat, ...chats]);
-      setActive(chat);
-      setMessages(chat.messages || []);
-    }
-    if (!text) return;
-    // optimista
-    setMessages([...messages, { role: "user", content: text }]);
-    const res = await fetch(`${API}/chat/respond?chat_id=${active ? active.id :  (chats[0] && chats[0].id)}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ role: "user", content: text })
-    });
-    const j = await res.json();
-    setMessages((m) => [...m, { role: "assistant", content: j.assistant }]);
-    setText("");
-    // refresh chat list
-    fetchChats();
-    messagesRef.current?.scrollTo(0, messagesRef.current.scrollHeight);
-  };
-
-  return (
-    <div className="chat-container">
-      <div style={{ display: "flex", gap: 12 }}>
-        <div style={{ width: 220 }}>
-          <h3>Historial</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {chats.map((c) => (
-              <button key={c.id} onClick={() => selectChat(c)} style={{ textAlign: "left", padding: 8, borderRadius: 8 }}>
-                {c.title || "Conversación"}
-              </button>
-            ))}
-          </div>
+    <section className="max-w-4xl mx-auto bg-[#0f1724] p-8 rounded-xl shadow-xl">
+      <h2 className="text-devai text-3xl font-extrabold">DEVAI — Asistente de desarrollo</h2>
+      <p className="mt-3 text-slate-300">Genera código, corrige errores, chatea con una IA preparada para desarrolladores.</p>
+      <div className="mt-6 flex gap-4">
+        <button onClick={onStart} className="btn">Comenzar gratis</button>
+        <a className="text-slate-300 hover:text-white" href="#features">Características</a>
+      </div>
+      <div id="features" className="mt-8 grid md:grid-cols-3 gap-4">
+        <div className="p-4 bg-[#071025] rounded-md">
+          <h3 className="font-semibold text-white">Chat inteligente</h3>
+          <p className="text-slate-400 text-sm">Historial, memoria y respuestas enfocadas en desarrollo.</p>
         </div>
-        <div style={{ flex: 1 }}>
-          <div className="messages" ref={messagesRef}>
-            {messages.map((m, i) => (
-              <div key={i} className={"message " + (m.role === "user" ? "user" : "assistant")}>
-                <div>{m.content}</div>
-              </div>
-            ))}
-          </div>
-          <div className="input-row">
-            <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} />
-            <button onClick={send}>Enviar</button>
-          </div>
+        <div className="p-4 bg-[#071025] rounded-md">
+          <h3 className="font-semibold text-white">Generador de código</h3>
+          <p className="text-slate-400 text-sm">Crea archivos y snippets a partir de descripciones.</p>
+        </div>
+        <div className="p-4 bg-[#071025] rounded-md">
+          <h3 className="font-semibold text-white">Cuenta segura</h3>
+          <p className="text-slate-400 text-sm">Registro y login con JWT, preparado para producción.</p>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 EOF
 
-############################
-# frontend/src/components/Profile.jsx
-############################
-cat > "${ROOT_DIR}/frontend/src/components/Profile.jsx" <<'EOF'
-import React, { useEffect, useState } from "react";
+# Login component
+cat > "${ROOT}/frontend/src/components/Login.tsx" <<'EOF'
+import React, { useState } from "react";
 
-export default function Profile({ token }) {
+export default function Login({ onLogin }:{onLogin:(t:string)=>void }){
+  const [email,setEmail]=useState(""); const [password,setPassword]=useState("");
   const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
-  const [profile, setProfile] = useState(null);
 
-  useEffect(() => {
-    if (!token) return;
-    fetch(`${API}/users/me`, { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json())
-      .then((j) => setProfile(j));
-  }, [token]);
-
-  if (!profile) return <div className="chat-container">Cargando perfil...</div>;
+  const submit = async (e:React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    params.append("username", email);
+    params.append("password", password);
+    const res = await fetch(`${API}/auth/token`, { method:"POST", body: params });
+    if(res.ok){ const j=await res.json(); onLogin(j.access_token); } else { alert("Login failed"); }
+  };
 
   return (
-    <div className="chat-container">
-      <h2>Perfil</h2>
-      <p><strong>Email:</strong> {profile.email}</p>
-      <p><strong>Nombre:</strong> {profile.full_name || "-"}</p>
-      <p><strong>Creado:</strong> {new Date(profile.created_at).toLocaleString()}</p>
+    <div className="max-w-md mx-auto bg-[#0f1724] p-6 rounded-lg">
+      <h2 className="text-xl font-bold text-white">Iniciar sesión</h2>
+      <form onSubmit={submit} className="mt-4 flex flex-col gap-3">
+        <input className="p-2 rounded bg-[#061021] border border-transparent focus:border-devai" placeholder="Email" value={email} onChange={(e)=>setEmail(e.target.value)} />
+        <input className="p-2 rounded bg-[#061021]" type="password" placeholder="Contraseña" value={password} onChange={(e)=>setPassword(e.target.value)} />
+        <button className="btn" type="submit">Entrar</button>
+      </form>
     </div>
   );
 }
 EOF
 
-############################
-# Final notes
-############################
-echo "Proyecto creado en ./${ROOT_DIR}"
-echo
-echo "Siguientes pasos:"
-echo "1) Backend"
-echo "   cd ${ROOT_DIR}/backend"
-echo "   python -m venv .venv"
-echo "   source .venv/bin/activate"
-echo "   pip install -r ../requirements.txt"
-echo "   cp .env.example .env"
-echo "   # editar .env si quieres"
-echo "   uvicorn app.main:app --reload --port 8000"
-echo
-echo "2) Frontend"
-echo "   cd ../frontend"
-echo "   npm install"
-echo "   npm run dev"
-echo
-echo "3) Opcional: iniciar git y subir a GitHub"
-echo "   cd ../../${ROOT_DIR}"
-echo "   git init"
-echo "   git add ."
-echo "   git commit -m \"Init DEVAI\""
-echo "   # crea el repo en GitHub y agrega remote antes de push"
-echo
-echo "Si deseas, puedo preparar el repositorio en GitHub y hacer el push por ti: dime owner/repo o autoriza la creación."
+# Register component
+cat > "${ROOT}/frontend/src/components/Register.tsx" <<'EOF'
+import React, { useState } from "react";
+
+export default function Register({ onLogin }:{onLogin:(t:string)=>void }){
+  const [email,setEmail]=useState(""); const [name,setName]=useState(""); const [password,setPassword]=useState("");
+  const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+  const submit = async (e:React.FormEvent) => {
+    e.preventDefault();
+    const res = await fetch(`${API}/auth/register`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ email, password, full_name: name })
+    });
+    if(res.ok){
+      const params = new URLSearchParams();
+      params.append("username", email); params.append("password", password);
+      const tok = await fetch(`${API}/auth/token`, { method:"POST", body: params });
+      const j = await tok.json(); onLogin(j.access_token);
+    } else {
+      const err = await res.json().catch(()=>({ detail: "error" })); alert(err.detail || "Registro fallido");
+    }
+  };
+
+  return (
+    <div className="max-w-md mx-auto bg-[#0f1724] p-6 rounded-lg">
+      <h2 className="text-xl font-bold text-white">Crear cuenta</h2>
+      <form onSubmit={submit} className="mt-4 flex flex-col gap-3">
+        <input className="p-2 rounded bg-[#061021]" placeholder="Nombre" value={name} onChange={(e)=>setName(e.target.value)} />
+        <input className="p-2 rounded bg-[#061021]" placeholder="Email" value={email} onChange={(e)=>setEmail(e.target.value)} />
+        <input className="p-2 rounded bg-[#061021]" type="password" placeholder="Contraseña" value={password} onChange={(e)=>setPassword(e.target.value)} />
+        <button className="btn" type="submit">Crear cuenta</button>
+      </form>
+    </div>
+  );
+}
 EOF
+
+# Chat component (nice UI)
+cat > "${ROOT}/frontend/src/components/Chat.tsx" <<'EOF'
+import React, { useEffect, useState, useRef } from "react";
+
+export default function Chat({ token }:{ token: string | null }){
+  const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  const [chats,setChats] = useState<any[]>([]);
+  const [active,setActive] = useState<any|null>(null);
+  const [text,setText] = useState("");
+  const [messages,setMessages] = useState<any[]>([]);
+  const ref = useRef<HTMLDivElement|null>(null);
+
+  useEffect(()=>{ if(token) fetchChats(); },[token]);
+
+  async function fetchChats(){
+    const res = await fetch(`${API}/chat/list`, { headers: { Authorization: `Bearer ${token}` }});
+    if(res.ok){ const j = await res.json(); setChats(j); if(j.length){ selectChat(j[0]); } }
+  }
+
+  function selectChat(c:any){
+    setActive(c); setMessages(c.messages || []);
+    setTimeout(()=> ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: "smooth" }),50);
+  }
+
+  async function send(){
+    if(!token) return alert("Login required");
+    if(!active){
+      const r = await fetch(`${API}/chat/create`, { method:"POST", headers:{"Content-Type":"application/json", Authorization:`Bearer ${token}`}, body: JSON.stringify({ title: "Conversación" })});
+      const chat = await r.json(); setChats([chat, ...chats]); setActive(chat);
+    }
+    if(!text) return;
+    const optimistic = [...messages, { role: "user", content: text }];
+    setMessages(optimistic);
+    setText("");
+    const res = await fetch(`${API}/chat/respond?chat_id=${active ? active.id : (chats[0] && chats[0].id)}`, {
+      method: "POST",
+      headers: { "Content-Type":"application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ role: "user", content: optimistic[optimistic.length-1].content })
+    });
+    const j = await res.json();
+    setMessages((m)=>[...m, { role:"assistant", content: j.assistant }]);
+    fetchChats();
+    setTimeout(()=> ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: "smooth" }),100);
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto grid md:grid-cols-4 gap-6">
+      <aside className="md:col-span-1 bg-[#071025] p-4 rounded-md">
+        <h3 className="text-sm text-slate-300">Historial</h3>
+        <div className="mt-3 flex flex-col gap-2">
+          {chats.map(c=> <button key={c.id} onClick={()=>selectChat(c)} className="text-left p-2 rounded hover:bg-[#0b1624]">{c.title}</button>)}
+        </div>
+      </aside>
+      <section className="md:col-span-3 bg-[#0f1724] p-4 rounded-md flex flex-col">
+        <div className="flex-1 overflow-auto rounded-md p-4 bg-gradient-to-b from-transparent to-transparent" ref={ref} style={{maxHeight: "60vh"}}>
+          {messages.map((m,i)=>(
+            <div key={i} className={`mb-3 max-w-[75%] ${m.role==="user" ? "ml-auto bg-gradient-to-r from-[#042b2b] to-[#00373b] text-white" : "mr-auto bg-[#061021] text-slate-200"} p-3 rounded-lg`}>
+              {m.content}
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 flex gap-3">
+          <textarea value={text} onChange={(e)=>setText(e.target.value)} rows={2} className="flex-1 p-3 rounded bg-[#061021]"></textarea>
+          <button onClick={send} className="btn">Enviar</button>
+        </div>
+      </section>
+    </div>
+  );
+}
+EOF
+
+# Vite env example
+cat > "${ROOT}/frontend/.env.example" <<'EOF'
+VITE_API_URL=http://localhost:8000
+EOF
+
+# small assets copy pointer (so frontend can fetch /assets)
+mkdir -p "${ROOT}/frontend/assets"
+cp "${ROOT}/assets/logo.svg" "${ROOT}/frontend/assets/logo.svg"
+
+#######################
+# infra / CI (optional)
+#######################
+cat > "${ROOT}/infra/github-action-node-python.yml" <<'EOF'
+# Basic CI: install backend deps and frontend build
+name: CI
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy: { matrix: { python-version: [3.11], node-version: [18] } }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with: { python-version: 3.11 }
+      - name: Install backend deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with: { node-version: 18 }
+      - name: Install frontend deps
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+EOF
+
+echo "Generación completada."
+
+cat <<'INFO'
+
+Siguientes pasos (rápido):
+1) Haz ejecutable el script y ejecútalo:
+   chmod +x generate_devai_v2.sh
+   ./generate_devai_v2.sh
+
+2) Backend:
+   cd devai/backend
+   python -m venv .venv
+   source .venv/bin/activate   # Windows: .venv\Scripts\activate
+   pip install -r ../requirements.txt
+   cp .env.example .env
+   # editar .env (SECRET_KEY, FRONTEND_URL)
+   uvicorn app.main:app --reload --port 8000
+
+3) Frontend:
+   cd ../frontend
+   npm install
+   npx tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/output.css --watch
+   # Alternatively Tailwind will be included by vite dev; run:
+   npm run dev
+   # open http://localhost:5173
+
+4) Docker (opcional):
+   docker-compose up --build
+
+Notas importantes:
+- He usado Tailwind para un look moderno y componentes simples para que sea fácilmente personalizable.
+- Si quieres streaming de respuestas (SSE/WebSocket) lo añado en backend y frontend en la próxima iteración.
+- Si quieres, hago el push al repo y configuro Vercel/Render.
+
+Dime ahora:
+- ¿Quieres que haga push al repo GitHub (dame owner/repo)?
+- ¿Prefieres que añada integración OpenAI con manejo de costos y límites?
+- ¿Quieres diseño adicional (colores, logo SVG más elaborado, animaciones)?
+
+Estoy listo para generar el push o añadir funciones extra. 
+INFO
