@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>DEVAI — Asistente de Desarrollo</title>
 
-  <!-- TIP: cambia esta URL a tu backend público antes de subir -->
+  <!-- Cambia esto a tu backend público antes de subir -->
   <meta name="devai-api-url" content="http://localhost:8000">
 
-  <!-- Google font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
   <style>
@@ -16,52 +15,62 @@
       --bg: #071025;
       --panel: #0f1724;
       --muted: #9aa4b2;
-      --accent: linear-gradient(90deg,#00d4ff,#7ee7ff);
-      --accent-color: #00d4ff;
+      --accent1: #00d4ff;
+      --accent2: #7ee7ff;
+      --glass: rgba(255,255,255,0.03);
     }
     *{box-sizing:border-box}
-    html,body,#root{height:100%;margin:0;font-family:Inter,system-ui,Arial;color:#dbe7f5;background:linear-gradient(180deg,#050816,#071028)}
+    html,body,#root{height:100%;margin:0;font-family:Inter,system-ui,Arial;color:#dbe7f5;background:linear-gradient(180deg,#040712,#071028)}
     .app{min-height:100vh;display:flex;flex-direction:column}
-    header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{height:44px}
-    .nav{display:flex;gap:10px;align-items:center}
-    .btn{padding:8px 12px;border-radius:8px;border:0;background:var(--accent-color);color:#042634;font-weight:700;cursor:pointer}
-    .ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:8px 12px;border-radius:8px}
-    main{flex:1;padding:22px;display:flex;gap:20px;align-items:flex-start;justify-content:center}
-    .container{width:100%;max-width:1100px;display:grid;grid-template-columns:280px 1fr;gap:20px}
-    .panel{background:var(--panel);border-radius:12px;padding:16px;box-shadow:0 8px 30px rgba(0,0,0,0.5)}
+    header{display:flex;align-items:center;justify-content:space-between;padding:14px 22px}
+    .brand{display:flex;align-items:center;gap:14px}
+    .logo{height:46px}
+    .nav{display:flex;gap:12px;align-items:center}
+    .btn{padding:8px 14px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#042634;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(0,212,255,0.06)}
+    .ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:8px 12px;border-radius:10px;cursor:pointer}
+    main{flex:1;padding:28px;display:flex;align-items:flex-start;justify-content:center}
+    .container{width:100%;max-width:1100px;display:grid;grid-template-columns:320px 1fr;gap:22px}
+    .panel{background:var(--panel);border-radius:14px;padding:18px;box-shadow:0 18px 40px rgba(0,0,0,0.6)}
     .sidebar h3{margin:0 0 12px 0;color:var(--muted)}
     .chat-list{display:flex;flex-direction:column;gap:8px;max-height:70vh;overflow:auto}
-    .chat-item{padding:10px;border-radius:8px;text-align:left;color:#dbe7f5;background:transparent;border:1px solid transparent;cursor:pointer}
+    .chat-item{padding:12px;border-radius:10px;text-align:left;color:#dbe7f5;background:transparent;border:1px solid transparent;cursor:pointer}
     .chat-item.active{background:linear-gradient(90deg,#06262b,#08323a);border-color:rgba(255,255,255,0.03)}
-    .main-chat{display:flex;flex-direction:column;height:75vh}
-    .messages{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
-    .msg{max-width:80%;padding:12px;border-radius:10px}
-    .msg.user{align-self:flex-end;background:linear-gradient(90deg,#042b2b,#00373b);color:#fff}
-    .msg.assistant{align-self:flex-start;background:rgba(255,255,255,0.03);color:#dbe7f5}
-    .input-row{display:flex;gap:8px;margin-top:12px}
-    textarea{flex:1;padding:10px;border-radius:10px;background:#06101a;border:1px solid rgba(255,255,255,0.03);color:#dbe7f5;resize:none}
+    .main-chat{display:flex;flex-direction:column;height:78vh}
+    .messages{flex:1;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:12px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent)}
+    .msg{max-width:80%;padding:12px;border-radius:12px;line-height:1.4}
+    .msg.user{align-self:flex-end;background:linear-gradient(90deg,#042b2b,#00373b);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,0.5)}
+    .msg.assistant{align-self:flex-start;background:var(--glass);color:#dbe7f5}
+    .input-row{display:flex;gap:10px;margin-top:12px;align-items:flex-end}
+    textarea{flex:1;padding:12px;border-radius:12px;background:#06101a;border:1px solid rgba(255,255,255,0.03);color:#dbe7f5;resize:none;font-size:14px}
     .muted{color:var(--muted);font-size:13px}
     footer{padding:12px;text-align:center;color:var(--muted)}
-    /* small screens */
-    @media(max-width:900px){ .container{grid-template-columns:1fr} .sidebar{order:2} .main-chat{order:1} }
-    /* subtle animations */
+    /* modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:flex;align-items:center;justify-content:center;z-index:50}
+    .modal{width:420px;background:linear-gradient(180deg,#071025,#091427);border-radius:12px;padding:18px;box-shadow:0 18px 40px rgba(0,0,0,0.8);color:#e6f7ff}
+    .field{display:flex;flex-direction:column;margin-bottom:10px}
+    .field label{font-size:13px;color:var(--muted);margin-bottom:6px}
+    .field input, .field select{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:#061021;color:#dbe7f5}
+    .small{font-size:13px;color:var(--muted)}
+    .row{display:flex;gap:10px}
+    .checkbox{display:flex;align-items:center;gap:8px}
+    .code-box{display:flex;gap:8px;align-items:center}
+    .code-input{flex:1;padding:10px;border-radius:8px;background:#061021;border:1px dashed rgba(255,255,255,0.05);color:#dbe7f5}
+    .success{color:#7ee7ff}
+    @media(max-width:960px){ .container{grid-template-columns:1fr} .sidebar{order:2} .main-chat{order:1} .modal{width:92%} }
+    /* transitions */
     .fade-in{animation:fadeIn .28s ease}
     @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-    .logo-svg{filter:drop-shadow(0 6px 18px rgba(0,212,255,0.06))}
   </style>
 </head>
 <body>
   <div class="app" id="root">
     <header>
       <div class="brand">
-        <!-- embedded SVG logo -->
-        <svg class="logo logo-svg" xmlns="http://www.w3.org/2000/svg" width="140" height="40" viewBox="0 0 320 80" aria-hidden="true">
+        <svg class="logo" xmlns="http://www.w3.org/2000/svg" width="160" height="44" viewBox="0 0 320 80" aria-hidden="true">
           <rect width="320" height="80" rx="12" fill="#0f1724"/>
           <text x="28" y="54" font-family="Inter,Segoe UI,Roboto,Arial" font-size="36" fill="#7de3ff" font-weight="700">DEVAI</text>
         </svg>
-        <div class="muted">Asistente de programación</div>
+        <div class="muted">Tu asistente de programación</div>
       </div>
 
       <nav class="nav">
@@ -73,9 +82,8 @@
 
     <main>
       <div class="container">
-        <!-- sidebar -->
         <aside class="panel sidebar fade-in">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
             <h3>Historial</h3>
             <button id="newChat" class="btn" title="Crear conversación">Nuevo</button>
           </div>
@@ -84,64 +92,66 @@
           <div style="margin-top:14px;border-top:1px dashed rgba(255,255,255,0.03);padding-top:12px">
             <h4 class="muted">Preferencias</h4>
             <label class="muted" style="display:block;margin-top:8px">Lenguaje principal</label>
-            <select id="prefLang" style="width:100%;padding:8px;border-radius:8px;margin-top:4px;background:#061021;border:1px solid rgba(255,255,255,0.03);color:#dbe7f5">
+            <select id="prefLang" style="width:100%;padding:10px;border-radius:8px;margin-top:8px;background:#061021;border:1px solid rgba(255,255,255,0.03);color:#dbe7f5">
               <option value="">Auto</option>
               <option>Python</option><option>JavaScript</option><option>TypeScript</option><option>Go</option><option>Rust</option>
             </select>
           </div>
         </aside>
 
-        <!-- main chat area -->
         <section class="panel main-chat fade-in">
           <div id="topInfo" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
             <div>
               <h3 id="chatTitle" style="margin:0">Bienvenido a DEVAI</h3>
-              <div id="subtitle" class="muted">Inicia sesión para guardar historial y usar la memoria</div>
+              <div id="subtitle" class="muted">Inicia sesión para guardar historial y usar memoria</div>
             </div>
-            <div class="muted" id="userInfo">No autenticado</div>
+            <div id="userInfo" class="muted">No autenticado</div>
           </div>
 
           <div id="messages" class="messages" aria-live="polite"></div>
 
-          <div style="margin-top:8px">
+          <div style="margin-top:10px">
             <div class="input-row">
-              <textarea id="input" placeholder="Escribe tu pregunta o pega código aquí..."></textarea>
+              <textarea id="input" placeholder="Escribe tu pregunta o pega código aquí..." rows="3"></textarea>
               <div style="display:flex;flex-direction:column;gap:8px">
                 <button id="sendBtn" class="btn">Enviar</button>
                 <button id="explainBtn" class="ghost" title="Explicar código">Explicar</button>
               </div>
             </div>
-            <div style="margin-top:8px" class="muted">Consejo: pregunta por 'explicar', 'corregir' o 'genera proyecto en X' para acciones rápidas.</div>
+            <div style="margin-top:10px" class="muted">Tip: usa Ctrl+Enter para enviar. Prueba: "Explica este código en Python..."</div>
           </div>
         </section>
       </div>
     </main>
 
-    <footer>© DEVAI — Intenta: "Arregla este error en Python: IndexError: list index out of range"</footer>
+    <footer>© DEVAI — Mejora tu productividad de programación</footer>
   </div>
+
+  <!-- Modal containers -->
+  <div id="modalRoot"></div>
 
 <script>
 /*
-  Archivo único: frontend estático.
-  - Antes de subir: actualiza el meta[name="devai-api-url"] con la URL pública de tu backend.
-  - Endpoints usados (por defecto):
-      POST  /auth/register  (body: { email, password, full_name })
-      POST  /auth/token     (form-urlencoded: username, password) -> { access_token }
-      GET   /chat/list      (auth)
-      POST  /chat/create    (auth, body { title })
-      POST  /chat/respond?chat_id=ID  (auth, body { role:"user", content })
-      GET   /users/me       (auth)
-  - Asegúrate que el backend permita CORS desde el dominio donde publiques esta página.
+  DEVAI - Single file enhanced frontend (login + registration + verification)
+  - Edita la meta[name="devai-api-url"] con la URL pública de tu backend antes de usar en producción.
+  - Si quieres envío real de códigos por email, implementa en backend:
+      POST /auth/send_verification  { email } -> { ok: true }
+      POST /auth/verify             { email, code } -> { ok: true }
+    El frontend tratará de usar esos endpoints si existen.
+  - En modo demo (sin backend de verificación) el código se simula y se muestra para pruebas.
 */
 
 (() => {
-  const API_URL = document.querySelector('meta[name="devai-api-url"]').getAttribute('content') || 'http://localhost:8000';
-  const root = document.getElementById('root');
+  const API_URL = (() => {
+    const m = document.querySelector('meta[name="devai-api-url"]');
+    return (m && m.getAttribute('content')) || 'http://localhost:8000';
+  })();
 
-  // state
+  // State
   let token = localStorage.getItem('devai_token') || null;
   let chats = [];
   let activeChat = null;
+  let pendingVerification = null; // { email, code, registeredUser }
   const el = {
     authArea: document.getElementById('authArea'),
     chats: document.getElementById('chats'),
@@ -156,107 +166,296 @@
     subtitle: document.getElementById('subtitle'),
     btnHome: document.getElementById('btnHome'),
     btnChat: document.getElementById('btnChat'),
+    modalRoot: document.getElementById('modalRoot')
   };
 
-  // helpers
+  // Helpers
   const authHeaders = () => token ? { 'Authorization': 'Bearer ' + token } : {};
   const showMsg = (role, text) => {
     const d = document.createElement('div');
     d.className = 'msg ' + (role === 'user' ? 'user' : 'assistant');
-    d.textContent = text;
+    // support multiline
+    text.split('\\n').forEach((line, idx) => {
+      if (idx > 0) d.appendChild(document.createElement('br'));
+      d.appendChild(document.createTextNode(line));
+    });
     el.messages.appendChild(d);
     el.messages.scrollTop = el.messages.scrollHeight;
   };
 
+  function showToast(text, timeout=3000) {
+    const t = document.createElement('div');
+    t.textContent = text;
+    t.style.position='fixed'; t.style.right='18px'; t.style.bottom='18px';
+    t.style.background='linear-gradient(90deg,#00d4ff,#7ee7ff)'; t.style.color='#042634';
+    t.style.padding='10px 14px'; t.style.borderRadius='10px'; t.style.boxShadow='0 10px 30px rgba(0,0,0,0.6)';
+    document.body.appendChild(t);
+    setTimeout(()=> t.remove(), timeout);
+  }
+
+  async function tryJson(resp) {
+    try { return await resp.json(); } catch (e) { return null; }
+  }
+
+  // Authentication UI
   function renderAuth() {
     el.authArea.innerHTML = '';
     if (!token) {
-      const b1 = document.createElement('button'); b1.className = 'ghost'; b1.textContent = 'Login'; b1.onclick = showLogin;
-      const b2 = document.createElement('button'); b2.className = 'btn'; b2.textContent = 'Registro'; b2.onclick = showRegister;
+      const b1 = document.createElement('button'); b1.className='ghost'; b1.textContent='Iniciar sesión'; b1.onclick = showLogin;
+      const b2 = document.createElement('button'); b2.className='btn'; b2.textContent='Crear cuenta'; b2.onclick = showRegister;
       el.authArea.appendChild(b1); el.authArea.appendChild(b2);
       el.userInfo.textContent = 'No autenticado';
       el.subtitle.textContent = 'Inicia sesión para guardar historial y usar la memoria';
     } else {
-      const bOut = document.createElement('button'); bOut.className = 'ghost'; bOut.textContent = 'Logout';
-      bOut.onclick = () => { token = null; localStorage.removeItem('devai_token'); renderAuth(); chats=[]; renderChats(); el.messages.innerHTML=''; activeChat=null; };
-      const bProfile = document.createElement('button'); bProfile.className = 'btn'; bProfile.textContent = 'Perfil';
-      bProfile.onclick = showProfile;
-      el.authArea.appendChild(bProfile); el.authArea.appendChild(bOut);
-      // try to fetch user
-      fetch(API_URL + '/users/me', { headers: authHeaders() }).then(r=>r.json()).then(j=> {
-        if (j && j.email) el.userInfo.textContent = j.email;
-      }).catch(()=>{ el.userInfo.textContent = 'Usuario'; });
+      const btnProfile = document.createElement('button'); btnProfile.className='ghost'; btnProfile.textContent='Perfil'; btnProfile.onclick = showProfile;
+      const btnLogout = document.createElement('button'); btnLogout.className='btn'; btnLogout.textContent='Cerrar sesión'; btnLogout.onclick = logout;
+      el.authArea.appendChild(btnProfile); el.authArea.appendChild(btnLogout);
+      // fetch profile
+      fetch(API_URL + '/users/me', { headers: authHeaders() }).then(r => r.json()).then(j => {
+        el.userInfo.textContent = j && j.email ? j.email : 'Usuario';
+      }).catch(()=> { el.userInfo.textContent = 'Usuario'; });
       el.subtitle.textContent = '';
       fetchChats();
     }
   }
 
+  function logout(){ token=null; localStorage.removeItem('devai_token'); renderAuth(); chats=[]; activeChat=null; el.messages.innerHTML=''; renderChats(); showToast('Sesión cerrada'); }
+
   function showLogin(){
-    // modal-like simple prompt
-    const email = prompt('Email:');
-    if (!email) return;
-    const pw = prompt('Contraseña:');
-    if (!pw) return;
-    // OAuth2 password form (username/password)
-    const params = new URLSearchParams();
-    params.append('username', email);
-    params.append('password', pw);
-    fetch(API_URL + '/auth/token', { method:'POST', body: params })
-      .then(r => {
-        if (!r.ok) throw r;
-        return r.json();
-      })
-      .then(j => {
-        token = j.access_token; localStorage.setItem('devai_token', token); renderAuth();
-      })
-      .catch(async err => {
-        let txt = 'Error de login';
-        try { const e = await err.json(); txt = e.detail || txt; } catch(e) {}
-        alert(txt);
-      });
+    const modal = createModal('Iniciar sesión');
+    const form = document.createElement('form');
+    form.innerHTML = `
+      <div class="field"><label>Email</label><input id="login_email" type="email" required></div>
+      <div class="field"><label>Contraseña</label><input id="login_pw" type="password" required></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+        <button type="button" class="ghost" id="cancel">Cancelar</button>
+        <button type="submit" class="btn">Entrar</button>
+      </div>
+    `;
+    modal.content.appendChild(form);
+    modal.show();
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = form.querySelector('#login_email').value.trim();
+      const pw = form.querySelector('#login_pw').value;
+      const params = new URLSearchParams(); params.append('username', email); params.append('password', pw);
+      try {
+        const res = await fetch(API_URL + '/auth/token', { method:'POST', body: params });
+        if (!res.ok) {
+          const err = await tryJson(res) || {}; throw new Error(err.detail || 'Credenciales inválidas');
+        }
+        const j = await res.json();
+        token = j.access_token; localStorage.setItem('devai_token', token);
+        modal.close();
+        renderAuth();
+        showToast('Bienvenido');
+      } catch (err) {
+        alert('Login error: ' + (err.message || err));
+      }
+    });
+    form.querySelector('#cancel').onclick = () => modal.close();
   }
 
+  // Registration flow with verification step
   function showRegister(){
-    const name = prompt('Nombre completo (opcional):') || '';
-    const email = prompt('Email (para registrar):'); if(!email) return;
-    const pw = prompt('Contraseña:'); if(!pw) return;
-    fetch(API_URL + '/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email, password: pw, full_name: name })})
-      .then(r => {
-        if (!r.ok) throw r;
-        return r.json();
-      })
-      .then(async user => {
-        // auto login
-        const params = new URLSearchParams(); params.append('username', email); params.append('password', pw);
-        const tok = await fetch(API_URL + '/auth/token', { method:'POST', body: params }).then(r=>r.json());
-        token = tok.access_token; localStorage.setItem('devai_token', token); renderAuth();
-      })
-      .catch(async err => {
-        let txt = 'Error registro';
-        try { const e = await err.json(); txt = e.detail || txt; } catch(e){}
-        alert(txt);
-      });
+    const modal = createModal('Crear cuenta');
+    const form = document.createElement('form');
+    form.innerHTML = `
+      <div class="field"><label>Nombre completo</label><input id="reg_name" type="text" required></div>
+      <div class="field"><label>Email</label><input id="reg_email" type="email" required></div>
+      <div class="row">
+        <div class="field" style="flex:1"><label>Contraseña</label><input id="reg_pw" type="password" minlength="6" required></div>
+        <div class="field" style="width:140px"><label>Fecha Nac.</label><input id="reg_dob" type="date" required></div>
+      </div>
+      <div class="field"><label class="checkbox"><input id="reg_robot" type="checkbox"> No soy un robot</label></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button type="button" class="ghost" id="cancel">Cancelar</button>
+        <button type="submit" class="btn">Continuar</button>
+      </div>
+    `;
+    modal.content.appendChild(form);
+    modal.show();
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = form.querySelector('#reg_name').value.trim();
+      const email = form.querySelector('#reg_email').value.trim();
+      const pw = form.querySelector('#reg_pw').value;
+      const dob = form.querySelector('#reg_dob').value;
+      const robot = form.querySelector('#reg_robot').checked;
+      if (!robot) { alert('Por favor confirma que no eres un robot'); return; }
+      if (!email || !pw || !name || !dob) { alert('Completa todos los campos'); return; }
+
+      // Call backend register if exists
+      try {
+        const res = await fetch(API_URL + '/auth/register', { method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email, password: pw, full_name: name }) });
+        if (!res.ok) {
+          const err = await tryJson(res) || {}; throw new Error(err.detail || 'Registro fallido');
+        }
+        const user = await res.json();
+        // send verification code (try backend endpoint, else simulate)
+        await modal.showLoading('Enviando código de verificación…');
+        let sent = false;
+        try {
+          const s = await fetch(API_URL + '/auth/send_verification', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ email }) });
+          if (s.ok) { await s.json(); sent = true; }
+        } catch(e){ /* ignore */ }
+
+        modal.close();
+        // if backend didn't send, simulate code for demo
+        const code = (() => { return Math.floor(100000 + Math.random()*900000).toString(); })();
+        pendingVerification = { email, code, registeredUser: user };
+        if (!sent) {
+          showToast('Demo: se generó un código. En producción el backend debe enviar el correo.');
+          // show the code in a non-blocking toast for demo
+          showToast('Código (demo): ' + code, 8000);
+        } else {
+          showToast('Código enviado al correo: ' + email);
+        }
+        // show verification modal
+        showVerificationModal();
+      } catch (err) {
+        modal.close();
+        alert('Error registro: ' + (err.message || err));
+      }
+    });
+
+    form.querySelector('#cancel').onclick = () => modal.close();
+  }
+
+  function showVerificationModal(){
+    if (!pendingVerification) return alert('No hay verificación pendiente');
+    const modal = createModal('Verificación por correo');
+    const cont = document.createElement('div');
+    cont.innerHTML = `
+      <div class="small muted">Hemos enviado un código a: <strong>${pendingVerification.email}</strong></div>
+      <div style="height:10px"></div>
+      <div class="code-box"><input id="codeInput" class="code-input" placeholder="Ingresa el código recibido" /></div>
+      <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
+        <div class="small muted">¿No recibiste el código? <a href="#" id="resend">Reenviar</a></div>
+        <div style="display:flex;gap:8px">
+          <button class="ghost" id="cancel">Cancelar</button>
+          <button class="btn" id="verifyBtn">Verificar</button>
+        </div>
+      </div>
+      <div id="hint" style="margin-top:8px" class="muted small"></div>
+    `;
+    modal.content.appendChild(cont);
+    modal.show();
+
+    cont.querySelector('#cancel').onclick = () => modal.close();
+    cont.querySelector('#resend').onclick = async (e) => {
+      e.preventDefault();
+      // try backend resend
+      try {
+        const r = await fetch(API_URL + '/auth/send_verification', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: pendingVerification.email }) });
+        if (r.ok) { showToast('Código reenviado'); return; }
+      } catch(e){ /* ignore */ }
+      // demo: regenerate code
+      pendingVerification.code = Math.floor(100000 + Math.random()*900000).toString();
+      showToast('Demo: nuevo código: ' + pendingVerification.code, 6000);
+    };
+
+    cont.querySelector('#verifyBtn').onclick = async () => {
+      const code = cont.querySelector('#codeInput').value.trim();
+      if (!code) { alert('Introduce el código'); return; }
+      // Try backend verify endpoint
+      try {
+        const r = await fetch(API_URL + '/auth/verify', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: pendingVerification.email, code }) });
+        if (r.ok) {
+          await r.json();
+          modal.close();
+          // auto-login
+          await autoLoginAfterVerification(pendingVerification.email, pendingVerification.registeredUser ? '' : '');
+          pendingVerification = null;
+          return;
+        }
+      } catch(e) { /* ignore */ }
+      // fallback: demo verify (compare code)
+      if (code === pendingVerification.code) {
+        modal.close();
+        // attempt auto-login via token fetch (username/password flow requires password; if we don't have it, show login prompt)
+        showToast('Verificado (demo). Por favor inicia sesión con tu contraseña.');
+        // Option: if registeredUser exists and we stored pw (we didn't for security), we could auto-login. So we'll show login modal prefilled.
+        showLoginPrefill(pendingVerification.email);
+        pendingVerification = null;
+      } else {
+        cont.querySelector('#hint').textContent = 'Código incorrecto. Verifica y vuelve a intentar.';
+      }
+    };
+  }
+
+  async function autoLoginAfterVerification(email, password) {
+    // If you have the password available, you can auto-login. For demo we ask the user to login.
+    try {
+      const params = new URLSearchParams(); params.append('username', email); params.append('password', password);
+      const r = await fetch(API_URL + '/auth/token', { method:'POST', body: params });
+      if (r.ok) {
+        const j = await r.json(); token = j.access_token; localStorage.setItem('devai_token', token); renderAuth(); showToast('Bienvenido'); return;
+      }
+    } catch(e){}
+    showLoginPrefill(email);
+  }
+
+  function showLoginPrefill(email) {
+    const modal = createModal('Iniciar sesión');
+    const form = document.createElement('form');
+    form.innerHTML = `
+      <div class="field"><label>Email</label><input id="login_email" type="email" value="${email}" required></div>
+      <div class="field"><label>Contraseña</label><input id="login_pw" type="password" required></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+        <button type="button" class="ghost" id="cancel">Cancelar</button>
+        <button type="submit" class="btn">Entrar</button>
+      </div>
+    `;
+    modal.content.appendChild(form);
+    modal.show();
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = form.querySelector('#login_email').value.trim();
+      const pw = form.querySelector('#login_pw').value;
+      const params = new URLSearchParams(); params.append('username', email); params.append('password', pw);
+      try {
+        const res = await fetch(API_URL + '/auth/token', { method:'POST', body: params });
+        if (!res.ok) {
+          const err = await tryJson(res) || {}; throw new Error(err.detail || 'Credenciales inválidas');
+        }
+        const j = await res.json();
+        token = j.access_token; localStorage.setItem('devai_token', token);
+        modal.close();
+        renderAuth();
+        showToast('Sesión iniciada');
+      } catch (err) {
+        alert('Login error: ' + (err.message || err));
+      }
+    });
+    form.querySelector('#cancel').onclick = () => modal.close();
   }
 
   function showProfile(){
-    fetch(API_URL + '/users/me', { headers: authHeaders() }).then(r => r.json()).then(j=>{
-      alert('Perfil:\\n' + (j.full_name || '') + '\\n' + j.email);
+    fetch(API_URL + '/users/me', { headers: authHeaders() }).then(r => r.json()).then(j => {
+      alert('Perfil:\\n' + (j.full_name || '') + '\\n' + j.email + '\\nCreado: ' + (j.created_at || '-'));
     }).catch(()=> alert('No se pudo obtener perfil'));
   }
 
-  // chats CRUD
+  // Chat functions
   function renderChats(){
     el.chats.innerHTML = '';
     if (!chats.length) {
       el.chats.innerHTML = '<div class="muted">Aún no hay conversaciones. Crea una nueva.</div>';
       return;
     }
-    chats.forEach(c=>{
-      const b = document.createElement('button');
-      b.className = 'chat-item' + (activeChat && activeChat.id === c.id ? ' active' : '');
-      b.textContent = c.title || ('Conversación ' + c.id);
-      b.onclick = () => { activeChat = c; renderActiveChat(); renderChats(); };
-      el.chats.appendChild(b);
+    chats.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'chat-item' + (activeChat && activeChat.id === c.id ? ' active' : '');
+      btn.textContent = c.title || ('Conversación ' + c.id);
+      btn.onclick = async () => {
+        activeChat = c;
+        renderActiveChat();
+        renderChats();
+      };
+      el.chats.appendChild(btn);
     });
   }
 
@@ -269,7 +468,7 @@
         if (chats.length && !activeChat) activeChat = chats[0];
         renderChats(); renderActiveChat();
       }
-    } catch(e){}
+    } catch(e) {}
   }
 
   async function createChat(){
@@ -277,9 +476,8 @@
     const title = prompt('Título de la conversación (opcional)') || 'Conversación';
     const r = await fetch(API_URL + '/chat/create', { method:'POST', headers:{...authHeaders(), 'Content-Type':'application/json'}, body: JSON.stringify({ title })});
     if (r.ok) {
-      const c = await r.json();
-      chats.unshift(c); activeChat = c; renderChats(); renderActiveChat();
-    } else alert('No se pudo crear chat');
+      const c = await r.json(); chats.unshift(c); activeChat = c; renderChats(); renderActiveChat();
+    } else alert('No se pudo crear conversación');
   }
 
   function renderActiveChat(){
@@ -289,8 +487,7 @@
       return;
     }
     el.chatTitle.textContent = activeChat.title || 'Conversación';
-    const msgs = activeChat.messages || [];
-    msgs.forEach(m => showMsg(m.role, m.content));
+    (activeChat.messages || []).forEach(m => showMsg(m.role, m.content));
     el.messages.scrollTop = el.messages.scrollHeight;
   }
 
@@ -298,60 +495,65 @@
     const text = el.input.value.trim();
     if (!text) return;
     if (!token) return alert('Inicia sesión para enviar mensajes');
-    // ensure chat exists
     if (!activeChat || !activeChat.id) {
-      // create new chat
-      const r = await fetch(API_URL + '/chat/create', { method:'POST', headers:{...authHeaders(), 'Content-Type':'application/json'}, body: JSON.stringify({ title:'Conversación' })});
-      if (!r.ok) return alert('No se pudo crear conversación');
-      activeChat = await r.json();
-      chats.unshift(activeChat);
-      renderChats();
+      // create chat first
+      const r = await fetch(API_URL + '/chat/create', { method:'POST', headers:{...authHeaders(), 'Content-Type':'application/json'}, body: JSON.stringify({ title: 'Conversación' })});
+      if (!r.ok) { alert('No se pudo crear conversacion'); return; }
+      activeChat = await r.json(); chats.unshift(activeChat); renderChats();
     }
-
-    // optimistic UI
+    // optimistic
     showMsg('user', text);
     el.input.value = '';
-    // send to backend
     const payload = { role: 'user', content: (asExplain ? 'Explica esto:\\n' + text : text) };
     try {
-      const r = await fetch(API_URL + '/chat/respond?chat_id=' + encodeURIComponent(activeChat.id), {
-        method: 'POST',
-        headers: { ...authHeaders(), 'Content-Type':'application/json' },
-        body: JSON.stringify(payload)
-      });
+      const r = await fetch(API_URL + '/chat/respond?chat_id=' + encodeURIComponent(activeChat.id), { method:'POST', headers:{...authHeaders(),'Content-Type':'application/json'}, body: JSON.stringify(payload) });
       if (!r.ok) {
-        const err = await r.text();
-        showMsg('assistant', '[Error al obtener respuesta: ' + (err||r.status) + ']');
-        return;
+        const errText = await r.text();
+        showMsg('assistant', '[Error: ' + (errText || r.status) + ']'); return;
       }
       const j = await r.json();
       showMsg('assistant', j.assistant || j.answer || '[Respuesta vacía]');
-      // refresh chat list metadata
       fetchChats();
-    } catch(e){
+    } catch (e) {
       showMsg('assistant', '[Error de red: ' + (e.message || e) + ']');
     }
   }
 
-  // events
+  // Modal utility
+  function createModal(title='') {
+    const backdrop = document.createElement('div'); backdrop.className='modal-backdrop';
+    const box = document.createElement('div'); box.className='modal fade-in';
+    const h = document.createElement('h3'); h.style.margin='0 0 10px 0'; h.textContent=title;
+    const content = document.createElement('div');
+    box.appendChild(h); box.appendChild(content);
+    backdrop.appendChild(box);
+    document.body.appendChild(backdrop);
+    return {
+      content,
+      show() { /* focus first input if any */ setTimeout(()=>{ const i = content.querySelector('input'); if (i) i.focus(); },120); },
+      close() { backdrop.remove(); },
+      showLoading(msg='...') {
+        content.innerHTML = '<div style="padding:20px;color:var(--muted)">'+(msg||'Cargando')+'</div>';
+      }
+    };
+  }
+
+  // Events
   el.sendBtn.onclick = () => sendMessage(false);
   el.explainBtn.onclick = () => sendMessage(true);
   el.newChat.onclick = createChat;
-  el.btnHome.onclick = () => { window.scrollTo({top:0,behavior:'smooth'}); };
-  el.btnChat.onclick = () => { /* focus chat */ el.input.focus(); };
+  el.btnHome.onclick = () => window.scrollTo({top:0,behavior:'smooth'});
+  el.btnChat.onclick = () => el.input.focus();
+  el.input.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') sendMessage(false); });
 
-  // keyboard shortcut: ctrl+enter send
-  el.input.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { sendMessage(false); }
-  });
-
-  // init
+  // Init
   renderAuth();
   renderChats();
   renderActiveChat();
 
-  // quick guide for the user
-  console.log('DEVAI frontend iniciado. Edita meta[name="devai-api-url"] para apuntar a tu backend público.');
+  // Debug
+  console.log('DEVAI frontend listo. Edita meta[name="devai-api-url"] para apuntar al backend.');
+
 })();
 </script>
 </body>
