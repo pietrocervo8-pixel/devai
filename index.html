@@ -1,3 +1,399 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="devai"
+echo "Generando proyecto DEVAI completo en ./${ROOT} ..."
+
+# create directories
+mkdir -p "${ROOT}/backend/app/routers"
+mkdir -p "${ROOT}/backend/app"
+mkdir -p "${ROOT}/assets"
+
+########################################
+# README
+########################################
+cat > "${ROOT}/README.md" <<'EOF'
+DEVAI — Proyecto completo (Frontend single-file + Backend FastAPI)
+
+Estructura generada:
+- index.html        # Frontend SPA (mejorado)
+- backend/          # Backend FastAPI
+    - app/
+      - main.py
+      - database.py
+      - models.py
+      - schemas.py
+      - auth.py
+      - crud.py
+      - routers/
+         - auth.py
+         - user.py
+         - chat.py
+
+Sigue el README resumen en la cabeza del repo para arrancar.
+
+Nota: revisa backend/.env.example y no subas .env a GitHub.
+EOF
+
+########################################
+# BACKEND files
+########################################
+cat > "${ROOT}/backend/requirements.txt" <<'EOF'
+fastapi
+uvicorn[standard]
+sqlalchemy>=1.4
+aiosqlite
+pydantic
+passlib[bcrypt]
+python-jose[cryptography]
+python-dotenv
+email-validator
+aiosmtplib
+requests
+EOF
+
+cat > "${ROOT}/backend/.env.example" <<'EOF'
+# Copia a .env y edita
+SECRET_KEY=replace_with_a_strong_secret
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=43200
+DATABASE_URL=sqlite+aiosqlite:///./devai.db
+FRONTEND_URL=http://localhost:5173
+
+# Opcional: SMTP para envío real de correos
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=devai@example.com
+EOF
+
+cat > "${ROOT}/backend/app/database.py" <<'EOF'
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker, declarative_base
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./devai.db")
+
+engine = create_async_engine(DATABASE_URL, echo=False, future=True)
+AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+Base = declarative_base()
+
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        yield session
+EOF
+
+cat > "${ROOT}/backend/app/models.py" <<'EOF'
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+from .database import Base
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    full_name = Column(String, nullable=False)
+    dob = Column(String, nullable=True)
+    is_verified = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    verifications = relationship("Verification", back_populates="user", cascade="all, delete-orphan")
+
+class Verification(Base):
+    __tablename__ = "verifications"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    code = Column(String, nullable=False)
+    expires_at = Column(DateTime(timezone=True))
+    used = Column(Boolean, default=False)
+    user = relationship("User", back_populates="verifications")
+EOF
+
+cat > "${ROOT}/backend/app/schemas.py" <<'EOF'
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+from datetime import datetime
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    full_name: str
+    dob: Optional[str] = None
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class UserOut(BaseModel):
+    id: int
+    email: EmailStr
+    full_name: str
+    dob: Optional[str]
+    is_verified: bool
+    created_at: Optional[datetime]
+    class Config:
+        orm_mode = True
+
+class MessageOut(BaseModel):
+    assistant: str
+EOF
+
+cat > "${ROOT}/backend/app/auth.py" <<'EOF'
+import os
+from datetime import datetime, timedelta
+from passlib.context import CryptContext
+from jose import jwt, JWTError
+from dotenv import load_dotenv
+
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY", "devai_dev_secret")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "43200"))
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+def verify_password(plain: str, hashed: str) -> bool:
+    return pwd_context.verify(plain, hashed)
+
+def create_access_token(subject: str, expires_delta: timedelta | None = None) -> str:
+    to_encode = {"sub": subject}
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+def decode_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError:
+        return None
+EOF
+
+cat > "${ROOT}/backend/app/crud.py" <<'EOF'
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from . import models, auth
+from datetime import datetime, timedelta
+
+# Simple blacklist (extend as needed)
+BAD_WORDS = {"badword","insulto","otroinsulto"}
+
+async def get_user_by_email(db: AsyncSession, email: str):
+    res = await db.execute(select(models.User).where(models.User.email == email))
+    return res.scalar_one_or_none()
+
+async def create_user(db: AsyncSession, email: str, password: str, full_name: str, dob: str | None):
+    # name validation: ONLY letters, no spaces, no digits
+    if not full_name.isalpha():
+        raise ValueError("El nombre debe contener solo letras sin espacios ni números")
+    low = full_name.lower()
+    for bad in BAD_WORDS:
+        if bad in low:
+            raise ValueError("Nombre no permitido")
+    hashed = auth.get_password_hash(password)
+    user = models.User(email=email, hashed_password=hashed, full_name=full_name, dob=dob, is_verified=False)
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+async def create_verification(db: AsyncSession, user: models.User, code: str, minutes_valid: int = 15):
+    expires = datetime.utcnow() + timedelta(minutes=minutes_valid)
+    v = models.Verification(user_id=user.id, code=code, expires_at=expires)
+    db.add(v)
+    await db.commit()
+    await db.refresh(v)
+    return v
+
+async def verify_code(db: AsyncSession, email: str, code: str):
+    user = await get_user_by_email(db, email)
+    if not user:
+        return False
+    q = select(models.Verification).where(models.Verification.user_id == user.id, models.Verification.code == code, models.Verification.used == False)
+    res = await db.execute(q)
+    v = res.scalar_one_or_none()
+    if not v:
+        return False
+    if v.expires_at < datetime.utcnow():
+        return False
+    v.used = True
+    user.is_verified = True
+    db.add(v); db.add(user)
+    await db.commit()
+    return True
+EOF
+
+cat > "${ROOT}/backend/app/routers/auth.py" <<'EOF'
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from ..database import get_db
+from .. import crud, schemas, auth as auth_utils
+from ..models import User
+import random, os
+from email.message import EmailMessage
+import aiosmtplib
+from fastapi.security import OAuth2PasswordRequestForm
+
+router = APIRouter(prefix="/auth", tags=["auth"])
+
+@router.post("/register", response_model=dict)
+async def register(payload: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
+    existing = await crud.get_user_by_email(db, payload.email)
+    if existing:
+        raise HTTPException(status_code=400, detail="Email ya registrado")
+    try:
+        user = await crud.create_user(db, payload.email, payload.password, payload.full_name, payload.dob)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"ok": True, "id": user.id}
+
+@router.post("/send_verification", response_model=dict)
+async def send_verification(data: dict, db: AsyncSession = Depends(get_db)):
+    email = data.get("email")
+    if not email:
+        raise HTTPException(status_code=400, detail="Email requerido")
+    user = await crud.get_user_by_email(db, email)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    code = str(random.randint(100000, 999999))
+    await crud.create_verification(db, user, code)
+    # try to send via SMTP if configured
+    SMTP_HOST = os.getenv("SMTP_HOST")
+    SMTP_PORT = int(os.getenv("SMTP_PORT") or 587)
+    SMTP_USER = os.getenv("SMTP_USER")
+    SMTP_PASS = os.getenv("SMTP_PASS")
+    SMTP_FROM = os.getenv("SMTP_FROM", "devai@example.com")
+    if SMTP_HOST and SMTP_USER and SMTP_PASS:
+        msg = EmailMessage()
+        msg["From"] = SMTP_FROM
+        msg["To"] = email
+        msg["Subject"] = "DEVAI - Código de verificación"
+        msg.set_content(f"Tu código de verificación es: {code}")
+        try:
+            await aiosmtplib.send(msg, hostname=SMTP_HOST, port=SMTP_PORT, username=SMTP_USER, password=SMTP_PASS, start_tls=True)
+            return {"ok": True}
+        except Exception as e:
+            # fallback to demo mode response
+            return {"ok": True, "demo_code": code}
+    # demo fallback
+    return {"ok": True, "demo_code": code}
+
+@router.post("/verify", response_model=dict)
+async def verify(data: dict, db: AsyncSession = Depends(get_db)):
+    email = data.get("email"); code = data.get("code")
+    if not email or not code:
+        raise HTTPException(status_code=400, detail="email y code requeridos")
+    ok = await crud.verify_code(db, email, code)
+    if not ok:
+        raise HTTPException(status_code=400, detail="Código inválido o expirado")
+    return {"ok": True}
+
+@router.post("/token", response_model=schemas.Token)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    user = await crud.get_user_by_email(db, form_data.username)
+    if not user or not auth_utils.verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
+    access_token = auth_utils.create_access_token(user.email)
+    return {"access_token": access_token, "token_type": "bearer"}
+EOF
+
+cat > "${ROOT}/backend/app/routers/user.py" <<'EOF'
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.ext.asyncio import AsyncSession
+from ..database import get_db
+from .. import crud, models, schemas
+from ..auth import decode_token
+
+oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/token")
+router = APIRouter(prefix="/users", tags=["users"])
+
+async def current_user(token: str = Depends(oauth2), db: AsyncSession = Depends(get_db)):
+    payload = decode_token(token)
+    if not payload or "sub" not in payload:
+        raise HTTPException(status_code=401, detail="Token inválido")
+    email = payload["sub"]
+    user = await crud.get_user_by_email(db, email)
+    if not user:
+        raise HTTPException(status_code=401, detail="Usuario no encontrado")
+    return user
+
+@router.get("/me", response_model=schemas.UserOut)
+async def me(user: models.User = Depends(current_user)):
+    return user
+EOF
+
+cat > "${ROOT}/backend/app/routers/chat.py" <<'EOF'
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.ext.asyncio import AsyncSession
+from ..database import get_db
+from .. import crud, schemas
+import os
+
+router = APIRouter(prefix="/chat", tags=["chat"])
+oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/token")
+
+async def get_user(token: str = Depends(oauth2), db: AsyncSession = Depends(get_db)):
+    from ..auth import decode_token
+    p = decode_token(token)
+    if not p or "sub" not in p:
+        raise HTTPException(status_code=401, detail="Token inválido")
+    user = await crud.get_user_by_email(db, p["sub"])
+    if not user:
+        raise HTTPException(status_code=401, detail="Usuario no encontrado")
+    return user
+
+@router.post("/respond")
+async def respond(chat_id: int = 0, message: dict = {}, db: AsyncSession = Depends(get_db), user = Depends(get_user)):
+    # Simple echo assistant for demo. Replace with LLM calls (OpenAI) on production.
+    text = message.get("content", "")
+    answer = f"Echo (demo): {text}"
+    return {"assistant": answer}
+EOF
+
+cat > "${ROOT}/backend/app/main.py" <<'EOF'
+import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from .database import engine, Base
+from .routers import auth, user, chat
+from dotenv import load_dotenv
+
+load_dotenv()
+app = FastAPI(title="DEVAI API")
+
+origins = [os.getenv("FRONTEND_URL", "http://localhost:5173")]
+app.add_middleware(CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+
+app.include_router(auth.router)
+app.include_router(user.router)
+app.include_router(chat.router)
+
+@app.on_event("startup")
+async def startup():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+@app.get("/health")
+async def health():
+    return {"status":"ok"}
+EOF
+
+########################################
+# FRONTEND single-file index.html
+########################################
+cat > "${ROOT}/index.html" <<'EOF'
 <!doctype html>
 <html lang="es">
 <head>
@@ -5,7 +401,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>DEVAI — Asistente de Desarrollo</title>
 
-  <!-- Cambia esto a tu backend público antes de subir -->
+  <!-- Edita esta URL con la de tu backend (p. ej. https://devai-backend.onrender.com) -->
   <meta name="devai-api-url" content="http://localhost:8000">
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
@@ -46,7 +442,7 @@
     footer{padding:12px;text-align:center;color:var(--muted)}
     /* modal */
     .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:flex;align-items:center;justify-content:center;z-index:50}
-    .modal{width:420px;background:linear-gradient(180deg,#071025,#091427);border-radius:12px;padding:18px;box-shadow:0 18px 40px rgba(0,0,0,0.8);color:#e6f7ff}
+    .modal{width:460px;background:linear-gradient(180deg,#071025,#091427);border-radius:12px;padding:18px;box-shadow:0 18px 40px rgba(0,0,0,0.8);color:#e6f7ff}
     .field{display:flex;flex-direction:column;margin-bottom:10px}
     .field label{font-size:13px;color:var(--muted);margin-bottom:6px}
     .field input, .field select{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:#061021;color:#dbe7f5}
@@ -55,9 +451,12 @@
     .checkbox{display:flex;align-items:center;gap:8px}
     .code-box{display:flex;gap:8px;align-items:center}
     .code-input{flex:1;padding:10px;border-radius:8px;background:#061021;border:1px dashed rgba(255,255,255,0.05);color:#dbe7f5}
+    .pwd-strength{display:flex;gap:8px;align-items:center;margin-top:6px}
+    .dot{width:10px;height:10px;border-radius:50%}
+    .dot.weak{background:#ff6b6b}
+    .dot.good{background:#7ee7ff}
     .success{color:#7ee7ff}
     @media(max-width:960px){ .container{grid-template-columns:1fr} .sidebar{order:2} .main-chat{order:1} .modal{width:92%} }
-    /* transitions */
     .fade-in{animation:fadeIn .28s ease}
     @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   </style>
@@ -127,31 +526,18 @@
     <footer>© DEVAI — Mejora tu productividad de programación</footer>
   </div>
 
-  <!-- Modal containers -->
   <div id="modalRoot"></div>
 
 <script>
-/*
-  DEVAI - Single file enhanced frontend (login + registration + verification)
-  - Edita la meta[name="devai-api-url"] con la URL pública de tu backend antes de usar en producción.
-  - Si quieres envío real de códigos por email, implementa en backend:
-      POST /auth/send_verification  { email } -> { ok: true }
-      POST /auth/verify             { email, code } -> { ok: true }
-    El frontend tratará de usar esos endpoints si existen.
-  - En modo demo (sin backend de verificación) el código se simula y se muestra para pruebas.
-*/
-
+/* Frontend JS: registro con verificación, login seguro, password strength, settings */
 (() => {
-  const API_URL = (() => {
-    const m = document.querySelector('meta[name="devai-api-url"]');
-    return (m && m.getAttribute('content')) || 'http://localhost:8000';
-  })();
+  const API_URL = document.querySelector('meta[name="devai-api-url"]').getAttribute('content') || 'http://localhost:8000';
 
-  // State
   let token = localStorage.getItem('devai_token') || null;
   let chats = [];
   let activeChat = null;
-  let pendingVerification = null; // { email, code, registeredUser }
+  let pendingVerification = null;
+
   const el = {
     authArea: document.getElementById('authArea'),
     chats: document.getElementById('chats'),
@@ -164,56 +550,41 @@
     chatTitle: document.getElementById('chatTitle'),
     userInfo: document.getElementById('userInfo'),
     subtitle: document.getElementById('subtitle'),
+    modalRoot: document.getElementById('modalRoot'),
     btnHome: document.getElementById('btnHome'),
-    btnChat: document.getElementById('btnChat'),
-    modalRoot: document.getElementById('modalRoot')
+    btnChat: document.getElementById('btnChat')
   };
 
-  // Helpers
   const authHeaders = () => token ? { 'Authorization': 'Bearer ' + token } : {};
-  const showMsg = (role, text) => {
-    const d = document.createElement('div');
-    d.className = 'msg ' + (role === 'user' ? 'user' : 'assistant');
-    // support multiline
-    text.split('\\n').forEach((line, idx) => {
-      if (idx > 0) d.appendChild(document.createElement('br'));
-      d.appendChild(document.createTextNode(line));
-    });
-    el.messages.appendChild(d);
-    el.messages.scrollTop = el.messages.scrollHeight;
-  };
 
-  function showToast(text, timeout=3000) {
-    const t = document.createElement('div');
-    t.textContent = text;
-    t.style.position='fixed'; t.style.right='18px'; t.style.bottom='18px';
-    t.style.background='linear-gradient(90deg,#00d4ff,#7ee7ff)'; t.style.color='#042634';
-    t.style.padding='10px 14px'; t.style.borderRadius='10px'; t.style.boxShadow='0 10px 30px rgba(0,0,0,0.6)';
-    document.body.appendChild(t);
-    setTimeout(()=> t.remove(), timeout);
+  function showToast(text, timeout=3000){
+    const t = document.createElement('div'); t.textContent = text;
+    Object.assign(t.style,{position:'fixed',right:'18px',bottom:'18px',background:'linear-gradient(90deg,#00d4ff,#7ee7ff)',color:'#042634',padding:'10px 14px',borderRadius:'10px',boxShadow:'0 10px 30px rgba(0,0,0,0.6)'});
+    document.body.appendChild(t); setTimeout(()=>t.remove(), timeout);
   }
 
-  async function tryJson(resp) {
-    try { return await resp.json(); } catch (e) { return null; }
+  function showMsg(role, text){
+    const d = document.createElement('div'); d.className = 'msg ' + (role==='user' ? 'user' : 'assistant');
+    text.split('\\n').forEach((line, idx) => { if(idx>0) d.appendChild(document.createElement('br')); d.appendChild(document.createTextNode(line)); });
+    el.messages.appendChild(d); el.messages.scrollTop = el.messages.scrollHeight;
   }
 
-  // Authentication UI
-  function renderAuth() {
+  // AUTH UI
+  function renderAuth(){
     el.authArea.innerHTML = '';
-    if (!token) {
+    if(!token){
       const b1 = document.createElement('button'); b1.className='ghost'; b1.textContent='Iniciar sesión'; b1.onclick = showLogin;
       const b2 = document.createElement('button'); b2.className='btn'; b2.textContent='Crear cuenta'; b2.onclick = showRegister;
       el.authArea.appendChild(b1); el.authArea.appendChild(b2);
-      el.userInfo.textContent = 'No autenticado';
-      el.subtitle.textContent = 'Inicia sesión para guardar historial y usar la memoria';
+      el.userInfo.textContent = 'No autenticado'; el.subtitle.textContent = 'Inicia sesión para guardar historial y usar la memoria';
     } else {
-      const btnProfile = document.createElement('button'); btnProfile.className='ghost'; btnProfile.textContent='Perfil'; btnProfile.onclick = showProfile;
-      const btnLogout = document.createElement('button'); btnLogout.className='btn'; btnLogout.textContent='Cerrar sesión'; btnLogout.onclick = logout;
-      el.authArea.appendChild(btnProfile); el.authArea.appendChild(btnLogout);
+      const settingsBtn = document.createElement('button'); settingsBtn.className='ghost'; settingsBtn.textContent='Configuración'; settingsBtn.onclick = showSettings;
+      const logoutBtn = document.createElement('button'); logoutBtn.className='btn'; logoutBtn.textContent='Cerrar sesión'; logoutBtn.onclick = logout;
+      el.authArea.appendChild(settingsBtn); el.authArea.appendChild(logoutBtn);
       // fetch profile
-      fetch(API_URL + '/users/me', { headers: authHeaders() }).then(r => r.json()).then(j => {
-        el.userInfo.textContent = j && j.email ? j.email : 'Usuario';
-      }).catch(()=> { el.userInfo.textContent = 'Usuario'; });
+      fetch(API_URL + '/users/me', { headers: authHeaders() }).then(r=>r.json()).then(j=>{
+        if(j && j.email) el.userInfo.textContent = j.email;
+      }).catch(()=> el.userInfo.textContent = 'Usuario');
       el.subtitle.textContent = '';
       fetchChats();
     }
@@ -221,20 +592,28 @@
 
   function logout(){ token=null; localStorage.removeItem('devai_token'); renderAuth(); chats=[]; activeChat=null; el.messages.innerHTML=''; renderChats(); showToast('Sesión cerrada'); }
 
-  function showLogin(){
+  // Modal helper
+  function createModal(title=''){
+    const backdrop = document.createElement('div'); backdrop.className='modal-backdrop';
+    const box = document.createElement('div'); box.className='modal fade-in';
+    const h = document.createElement('h3'); h.style.margin='0 0 10px 0'; h.textContent = title;
+    const content = document.createElement('div');
+    box.appendChild(h); box.appendChild(content); backdrop.appendChild(box); document.body.appendChild(backdrop);
+    return {
+      content, show(){ setTimeout(()=>{ const i = content.querySelector('input'); if(i) i.focus(); },120); }, close(){ backdrop.remove(); }, backdrop
+    };
+  }
+
+  // Login modal
+  function showLogin(prefillEmail=''){
     const modal = createModal('Iniciar sesión');
     const form = document.createElement('form');
     form.innerHTML = `
-      <div class="field"><label>Email</label><input id="login_email" type="email" required></div>
+      <div class="field"><label>Email</label><input id="login_email" type="email" value="${prefillEmail}" required></div>
       <div class="field"><label>Contraseña</label><input id="login_pw" type="password" required></div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
-        <button type="button" class="ghost" id="cancel">Cancelar</button>
-        <button type="submit" class="btn">Entrar</button>
-      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="ghost" id="cancel">Cancelar</button><button type="submit" class="btn">Entrar</button></div>
     `;
-    modal.content.appendChild(form);
-    modal.show();
-
+    modal.content.appendChild(form); modal.show();
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = form.querySelector('#login_email').value.trim();
@@ -242,40 +621,39 @@
       const params = new URLSearchParams(); params.append('username', email); params.append('password', pw);
       try {
         const res = await fetch(API_URL + '/auth/token', { method:'POST', body: params });
-        if (!res.ok) {
-          const err = await tryJson(res) || {}; throw new Error(err.detail || 'Credenciales inválidas');
-        }
-        const j = await res.json();
-        token = j.access_token; localStorage.setItem('devai_token', token);
-        modal.close();
-        renderAuth();
-        showToast('Bienvenido');
-      } catch (err) {
-        alert('Login error: ' + (err.message || err));
-      }
+        if(!res.ok){ const err = await res.json().catch(()=>({detail:'Login failed'})); throw new Error(err.detail || 'Login failed'); }
+        const j = await res.json(); token = j.access_token; localStorage.setItem('devai_token', token); modal.close(); renderAuth(); showToast('Bienvenido');
+      } catch(err){ alert('Error: ' + (err.message || err)); }
     });
     form.querySelector('#cancel').onclick = () => modal.close();
   }
 
-  // Registration flow with verification step
+  // Registration: stepful with password strength
   function showRegister(){
     const modal = createModal('Crear cuenta');
     const form = document.createElement('form');
     form.innerHTML = `
-      <div class="field"><label>Nombre completo</label><input id="reg_name" type="text" required></div>
+      <div class="field"><label>Nombre (solo letras)</label><input id="reg_name" type="text" required></div>
       <div class="field"><label>Email</label><input id="reg_email" type="email" required></div>
       <div class="row">
         <div class="field" style="flex:1"><label>Contraseña</label><input id="reg_pw" type="password" minlength="6" required></div>
         <div class="field" style="width:140px"><label>Fecha Nac.</label><input id="reg_dob" type="date" required></div>
       </div>
       <div class="field"><label class="checkbox"><input id="reg_robot" type="checkbox"> No soy un robot</label></div>
-      <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button type="button" class="ghost" id="cancel">Cancelar</button>
-        <button type="submit" class="btn">Continuar</button>
-      </div>
+      <div class="pwd-strength"><div id="dot" class="dot weak"></div><div id="pwdText" class="small muted">Contraseña débil</div></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px"><button type="button" class="ghost" id="cancel">Cancelar</button><button type="submit" class="btn">Continuar</button></div>
     `;
-    modal.content.appendChild(form);
-    modal.show();
+    modal.content.appendChild(form); modal.show();
+
+    const pwInput = form.querySelector('#reg_pw');
+    const dot = form.querySelector('#dot'); const pwdText = form.querySelector('#pwdText');
+    function evaluatePwd(p){
+      // basic strength: length >=8 and has digit and letter -> good
+      const good = p.length >= 8 && /[0-9]/.test(p) && /[A-Za-z]/.test(p);
+      if(good){ dot.className='dot good'; pwdText.textContent='Contraseña segura'; pwdText.style.color='#7ee7ff'; } else { dot.className='dot weak'; pwdText.textContent='Contraseña débil'; pwdText.style.color='#ff6b6b'; }
+      return good;
+    }
+    pwInput.addEventListener('input', (e) => evaluatePwd(e.target.value));
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -284,277 +662,183 @@
       const pw = form.querySelector('#reg_pw').value;
       const dob = form.querySelector('#reg_dob').value;
       const robot = form.querySelector('#reg_robot').checked;
-      if (!robot) { alert('Por favor confirma que no eres un robot'); return; }
-      if (!email || !pw || !name || !dob) { alert('Completa todos los campos'); return; }
-
-      // Call backend register if exists
+      if(!robot){ alert('Confirma que no eres un robot'); return; }
+      if(!/^[A-Za-z]+$/.test(name)){ alert('El nombre sólo puede contener letras y sin espacios'); return; }
+      if(!evaluatePwd(pw)){ if(!confirm('La contraseña es débil. Continuar de todos modos?')) return; }
       try {
-        const res = await fetch(API_URL + '/auth/register', { method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email, password: pw, full_name: name }) });
-        if (!res.ok) {
-          const err = await tryJson(res) || {}; throw new Error(err.detail || 'Registro fallido');
-        }
-        const user = await res.json();
-        // send verification code (try backend endpoint, else simulate)
-        await modal.showLoading('Enviando código de verificación…');
-        let sent = false;
-        try {
-          const s = await fetch(API_URL + '/auth/send_verification', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ email }) });
-          if (s.ok) { await s.json(); sent = true; }
-        } catch(e){ /* ignore */ }
-
+        const res = await fetch(API_URL + '/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email, password: pw, full_name: name, dob })});
+        if(!res.ok){ const err = await res.json().catch(()=>({detail:'Error registro'})); throw new Error(err.detail || 'Registro fallido'); }
+        await res.json();
+        // request verification send
+        const send = await fetch(API_URL + '/auth/send_verification', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email })});
+        const sendJ = await send.json().catch(()=>({}));
         modal.close();
-        // if backend didn't send, simulate code for demo
-        const code = (() => { return Math.floor(100000 + Math.random()*900000).toString(); })();
-        pendingVerification = { email, code, registeredUser: user };
-        if (!sent) {
-          showToast('Demo: se generó un código. En producción el backend debe enviar el correo.');
-          // show the code in a non-blocking toast for demo
-          showToast('Código (demo): ' + code, 8000);
+        if(sendJ.demo_code){ // demo mode
+          pendingVerification = { email, code: sendJ.demo_code };
+          showToast('Demo: código ' + sendJ.demo_code, 8000);
+          showVerificationModal();
         } else {
-          showToast('Código enviado al correo: ' + email);
+          pendingVerification = { email };
+          showToast('Código enviado a ' + email);
+          showVerificationModal();
         }
-        // show verification modal
-        showVerificationModal();
-      } catch (err) {
-        modal.close();
-        alert('Error registro: ' + (err.message || err));
-      }
+      } catch(err){ alert('Registro error: ' + (err.message || err)); }
     });
-
     form.querySelector('#cancel').onclick = () => modal.close();
   }
 
   function showVerificationModal(){
-    if (!pendingVerification) return alert('No hay verificación pendiente');
+    if(!pendingVerification) return alert('No hay verificación pendiente');
     const modal = createModal('Verificación por correo');
-    const cont = document.createElement('div');
-    cont.innerHTML = `
-      <div class="small muted">Hemos enviado un código a: <strong>${pendingVerification.email}</strong></div>
+    const content = document.createElement('div');
+    content.innerHTML = \`
+      <div class="small muted">Código enviado a: <strong>\${pendingVerification.email}</strong></div>
       <div style="height:10px"></div>
-      <div class="code-box"><input id="codeInput" class="code-input" placeholder="Ingresa el código recibido" /></div>
+      <div class="code-box"><input id="codeInput" class="code-input" placeholder="Ingresa el código recibido"></div>
       <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
-        <div class="small muted">¿No recibiste el código? <a href="#" id="resend">Reenviar</a></div>
-        <div style="display:flex;gap:8px">
-          <button class="ghost" id="cancel">Cancelar</button>
-          <button class="btn" id="verifyBtn">Verificar</button>
-        </div>
+        <div class="small muted">¿No recibiste? <a href="#" id="resend">Reenviar</a></div>
+        <div style="display:flex;gap:8px"><button class="ghost" id="cancel">Cancelar</button><button class="btn" id="verifyBtn">Verificar</button></div>
       </div>
       <div id="hint" style="margin-top:8px" class="muted small"></div>
-    `;
-    modal.content.appendChild(cont);
-    modal.show();
-
-    cont.querySelector('#cancel').onclick = () => modal.close();
-    cont.querySelector('#resend').onclick = async (e) => {
+    \`;
+    modal.content.appendChild(content); modal.show();
+    content.querySelector('#cancel').onclick = () => modal.close();
+    content.querySelector('#resend').onclick = async (e) => {
       e.preventDefault();
-      // try backend resend
       try {
-        const r = await fetch(API_URL + '/auth/send_verification', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: pendingVerification.email }) });
-        if (r.ok) { showToast('Código reenviado'); return; }
-      } catch(e){ /* ignore */ }
-      // demo: regenerate code
-      pendingVerification.code = Math.floor(100000 + Math.random()*900000).toString();
-      showToast('Demo: nuevo código: ' + pendingVerification.code, 6000);
+        const r = await fetch(API_URL + '/auth/send_verification', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: pendingVerification.email })});
+        const j = await r.json();
+        if(j.demo_code){ pendingVerification.code = j.demo_code; showToast('Demo: nuevo código ' + j.demo_code, 6000); } else showToast('Código reenviado');
+      } catch(e){ showToast('Error reenviar'); }
     };
-
-    cont.querySelector('#verifyBtn').onclick = async () => {
-      const code = cont.querySelector('#codeInput').value.trim();
-      if (!code) { alert('Introduce el código'); return; }
-      // Try backend verify endpoint
+    content.querySelector('#verifyBtn').onclick = async () => {
+      const code = content.querySelector('#codeInput').value.trim();
+      if(!code){ alert('Ingresa el código'); return; }
       try {
-        const r = await fetch(API_URL + '/auth/verify', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: pendingVerification.email, code }) });
-        if (r.ok) {
-          await r.json();
-          modal.close();
-          // auto-login
-          await autoLoginAfterVerification(pendingVerification.email, pendingVerification.registeredUser ? '' : '');
-          pendingVerification = null;
-          return;
-        }
-      } catch(e) { /* ignore */ }
-      // fallback: demo verify (compare code)
-      if (code === pendingVerification.code) {
+        const r = await fetch(API_URL + '/auth/verify', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: pendingVerification.email, code })});
+        if(!r.ok){ const err = await r.json().catch(()=>({detail:'Error verify'})); throw new Error(err.detail || 'Verificación fallida'); }
+        await r.json();
         modal.close();
-        // attempt auto-login via token fetch (username/password flow requires password; if we don't have it, show login prompt)
-        showToast('Verificado (demo). Por favor inicia sesión con tu contraseña.');
-        // Option: if registeredUser exists and we stored pw (we didn't for security), we could auto-login. So we'll show login modal prefilled.
-        showLoginPrefill(pendingVerification.email);
+        showToast('Cuenta verificada. Inicia sesión.');
+        showLogin(pendingVerification.email);
         pendingVerification = null;
-      } else {
-        cont.querySelector('#hint').textContent = 'Código incorrecto. Verifica y vuelve a intentar.';
-      }
+      } catch(err){ content.querySelector('#hint').textContent = 'Código inválido o expirado'; }
     };
   }
 
-  async function autoLoginAfterVerification(email, password) {
-    // If you have the password available, you can auto-login. For demo we ask the user to login.
-    try {
-      const params = new URLSearchParams(); params.append('username', email); params.append('password', password);
-      const r = await fetch(API_URL + '/auth/token', { method:'POST', body: params });
-      if (r.ok) {
-        const j = await r.json(); token = j.access_token; localStorage.setItem('devai_token', token); renderAuth(); showToast('Bienvenido'); return;
-      }
-    } catch(e){}
-    showLoginPrefill(email);
-  }
-
-  function showLoginPrefill(email) {
-    const modal = createModal('Iniciar sesión');
-    const form = document.createElement('form');
-    form.innerHTML = `
-      <div class="field"><label>Email</label><input id="login_email" type="email" value="${email}" required></div>
-      <div class="field"><label>Contraseña</label><input id="login_pw" type="password" required></div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
-        <button type="button" class="ghost" id="cancel">Cancelar</button>
-        <button type="submit" class="btn">Entrar</button>
-      </div>
-    `;
-    modal.content.appendChild(form);
-    modal.show();
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = form.querySelector('#login_email').value.trim();
-      const pw = form.querySelector('#login_pw').value;
-      const params = new URLSearchParams(); params.append('username', email); params.append('password', pw);
+  // Settings modal
+  function showSettings(){
+    const modal = createModal('Configuración de cuenta');
+    const box = document.createElement('div');
+    box.innerHTML = '<div class="small muted">Aquí puedes ver tu perfil y cerrar sesión.</div>';
+    const btn = document.createElement('button'); btn.className='btn'; btn.textContent='Ver perfil'; btn.style.marginTop='8px';
+    btn.onclick = async () => {
       try {
-        const res = await fetch(API_URL + '/auth/token', { method:'POST', body: params });
-        if (!res.ok) {
-          const err = await tryJson(res) || {}; throw new Error(err.detail || 'Credenciales inválidas');
-        }
-        const j = await res.json();
-        token = j.access_token; localStorage.setItem('devai_token', token);
-        modal.close();
-        renderAuth();
-        showToast('Sesión iniciada');
-      } catch (err) {
-        alert('Login error: ' + (err.message || err));
-      }
-    });
-    form.querySelector('#cancel').onclick = () => modal.close();
+        const r = await fetch(API_URL + '/users/me', { headers: authHeaders() });
+        if(!r.ok) throw new Error('No profile');
+        const j = await r.json();
+        alert('Perfil:\\n' + (j.full_name || '') + '\\n' + j.email + '\\nCreado: ' + (j.created_at || '-'));
+      } catch(e){ alert('No se pudo obtener perfil'); }
+    };
+    box.appendChild(btn);
+    modal.content.appendChild(box); modal.show();
   }
 
-  function showProfile(){
-    fetch(API_URL + '/users/me', { headers: authHeaders() }).then(r => r.json()).then(j => {
-      alert('Perfil:\\n' + (j.full_name || '') + '\\n' + j.email + '\\nCreado: ' + (j.created_at || '-'));
-    }).catch(()=> alert('No se pudo obtener perfil'));
-  }
-
-  // Chat functions
+  // Chats
   function renderChats(){
     el.chats.innerHTML = '';
-    if (!chats.length) {
-      el.chats.innerHTML = '<div class="muted">Aún no hay conversaciones. Crea una nueva.</div>';
-      return;
-    }
+    if(!chats.length){ el.chats.innerHTML = '<div class="muted">Aún no hay conversaciones.</div>'; return; }
     chats.forEach(c => {
-      const btn = document.createElement('button');
-      btn.className = 'chat-item' + (activeChat && activeChat.id === c.id ? ' active' : '');
-      btn.textContent = c.title || ('Conversación ' + c.id);
-      btn.onclick = async () => {
-        activeChat = c;
-        renderActiveChat();
-        renderChats();
-      };
-      el.chats.appendChild(btn);
+      const b = document.createElement('button');
+      b.className = 'chat-item' + (activeChat && activeChat.id === c.id ? ' active' : '');
+      b.textContent = c.title || ('Conversación ' + c.id);
+      b.onclick = () => { activeChat = c; renderActiveChat(); renderChats(); };
+      el.chats.appendChild(b);
     });
   }
 
   async function fetchChats(){
-    if (!token) return;
+    if(!token) return;
     try {
       const r = await fetch(API_URL + '/chat/list', { headers: { ...authHeaders() } });
-      if (r.ok) {
-        chats = await r.json();
-        if (chats.length && !activeChat) activeChat = chats[0];
-        renderChats(); renderActiveChat();
-      }
-    } catch(e) {}
+      if(r.ok){ chats = await r.json(); if(chats.length && !activeChat) activeChat = chats[0]; renderChats(); renderActiveChat(); }
+    } catch(e){}
   }
+
+  function renderActiveChat(){ el.messages.innerHTML=''; if(!activeChat){ el.chatTitle.textContent='Bienvenido a DEVAI'; return; } el.chatTitle.textContent = activeChat.title || 'Conversación'; (activeChat.messages||[]).forEach(m => showMsg(m.role, m.content)); el.messages.scrollTop = el.messages.scrollHeight; }
 
   async function createChat(){
-    if (!token) return alert('Necesitas iniciar sesión');
-    const title = prompt('Título de la conversación (opcional)') || 'Conversación';
-    const r = await fetch(API_URL + '/chat/create', { method:'POST', headers:{...authHeaders(), 'Content-Type':'application/json'}, body: JSON.stringify({ title })});
-    if (r.ok) {
-      const c = await r.json(); chats.unshift(c); activeChat = c; renderChats(); renderActiveChat();
-    } else alert('No se pudo crear conversación');
-  }
-
-  function renderActiveChat(){
-    el.messages.innerHTML = '';
-    if (!activeChat) {
-      el.chatTitle.textContent = 'Bienvenido a DEVAI';
-      return;
-    }
-    el.chatTitle.textContent = activeChat.title || 'Conversación';
-    (activeChat.messages || []).forEach(m => showMsg(m.role, m.content));
-    el.messages.scrollTop = el.messages.scrollHeight;
+    if(!token) return alert('Necesitas iniciar sesión');
+    const title = prompt('Título (opcional)') || 'Conversación';
+    try {
+      const r = await fetch(API_URL + '/chat/create', { method:'POST', headers:{...authHeaders(), 'Content-Type':'application/json'}, body: JSON.stringify({ title })});
+      if(r.ok){ const c = await r.json(); chats.unshift(c); activeChat = c; renderChats(); renderActiveChat(); }
+    } catch(e){ alert('No se pudo crear chat'); }
   }
 
   async function sendMessage(asExplain=false){
-    const text = el.input.value.trim();
-    if (!text) return;
-    if (!token) return alert('Inicia sesión para enviar mensajes');
-    if (!activeChat || !activeChat.id) {
-      // create chat first
-      const r = await fetch(API_URL + '/chat/create', { method:'POST', headers:{...authHeaders(), 'Content-Type':'application/json'}, body: JSON.stringify({ title: 'Conversación' })});
-      if (!r.ok) { alert('No se pudo crear conversacion'); return; }
+    const text = el.input.value.trim(); if(!text) return;
+    if(!token) return alert('Inicia sesión para enviar mensajes');
+    if(!activeChat || !activeChat.id){
+      // create
+      const r = await fetch(API_URL + '/chat/create', { method:'POST', headers:{...authHeaders(), 'Content-Type':'application/json'}, body: JSON.stringify({ title:'Conversación' })});
+      if(!r.ok){ alert('No se pudo crear conversacion'); return; }
       activeChat = await r.json(); chats.unshift(activeChat); renderChats();
     }
-    // optimistic
-    showMsg('user', text);
-    el.input.value = '';
-    const payload = { role: 'user', content: (asExplain ? 'Explica esto:\\n' + text : text) };
+    showMsg('user', text); el.input.value='';
+    const payload = { role:'user', content: (asExplain ? 'Explica:\\n' + text : text) };
     try {
-      const r = await fetch(API_URL + '/chat/respond?chat_id=' + encodeURIComponent(activeChat.id), { method:'POST', headers:{...authHeaders(),'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-      if (!r.ok) {
-        const errText = await r.text();
-        showMsg('assistant', '[Error: ' + (errText || r.status) + ']'); return;
-      }
-      const j = await r.json();
-      showMsg('assistant', j.assistant || j.answer || '[Respuesta vacía]');
-      fetchChats();
-    } catch (e) {
-      showMsg('assistant', '[Error de red: ' + (e.message || e) + ']');
-    }
+      const r = await fetch(API_URL + '/chat/respond?chat_id=' + encodeURIComponent(activeChat.id), { method:'POST', headers:{...authHeaders(), 'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      if(!r.ok){ const err = await r.text(); showMsg('assistant', '[Error: ' + (err||r.status) + ']'); return; }
+      const j = await r.json(); showMsg('assistant', j.assistant || j.answer || '[Respuesta vacía]'); fetchChats();
+    } catch(e){ showMsg('assistant', '[Error de red: ' + (e.message||e) + ']'); }
   }
 
-  // Modal utility
-  function createModal(title='') {
-    const backdrop = document.createElement('div'); backdrop.className='modal-backdrop';
-    const box = document.createElement('div'); box.className='modal fade-in';
-    const h = document.createElement('h3'); h.style.margin='0 0 10px 0'; h.textContent=title;
-    const content = document.createElement('div');
-    box.appendChild(h); box.appendChild(content);
-    backdrop.appendChild(box);
-    document.body.appendChild(backdrop);
-    return {
-      content,
-      show() { /* focus first input if any */ setTimeout(()=>{ const i = content.querySelector('input'); if (i) i.focus(); },120); },
-      close() { backdrop.remove(); },
-      showLoading(msg='...') {
-        content.innerHTML = '<div style="padding:20px;color:var(--muted)">'+(msg||'Cargando')+'</div>';
-      }
-    };
-  }
-
-  // Events
+  // events
   el.sendBtn.onclick = () => sendMessage(false);
   el.explainBtn.onclick = () => sendMessage(true);
   el.newChat.onclick = createChat;
   el.btnHome.onclick = () => window.scrollTo({top:0,behavior:'smooth'});
   el.btnChat.onclick = () => el.input.focus();
-  el.input.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') sendMessage(false); });
+  el.input.addEventListener('keydown', (e) => { if((e.ctrlKey || e.metaKey) && e.key === 'Enter') sendMessage(false); });
 
-  // Init
-  renderAuth();
-  renderChats();
-  renderActiveChat();
-
-  // Debug
-  console.log('DEVAI frontend listo. Edita meta[name="devai-api-url"] para apuntar al backend.');
+  // start
+  renderAuth(); renderChats(); renderActiveChat();
+  console.log('DEVAI frontend listo. Edita meta[name=\"devai-api-url\"] para apuntar al backend.');
 
 })();
 </script>
 </body>
 </html>
+EOF
+
+########################################
+# Done
+########################################
+echo "Generación completada: carpeta ./${ROOT}"
+echo
+echo "Siguientes pasos (rápido):"
+echo "1) Backend:"
+echo "   cd ${ROOT}/backend"
+echo "   python -m venv .venv"
+echo "   source .venv/bin/activate   # Windows: .venv\\Scripts\\activate"
+echo "   pip install -r requirements.txt"
+echo "   cp .env.example .env"
+echo "   # editar .env: SECRET_KEY, FRONTEND_URL, SMTP_* si deseas envío real"
+echo "   uvicorn app.main:app --reload --port 8000"
+echo
+echo "2) Frontend:"
+echo "   Abre ${ROOT}/index.html en tu navegador o sube este archivo como frontend/index.html en Vercel."
+echo "   Antes de subir, edita la meta devai-api-url para apuntar a tu backend público."
+echo
+echo "3) GitHub / Vercel:"
+echo "   - Inicializa git en la carpeta devai y sube a tu repo."
+echo "   - En Vercel configura el proyecto para publicar la raíz (index.html) o la carpeta frontend si la mueves."
+echo
+echo "Si quieres, puedo:"
+echo " - generar un ZIP con todo (te lo doy como texto para descargar),"
+echo " - hacer push a tu repo (dame owner/repo),"
+echo " - implementar envíos reales con SMTP/SendGrid (te paso instrucciones)."
+echo
+echo "¡Listo! Ejecuta el script y dime si quieres que haga el push por ti."
+EOF
