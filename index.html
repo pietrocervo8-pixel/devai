@@ -1,1521 +1,940 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="devai"
+echo "Creando proyecto DEVAI en ./${ROOT_DIR} ..."
+
+# Helper to write files with heredoc
+write_file() {
+  local path="$1"
+  local content="$2"
+  mkdir -p "$(dirname "$path")"
+  cat > "$path" <<'EOF'
+'"$content"'
+EOF
+}
+
+# Create folders
+mkdir -p "${ROOT_DIR}/frontend/src/components"
+mkdir -p "${ROOT_DIR}/backend/app/routers"
+mkdir -p "${ROOT_DIR}/assets"
+
+############################
+# README.md
+############################
+cat > "${ROOT_DIR}/README.md" <<'EOF'
+# DEVAI
+
+Proyecto ejemplo: aplicación web de IA con frontend (React + Vite) y backend (FastAPI).
+
+Características
+- UI oscura, responsive y moderna
+- Registro / Login (JWT)
+- Chat de IA con historial y memoria
+- Herramientas para generar/explicar/corregir código (endpoints placeholder)
+- Preparado para deploy y dominio propio
+
+Requisitos
+- Python 3.10+
+- Node 16/18+
+- Docker (opcional)
+
+Instalación local (sin Docker)
+1. Backend
+   - cd backend
+   - python -m venv .venv
+   - source .venv/bin/activate
+   - pip install -r ../requirements.txt
+   - cp .env.example .env  # editar variables (SECRET_KEY, OPENAI_API_KEY opcional)
+   - uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+2. Frontend
+   - cd frontend
+   - npm install
+   - npm run dev  # por defecto en http://localhost:5173
+
+Con Docker (completo)
+- docker-compose up --build
+
+Deploy
+- Subir repositorio a GitHub
+- Deploy frontend en Vercel / Netlify
+- Deploy backend en Render / Railway / Fly (asegura variables de entorno y HTTPS)
+
+Seguridad y producción
+- Cambia SECRET_KEY a un valor seguro
+- Usa PostgreSQL o similar en producción
+- Habilita HTTPS
+- Mantén claves en variables de entorno / secretos
+EOF
+
+############################
+# requirements.txt
+############################
+cat > "${ROOT_DIR}/requirements.txt" <<'EOF'
+fastapi
+uvicorn[standard]
+sqlalchemy
+databases
+alembic
+pydantic
+passlib[bcrypt]
+python-jose[cryptography]
+python-dotenv
+requests
+python-multipart
+email-validator
+aiohttp
+aiosqlite
+EOF
+
+############################
+# docker-compose.yml
+############################
+cat > "${ROOT_DIR}/docker-compose.yml" <<'EOF'
+version: "3.8"
+services:
+  backend:
+    build: ./backend
+    volumes:
+      - ./backend/app:/app/app
+    env_file:
+      - ./backend/.env.example
+    ports:
+      - "8000:8000"
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "5173:5173"
+EOF
+
+############################
+# backend/Dockerfile
+############################
+cat > "${ROOT_DIR}/backend/Dockerfile" <<'EOF'
+FROM python:3.11-slim
+WORKDIR /app
+COPY ../requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+COPY ./app /app/app
+WORKDIR /app
+ENV PYTHONPATH=/app
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+EOF
+
+############################
+# backend/.env.example
+############################
+cat > "${ROOT_DIR}/backend/.env.example" <<'EOF'
+# Copy to .env and edit
+SECRET_KEY=devai_super_secret_change_me
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=43200
+DATABASE_URL=sqlite+aiosqlite:///./devai.db
+OPENAI_API_KEY=   # opcional, si quieres usar OpenAI completions
+FRONTEND_URL=http://localhost:5173
+USE_GPT4=0
+EOF
+
+############################
+# backend/app/database.py
+############################
+cat > "${ROOT_DIR}/backend/app/database.py" <<'EOF'
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker, declarative_base
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./devai.db")
+
+engine: AsyncEngine = create_async_engine(DATABASE_URL, echo=False, future=True)
+AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+
+Base = declarative_base()
+
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        yield session
+EOF
+
+############################
+# backend/app/models.py
+############################
+cat > "${ROOT_DIR}/backend/app/models.py" <<'EOF'
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+from .database import Base
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    full_name = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    chats = relationship("Chat", back_populates="owner")
+
+class Chat(Base):
+    __tablename__ = "chats"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, default="Nueva conversación")
+    user_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    owner = relationship("User", back_populates="chats")
+    messages = relationship("Message", back_populates="chat", cascade="all, delete")
+
+class Message(Base):
+    __tablename__ = "messages"
+    id = Column(Integer, primary_key=True, index=True)
+    chat_id = Column(Integer, ForeignKey("chats.id"))
+    role = Column(String)  # user / assistant / system
+    content = Column(Text)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    chat = relationship("Chat", back_populates="messages")
+
+class Memory(Base):
+    __tablename__ = "memories"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    key = Column(String, index=True)
+    value = Column(Text)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+EOF
+
+############################
+# backend/app/schemas.py
+############################
+cat > "${ROOT_DIR}/backend/app/schemas.py" <<'EOF'
+from pydantic import BaseModel, EmailStr
+from typing import List, Optional
+from datetime import datetime
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    full_name: Optional[str] = None
+
+class UserOut(BaseModel):
+    id: int
+    email: EmailStr
+    full_name: Optional[str]
+    created_at: Optional[datetime]
+
+    class Config:
+        orm_mode = True
+
+class MessageCreate(BaseModel):
+    role: str
+    content: str
+
+class ChatCreate(BaseModel):
+    title: Optional[str] = "Nueva conversación"
+    messages: Optional[List[MessageCreate]] = []
+
+class MessageOut(BaseModel):
+    id: int
+    role: str
+    content: str
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class ChatOut(BaseModel):
+    id: int
+    title: str
+    user_id: int
+    messages: List[MessageOut] = []
+
+    class Config:
+        orm_mode = True
+EOF
+
+############################
+# backend/app/auth.py
+############################
+cat > "${ROOT_DIR}/backend/app/auth.py" <<'EOF'
+import os
+from datetime import datetime, timedelta
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from dotenv import load_dotenv
+
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY", "devai_super_secret_change_me")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "43200"))
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+def decode_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError:
+        return None
+EOF
+
+############################
+# backend/app/crud.py
+############################
+cat > "${ROOT_DIR}/backend/app/crud.py" <<'EOF'
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from . import models, auth
+
+async def get_user_by_email(db: AsyncSession, email: str):
+    result = await db.execute(select(models.User).where(models.User.email == email))
+    return result.scalar_one_or_none()
+
+async def create_user(db: AsyncSession, email: str, password: str, full_name: str | None):
+    hashed = auth.get_password_hash(password)
+    user = models.User(email=email, hashed_password=hashed, full_name=full_name)
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+async def create_chat(db: AsyncSession, user_id: int, title: str):
+    chat = models.Chat(user_id=user_id, title=title)
+    db.add(chat)
+    await db.commit()
+    await db.refresh(chat)
+    return chat
+
+async def add_message(db: AsyncSession, chat_id: int, role: str, content: str):
+    msg = models.Message(chat_id=chat_id, role=role, content=content)
+    db.add(msg)
+    await db.commit()
+    await db.refresh(msg)
+    return msg
+
+async def get_chats_for_user(db: AsyncSession, user_id: int):
+    result = await db.execute(select(models.Chat).where(models.Chat.user_id == user_id).order_by(models.Chat.created_at.desc()))
+    return result.scalars().all()
+
+async def get_chat_with_messages(db: AsyncSession, chat_id: int):
+    result = await db.execute(select(models.Chat).where(models.Chat.id == chat_id))
+    chat = result.scalar_one_or_none()
+    if chat:
+        # eager load messages via relationship when accessed
+        return chat
+    return None
+EOF
+
+############################
+# backend/app/routers/auth.py
+############################
+cat > "${ROOT_DIR}/backend/app/routers/auth.py" <<'EOF'
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from .. import schemas, crud
+from ..database import get_db
+from ..auth import create_access_token, verify_password
+from fastapi.security import OAuth2PasswordRequestForm
+
+router = APIRouter(prefix="/auth", tags=["auth"])
+
+@router.post("/register", response_model=schemas.UserOut)
+async def register(user_in: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
+    existing = await crud.get_user_by_email(db, user_in.email)
+    if existing:
+        raise HTTPException(status_code=400, detail="Email ya registrado")
+    user = await crud.create_user(db, user_in.email, user_in.password, user_in.full_name)
+    return user
+
+@router.post("/token", response_model=schemas.Token)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    user = await crud.get_user_by_email(db, form_data.username)
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
+    access_token = create_access_token({"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
+EOF
+
+############################
+# backend/app/routers/user.py
+############################
+cat > "${ROOT_DIR}/backend/app/routers/user.py" <<'EOF'
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.ext.asyncio import AsyncSession
+from ..database import get_db
+from .. import crud, models, schemas
+from ..auth import decode_token
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+router = APIRouter(prefix="/users", tags=["users"])
+
+async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
+    payload = decode_token(token)
+    if not payload or "sub" not in payload:
+        raise HTTPException(status_code=401, detail="Token inválido")
+    email = payload["sub"]
+    user = await crud.get_user_by_email(db, email)
+    if not user:
+        raise HTTPException(status_code=401, detail="Usuario no encontrado")
+    return user
+
+@router.get("/me", response_model=schemas.UserOut)
+async def read_users_me(current_user: models.User = Depends(get_current_user)):
+    return current_user
+EOF
+
+############################
+# backend/app/routers/chat.py
+############################
+cat > "${ROOT_DIR}/backend/app/routers/chat.py" <<'EOF'
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List
+from ..database import get_db
+from .. import crud, schemas
+from ..auth import decode_token
+import os
+import requests
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+router = APIRouter(prefix="/chat", tags=["chat"])
+
+async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
+    payload = decode_token(token)
+    if not payload or "sub" not in payload:
+        raise HTTPException(status_code=401, detail="Token inválido")
+    email = payload["sub"]
+    user = await crud.get_user_by_email(db, email)
+    if not user:
+        raise HTTPException(status_code=401, detail="Usuario no encontrado")
+    return user
+
+@router.post("/create", response_model=schemas.ChatOut)
+async def create_chat_endpoint(chat_in: schemas.ChatCreate, db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
+    chat = await crud.create_chat(db, current_user.id, chat_in.title or "Nueva conversación")
+    # optionally add initial messages
+    for m in chat_in.messages or []:
+        await crud.add_message(db, chat.id, m.role, m.content)
+    # refresh chat
+    return await crud.get_chat_with_messages(db, chat.id)
+
+@router.get("/list", response_model=List[schemas.ChatOut])
+async def list_chats(db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
+    chats = await crud.get_chats_for_user(db, current_user.id)
+    return chats
+
+@router.post("/respond")
+async def respond(chat_id: int, message: schemas.MessageCreate, db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
+    # store user message
+    chat = await crud.get_chat_with_messages(db, chat_id)
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat no encontrado")
+    user_msg = await crud.add_message(db, chat_id, message.role, message.content)
+
+    # Call LLM provider if OPENAI_API_KEY provided; otherwise echo for demo
+    openai_key = os.getenv("OPENAI_API_KEY")
+    if openai_key:
+        headers = {"Authorization": f"Bearer {openai_key}", "Content-Type": "application/json"}
+        data = {
+            "model": "gpt-4o-mini" if os.getenv("USE_GPT4") else "gpt-3.5-turbo",
+            "messages": [{"role": "user", "content": message.content}],
+            "max_tokens": 800,
+            "temperature": 0.2
+        }
+        try:
+            resp = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data, timeout=30)
+            resp.raise_for_status()
+            resp_json = resp.json()
+            answer = resp_json["choices"][0]["message"]["content"]
+        except Exception as e:
+            answer = f"[ERROR llamando LLM: {e}]"
+    else:
+        # Simple echo fallback (so app works without API key)
+        answer = f"Echo: {message.content}"
+
+    assistant_msg = await crud.add_message(db, chat_id, "assistant", answer)
+    return {"assistant": assistant_msg.content, "assistant_id": assistant_msg.id}
+EOF
+
+############################
+# backend/app/main.py
+############################
+cat > "${ROOT_DIR}/backend/app/main.py" <<'EOF'
+import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from .database import engine, Base
+from .routers import auth, user, chat
+import asyncio
+
+app = FastAPI(title="DEVAI API")
+
+# CORS (adjust origins in production)
+origins = [os.getenv("FRONTEND_URL", "http://localhost:5173")]
+app.add_middleware(CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+
+app.include_router(auth.router)
+app.include_router(user.router)
+app.include_router(chat.router)
+
+@app.on_event("startup")
+async def on_startup():
+    # create DB tables
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+@app.get("/")
+async def root():
+    return {"message": "DEVAI backend up"}
+EOF
+
+############################
+# assets/logo.svg
+############################
+cat > "${ROOT_DIR}/assets/logo.svg" <<'EOF'
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="80" viewBox="0 0 240 80">
+  <rect width="240" height="80" rx="12" fill="#0f1724"/>
+  <text x="32" y="52" font-family="Segoe UI, Roboto, Arial" font-size="36" fill="#00d4ff" font-weight="700">DEVAI</text>
+</svg>
+EOF
+
+############################
+# frontend/Dockerfile
+############################
+cat > "${ROOT_DIR}/frontend/Dockerfile" <<'EOF'
+FROM node:18-alpine
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci --silent || npm install --silent
+COPY . .
+CMD ["npm", "run", "dev", "--", "--host"]
+EOF
+
+############################
+# frontend/package.json
+############################
+cat > "${ROOT_DIR}/frontend/package.json" <<'EOF'
 {
-  "name": "devai",
-  "version": "1.0.0",
+  "name": "devai-frontend",
+  "version": "0.1.0",
   "private": true,
-  "description": "DEVAI - Professional AI Development Platform",
-  "author": "DEVAI",
-  "license": "MIT",
-  "type": "module",
-  "engines": {
-    "node": ">=22.0.0"
-  },
   "scripts": {
-    "dev": "next dev",
-    "build": "prisma generate && next build",
-    "start": "next start",
-    "lint": "next lint",
-    "type-check": "tsc --noEmit",
-    "format": "prettier --write .",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts",
-    "server": "tsx server/index.ts",
-    "server:dev": "tsx watch server/index.ts",
-    "dev:full": "concurrently \"npm run server:dev\" \"npm run dev\""
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@prisma/client": "^6.0.0",
-    "axios": "^1.11.0",
-    "bcrypt": "^6.0.0",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.0",
-    "express": "^5.1.0",
-    "framer-motion": "^12.23.12",
-    "jsonwebtoken": "^9.0.2",
-    "lucide-react": "^0.540.0",
-    "next": "^15.5.2",
-    "pg": "^8.16.3",
-    "prisma": "^6.0.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-hook-form": "^7.62.0",
-    "tailwind-merge": "^3.3.1",
-    "zod": "^4.0.17"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.1",
-    "@tailwindcss/postcss": "^4.1.12",
-    "@types/bcrypt": "^6.0.0",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^24.3.0",
-    "@types/pg": "^8.15.5",
-    "@types/react": "^19.1.10",
-    "@types/react-dom": "^19.1.7",
-    "autoprefixer": "^10.4.21",
-    "concurrently": "^9.2.0",
-    "eslint": "^9.34.0",
-    "eslint-config-next": "^15.5.2",
-    "postcss": "^8.5.6",
-    "prettier": "^3.6.2",
-    "tailwindcss": "^4.1.12",
-    "tsx": "^4.20.5",
-    "typescript": "^5.9.2"
+    "vite": "^5.0.0"
   }
 }
-{
-  "compilerOptions": {
-    "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": false,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@/components/*": [
-        "./src/components/*"
-      ],
-      "@/lib/*": [
-        "./src/lib/*"
-      ],
-      "@/hooks/*": [
-        "./src/hooks/*"
-      ],
-      "@/types/*": [
-        "./src/types/*"
-      ]
-    }
-  },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    "server/**/*.ts",
-    "prisma/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
-}
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  reactStrictMode: true,
-
-  experimental: {
-    typedRoutes: true
-  },
-
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**"
-      }
-    ]
-  },
-
-  typescript: {
-    ignoreBuildErrors: false
-  },
-
-  eslint: {
-    ignoreDuringBuilds: false
-  },
-
-  poweredByHeader: false,
-
-  compress: true,
-
-  async headers() {
-    return [
-      {
-        source: "/(.*)",
-        headers: [
-          {
-            key: "X-Frame-Options",
-            value: "SAMEORIGIN"
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff"
-          },
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin"
-          }
-        ]
-      }
-    ];
-  }
-};
-
-export default nextConfig;
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname
-});
-
-const eslintConfig = [
-  ...compat.extends(
-    "next/core-web-vitals",
-    "next/typescript"
-  )
-];
-
-export default eslintConfig;
-const config = {
-  plugins: {
-    "@tailwindcss/postcss": {}
-  }
-};
-
-export default config;
-import type { Config } from "tailwindcss";
-
-const config: Config = {
-  content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}"
-  ],
-
-  theme: {
-    extend: {
-      colors: {
-        devai: {
-          background: "#050505",
-          surface: "#0f0f0f",
-          card: "#151515",
-          primary: "#7c3aed",
-          secondary: "#2563eb",
-          accent: "#06b6d4",
-          success: "#22c55e",
-          danger: "#ef4444"
-        }
-      },
-
-      borderRadius: {
-        xl: "1rem",
-        "2xl": "1.5rem",
-        "3xl": "2rem"
-      },
-
-      boxShadow: {
-        glow: "0 0 40px rgba(124, 58, 237, 0.35)",
-        card: "0 10px 40px rgba(0, 0, 0, 0.45)"
-      },
-
-      animation: {
-        float: "float 6s ease-in-out infinite",
-        pulseSlow: "pulse 4s infinite"
-      },
-
-      keyframes: {
-        float: {
-          "0%, 100%": {
-            transform: "translateY(0)"
-          },
-          "50%": {
-            transform: "translateY(-10px)"
-          }
-        }
-      }
-    }
-  },
-
-  plugins: []
-};
-
-export default config;
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap"
-});
-
-export const metadata: Metadata = {
-  title: "DEVAI",
-  description:
-    "DEVAI - Professional AI development platform for developers.",
-  keywords: [
-    "DEVAI",
-    "Artificial Intelligence",
-    "Developer Tools",
-    "Programming",
-    "AI Assistant"
-  ],
-  authors: [
-    {
-      name: "DEVAI"
-    }
-  ],
-  robots: {
-    index: true,
-    follow: true
-  }
-};
-
-export default function RootLayout({
-  children
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${inter.variable} antialiased bg-devai-background text-white`}
-      >
-        {children}
-      </body>
-    </html>
-  );
-}
-    @import "tailwindcss";
-
-:root {
-  --background: #050505;
-  --foreground: #ffffff;
-
-  --devai-primary: #7c3aed;
-  --devai-secondary: #2563eb;
-  --devai-accent: #06b6d4;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  min-height: 100vh;
-  background:
-    radial-gradient(
-      circle at top,
-      rgba(124, 58, 237, 0.15),
-      transparent 35%
-    ),
-    var(--background);
-
-  color: var(--foreground);
-  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
-
-  overflow-x: hidden;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button,
-input,
-textarea,
-select {
-  font-family: inherit;
-}
-
-::selection {
-  background: rgba(124, 58, 237, 0.5);
-  color: white;
-}
-
-/* Scrollbar profesional */
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #050505;
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(
-    180deg,
-    #7c3aed,
-    #2563eb
-  );
-
-  border-radius: 999px;
-}
-
-/* Utilidades DEVAI */
-
-.glass {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.glow {
-  box-shadow:
-    0 0 30px rgba(124, 58, 237, 0.35);
-}
-
-.card-hover {
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.card-hover:hover {
-  transform: translateY(-6px);
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.45);
-}
-
-/* Animación de entrada */
-
-.fade-in {
-  animation: fadeIn 0.6s ease forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Fondo animado */
-
-.background-grid {
-  background-image:
-    linear-gradient(
-      rgba(255,255,255,0.04) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(255,255,255,0.04) 1px,
-      transparent 1px
-    );
-
-  background-size: 40px 40px;
-}
-    import { motion } from "framer-motion";
-
-export default function HomePage() {
-  return (
-    <main className="min-h-screen relative overflow-hidden">
-      <div className="absolute inset-0 background-grid opacity-30" />
-
-      <section className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 text-center">
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 30
-          }}
-          animate={{
-            opacity: 1,
-            y: 0
-          }}
-          transition={{
-            duration: 0.8
-          }}
-          className="max-w-4xl"
-        >
-          <div className="mb-6 inline-flex rounded-full border border-white/10 bg-white/5 px-5 py-2 text-sm text-gray-300 backdrop-blur-xl">
-            DEVAI • AI Development Platform
-          </div>
-
-          <h1 className="bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-6xl font-bold tracking-tight text-transparent md:text-8xl">
-            Build the future
-            <br />
-            with AI
-          </h1>
-
-          <p className="mx-auto mt-8 max-w-2xl text-lg text-gray-400 md:text-xl">
-            DEVAI is a professional artificial intelligence platform
-            designed for developers, creators and teams building
-            next-generation software.
-          </p>
-
-          <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
-            <button
-              className="
-                rounded-2xl
-                bg-gradient-to-r
-                from-purple-600
-                to-blue-600
-                px-8
-                py-4
-                font-semibold
-                text-white
-                shadow-glow
-                transition
-                hover:scale-105
-              "
-            >
-              Start Building
-            </button>
-
-            <button
-              className="
-                rounded-2xl
-                border
-                border-white/10
-                bg-white/5
-                px-8
-                py-4
-                font-semibold
-                text-white
-                backdrop-blur-xl
-                transition
-                hover:bg-white/10
-              "
-            >
-              Explore DEVAI
-            </button>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{
-            opacity: 0,
-            scale: 0.9
-          }}
-          animate={{
-            opacity: 1,
-            scale: 1
-          }}
-          transition={{
-            delay: 0.4,
-            duration: 0.8
-          }}
-          className="
-            mt-20
-            grid
-            w-full
-            max-w-5xl
-            gap-6
-            md:grid-cols-3
-          "
-        >
-          <FeatureCard
-            title="AI Assistant"
-            description="Generate, analyze and improve code using advanced AI."
-          />
-
-          <FeatureCard
-            title="Developer Tools"
-            description="Professional tools for modern software creation."
-          />
-
-          <FeatureCard
-            title="Cloud Ready"
-            description="Built for GitHub, Vercel and scalable production."
-          />
-        </motion.div>
-      </section>
-    </main>
-  );
-}
-
-function FeatureCard({
-  title,
-  description
-}: {
-  title: string;
-  description: string;
-}) {
-  return (
-    <motion.div
-      whileHover={{
-        y: -8
-      }}
-      className="
-        rounded-3xl
-        border
-        border-white/10
-        bg-white/5
-        p-6
-        text-left
-        backdrop-blur-xl
-      "
-    >
-      <h2 className="text-xl font-semibold text-white">
-        {title}
-      </h2>
-
-      <p className="mt-3 text-gray-400">
-        {description}
-      </p>
-    </motion.div>
-  );
-}
-              import { motion } from "framer-motion";
-
-export default function Loading() {
-  return (
-    <main className="flex min-h-screen items-center justify-center bg-devai-background">
-      <motion.div
-        initial={{
-          opacity: 0,
-          scale: 0.8
-        }}
-        animate={{
-          opacity: 1,
-          scale: 1
-        }}
-        transition={{
-          duration: 0.5
-        }}
-        className="flex flex-col items-center gap-6"
-      >
-        <motion.div
-          animate={{
-            rotate: 360
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 1.5,
-            ease: "linear"
-          }}
-          className="
-            h-16
-            w-16
-            rounded-full
-            border-4
-            border-white/10
-            border-t-purple-500
-          "
-        />
-
-        <div className="text-center">
-          <h1
-            className="
-              bg-gradient-to-r
-              from-purple-400
-              via-blue-400
-              to-cyan-400
-              bg-clip-text
-              text-3xl
-              font-bold
-              text-transparent
-            "
-          >
-            DEVAI
-          </h1>
-
-          <p className="mt-2 text-sm text-gray-400">
-            Loading artificial intelligence system...
-          </p>
-        </div>
-      </motion.div>
-    </main>
-  );
-}
-              import Link from "next/link";
-import { motion } from "framer-motion";
-
-export default function NotFound() {
-  return (
-    <main className="flex min-h-screen items-center justify-center bg-devai-background px-6">
-      <motion.section
-        initial={{
-          opacity: 0,
-          y: 30
-        }}
-        animate={{
-          opacity: 1,
-          y: 0
-        }}
-        transition={{
-          duration: 0.6
-        }}
-        className="
-          max-w-xl
-          rounded-3xl
-          border
-          border-white/10
-          bg-white/5
-          p-10
-          text-center
-          backdrop-blur-xl
-        "
-      >
-        <h1
-          className="
-            bg-gradient-to-r
-            from-purple-400
-            via-blue-400
-            to-cyan-400
-            bg-clip-text
-            text-7xl
-            font-black
-            text-transparent
-          "
-        >
-          404
-        </h1>
-
-        <h2 className="mt-6 text-2xl font-bold text-white">
-          Page not found
-        </h2>
-
-        <p className="mt-4 text-gray-400">
-          The DEVAI route you are looking for does not exist or
-          has been moved.
-        </p>
-
-        <Link
-          href="/"
-          className="
-            mt-8
-            inline-flex
-            rounded-2xl
-            bg-gradient-to-r
-            from-purple-600
-            to-blue-600
-            px-8
-            py-3
-            font-semibold
-            text-white
-            transition
-            hover:scale-105
-          "
-        >
-          Return Home
-        </Link>
-      </motion.section>
-    </main>
-  );
-}
-              import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { motion } from "framer-motion";
-
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children: ReactNode;
-  variant?: "primary" | "secondary" | "danger" | "ghost";
-  loading?: boolean;
-}
-
-export default function Button({
-  children,
-  variant = "primary",
-  loading = false,
-  className = "",
-  disabled,
-  ...props
-}: ButtonProps) {
-  const variants = {
-    primary:
-      "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-glow hover:opacity-90",
-
-    secondary:
-      "bg-white/10 border border-white/10 text-white hover:bg-white/20",
-
-    danger:
-      "bg-red-600 text-white hover:bg-red-500",
-
-    ghost:
-      "bg-transparent text-gray-300 hover:bg-white/10"
+EOF
+
+############################
+# frontend/index.html
+############################
+cat > "${ROOT_DIR}/frontend/index.html" <<'EOF'
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DEVAI</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+EOF
+
+############################
+# frontend/src/main.jsx
+############################
+cat > "${ROOT_DIR}/frontend/src/main.jsx" <<'EOF'
+import React from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+import "./styles.css";
+
+createRoot(document.getElementById("root")).render(<App />);
+EOF
+
+############################
+# frontend/src/App.jsx
+############################
+cat > "${ROOT_DIR}/frontend/src/App.jsx" <<'EOF'
+import React, { useState } from "react";
+import Login from "./components/Login";
+import Register from "./components/Register";
+import Chat from "./components/Chat";
+import Profile from "./components/Profile";
+import logo from "/../assets/logo.svg";
+
+export default function App() {
+  const [token, setToken] = useState(localStorage.getItem("devai_token"));
+  const [view, setView] = useState("home");
+
+  const onLogin = (t) => {
+    localStorage.setItem("devai_token", t);
+    setToken(t);
+    setView("chat");
+  };
+
+  const logout = () => {
+    localStorage.removeItem("devai_token");
+    setToken(null);
+    setView("home");
   };
 
   return (
-    <motion.button
-      whileHover={{
-        scale: disabled || loading ? 1 : 1.03
-      }}
-      whileTap={{
-        scale: disabled || loading ? 1 : 0.97
-      }}
-      disabled={disabled || loading}
-      className={`
-        flex
-        items-center
-        justify-center
-        gap-2
-        rounded-2xl
-        px-6
-        py-3
-        font-semibold
-        transition
-        disabled:cursor-not-allowed
-        disabled:opacity-50
-        ${variants[variant]}
-        ${className}
-      `}
-      {...props}
-    >
-      {loading ? (
-        <>
-          <span
-            className="
-              h-5
-              w-5
-              animate-spin
-              rounded-full
-              border-2
-              border-white/30
-              border-t-white
-            "
-          />
-
-          Loading...
-        </>
-      ) : (
-        children
-      )}
-    </motion.button>
-  );
-}
-              import type { ReactNode } from "react";
-import { motion } from "framer-motion";
-
-interface CardProps {
-  children: ReactNode;
-  title?: string;
-  description?: string;
-  className?: string;
-  hover?: boolean;
-}
-
-export default function Card({
-  children,
-  title,
-  description,
-  className = "",
-  hover = true
-}: CardProps) {
-  return (
-    <motion.div
-      whileHover={
-        hover
-          ? {
-              y: -6,
-              scale: 1.01
-            }
-          : undefined
-      }
-      transition={{
-        duration: 0.25
-      }}
-      className={`
-        rounded-3xl
-        border
-        border-white/10
-        bg-white/5
-        p-6
-        backdrop-blur-xl
-        shadow-card
-        ${className}
-      `}
-    >
-      {title && (
-        <h2 className="text-xl font-bold text-white">
-          {title}
-        </h2>
-      )}
-
-      {description && (
-        <p className="mt-2 text-sm text-gray-400">
-          {description}
-        </p>
-      )}
-
-      <div className={title || description ? "mt-5" : ""}>
-        {children}
-      </div>
-    </motion.div>
-  );
-}
-              import type { ReactNode } from "react";
-import { motion } from "framer-motion";
-
-interface BadgeProps {
-  children: ReactNode;
-  variant?: "primary" | "success" | "warning" | "danger" | "neutral";
-  className?: string;
-}
-
-export default function Badge({
-  children,
-  variant = "primary",
-  className = ""
-}: BadgeProps) {
-  const variants = {
-    primary:
-      "bg-purple-500/20 text-purple-300 border-purple-500/30",
-
-    success:
-      "bg-green-500/20 text-green-300 border-green-500/30",
-
-    warning:
-      "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
-
-    danger:
-      "bg-red-500/20 text-red-300 border-red-500/30",
-
-    neutral:
-      "bg-white/10 text-gray-300 border-white/10"
-  };
-
-  return (
-    <motion.span
-      initial={{
-        opacity: 0,
-        scale: 0.8
-      }}
-      animate={{
-        opacity: 1,
-        scale: 1
-      }}
-      transition={{
-        duration: 0.3
-      }}
-      className={`
-        inline-flex
-        items-center
-        rounded-full
-        border
-        px-3
-        py-1
-        text-xs
-        font-semibold
-        backdrop-blur-xl
-        ${variants[variant]}
-        ${className}
-      `}
-    >
-      {children}
-    </motion.span>
-  );
-}
-              "use client";
-
-import type { ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
-
-interface ModalProps {
-  open: boolean;
-  onClose: () => void;
-  title?: string;
-  children: ReactNode;
-  size?: "sm" | "md" | "lg";
-}
-
-export default function Modal({
-  open,
-  onClose,
-  title,
-  children,
-  size = "md"
-}: ModalProps) {
-  const sizes = {
-    sm: "max-w-md",
-    md: "max-w-xl",
-    lg: "max-w-3xl"
-  };
-
-  return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{
-            opacity: 0
-          }}
-          animate={{
-            opacity: 1
-          }}
-          exit={{
-            opacity: 0
-          }}
-          className="
-            fixed
-            inset-0
-            z-50
-            flex
-            items-center
-            justify-center
-            bg-black/70
-            px-6
-            backdrop-blur-md
-          "
-          onClick={onClose}
-        >
-          <motion.div
-            initial={{
-              opacity: 0,
-              scale: 0.9,
-              y: 20
-            }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-              y: 0
-            }}
-            exit={{
-              opacity: 0,
-              scale: 0.9,
-              y: 20
-            }}
-            transition={{
-              duration: 0.25
-            }}
-            onClick={(event) =>
-              event.stopPropagation()
-            }
-            className={`
-              w-full
-              rounded-3xl
-              border
-              border-white/10
-              bg-[#0f0f0f]
-              p-6
-              shadow-card
-              ${sizes[size]}
-            `}
-          >
-            <div className="flex items-center justify-between">
-              {title && (
-                <h2 className="text-xl font-bold text-white">
-                  {title}
-                </h2>
-              )}
-
-              <button
-                onClick={onClose}
-                className="
-                  rounded-xl
-                  p-2
-                  text-gray-400
-                  transition
-                  hover:bg-white/10
-                  hover:text-white
-                "
-                aria-label="Close modal"
-              >
-                <X size={20} />
-              </button>
+    <div className="app">
+      <header className="topbar">
+        <img src={logo} alt="DEVAI" className="logo" />
+        <nav>
+          <button onClick={() => setView("chat")}>Chat</button>
+          <button onClick={() => setView("profile")}>Perfil</button>
+          {!token ? <button onClick={() => setView("login")}>Login</button> : <button onClick={logout}>Logout</button>}
+        </nav>
+      </header>
+      <main>
+        {!token && view === "home" && (
+          <section className="hero">
+            <h1>DEVAI — Tu asistente de desarrollo potenciado por IA</h1>
+            <p>Regístrate o inicia sesión para empezar a chatear con la IA.</p>
+            <div className="cta">
+              <button onClick={() => setView("register")}>Regístrate</button>
+              <button onClick={() => setView("login")}>Iniciar sesión</button>
             </div>
-
-            <div className="mt-6">
-              {children}
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-              "use client";
-
-import Link from "next/link";
-import { motion } from "framer-motion";
-import {
-  Sparkles,
-  Github,
-  Menu,
-  X
-} from "lucide-react";
-import { useState } from "react";
-
-export default function Navbar() {
-  const [open, setOpen] = useState(false);
-
-  const links = [
-    {
-      name: "Home",
-      href: "/"
-    },
-    {
-      name: "AI Studio",
-      href: "/studio"
-    },
-    {
-      name: "Projects",
-      href: "/projects"
-    },
-    {
-      name: "Documentation",
-      href: "/docs"
-    }
-  ];
-
-  return (
-    <header
-      className="
-        fixed
-        top-0
-        z-40
-        w-full
-        border-b
-        border-white/10
-        bg-black/40
-        backdrop-blur-xl
-      "
-    >
-      <nav
-        className="
-          mx-auto
-          flex
-          h-20
-          max-w-7xl
-          items-center
-          justify-between
-          px-6
-        "
-      >
-        <Link
-          href="/"
-          className="
-            flex
-            items-center
-            gap-3
-          "
-        >
-          <motion.div
-            whileHover={{
-              rotate: 15
-            }}
-            className="
-              flex
-              h-10
-              w-10
-              items-center
-              justify-center
-              rounded-2xl
-              bg-gradient-to-br
-              from-purple-600
-              to-blue-600
-              shadow-glow
-            "
-          >
-            <Sparkles size={22} />
-          </motion.div>
-
-          <span
-            className="
-              bg-gradient-to-r
-              from-purple-400
-              to-cyan-400
-              bg-clip-text
-              text-2xl
-              font-black
-              text-transparent
-            "
-          >
-            DEVAI
-          </span>
-        </Link>
-
-
-        <div
-          className="
-            hidden
-            items-center
-            gap-8
-            md:flex
-          "
-        >
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="
-                text-sm
-                text-gray-400
-                transition
-                hover:text-white
-              "
-            >
-              {link.name}
-            </Link>
-          ))}
-        </div>
-
-
-        <div
-          className="
-            hidden
-            items-center
-            gap-4
-            md:flex
-          "
-        >
-          <Link
-            href="https://github.com"
-            target="_blank"
-            className="
-              rounded-xl
-              border
-              border-white/10
-              p-2
-              text-gray-400
-              transition
-              hover:bg-white/10
-              hover:text-white
-            "
-          >
-            <Github size={20} />
-          </Link>
-
-          <Link
-            href="/login"
-            className="
-              rounded-2xl
-              bg-gradient-to-r
-              from-purple-600
-              to-blue-600
-              px-5
-              py-2.5
-              text-sm
-              font-semibold
-              text-white
-              transition
-              hover:scale-105
-            "
-          >
-            Get Started
-          </Link>
-        </div>
-
-
-        <button
-          onClick={() => setOpen(!open)}
-          className="
-            rounded-xl
-            p-2
-            text-gray-300
-            md:hidden
-          "
-        >
-          {open ? (
-            <X />
-          ) : (
-            <Menu />
-          )}
-        </button>
-      </nav>
-
-
-      {open && (
-        <motion.div
-          initial={{
-            opacity: 0,
-            height: 0
-          }}
-          animate={{
-            opacity: 1,
-            height: "auto"
-          }}
-          className="
-            border-t
-            border-white/10
-            bg-black/80
-            px-6
-            py-6
-            md:hidden
-          "
-        >
-          <div className="flex flex-col gap-5">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="
-                  text-gray-300
-                  hover:text-white
-                "
-              >
-                {link.name}
-              </Link>
-            ))}
-          </div>
-        </motion.div>
-      )}
-    </header>
-  );
-}
-                "use client";
-
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import {
-  Home,
-  Code2,
-  FolderKanban,
-  BrainCircuit,
-  Settings,
-  Database,
-  Users,
-  BarChart3,
-  Shield
-} from "lucide-react";
-import { motion } from "framer-motion";
-
-const menuItems = [
-  {
-    name: "Dashboard",
-    href: "/dashboard",
-    icon: Home
-  },
-  {
-    name: "AI Studio",
-    href: "/studio",
-    icon: BrainCircuit
-  },
-  {
-    name: "Code Generator",
-    href: "/code",
-    icon: Code2
-  },
-  {
-    name: "Projects",
-    href: "/projects",
-    icon: FolderKanban
-  },
-  {
-    name: "Database",
-    href: "/database",
-    icon: Database
-  },
-  {
-    name: "Analytics",
-    href: "/analytics",
-    icon: BarChart3
-  },
-  {
-    name: "Team",
-    href: "/team",
-    icon: Users
-  },
-  {
-    name: "Security",
-    href: "/security",
-    icon: Shield
-  },
-  {
-    name: "Settings",
-    href: "/settings",
-    icon: Settings
-  }
-];
-
-export default function Sidebar() {
-  const pathname = usePathname();
-
-  return (
-    <aside
-      className="
-        fixed
-        left-0
-        top-0
-        hidden
-        h-screen
-        w-72
-        border-r
-        border-white/10
-        bg-black/40
-        px-5
-        py-8
-        backdrop-blur-xl
-        lg:block
-      "
-    >
-      <div className="mb-10">
-        <h2
-          className="
-            bg-gradient-to-r
-            from-purple-400
-            to-cyan-400
-            bg-clip-text
-            text-2xl
-            font-black
-            text-transparent
-          "
-        >
-          DEVAI
-        </h2>
-
-        <p className="mt-2 text-sm text-gray-500">
-          Developer Intelligence Platform
-        </p>
-      </div>
-
-
-      <nav className="space-y-2">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-
-          const active =
-            pathname === item.href;
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-            >
-              <motion.div
-                whileHover={{
-                  x: 5
-                }}
-                className={`
-                  flex
-                  items-center
-                  gap-4
-                  rounded-2xl
-                  px-4
-                  py-3
-                  transition
-                  ${
-                    active
-                      ? "bg-purple-500/20 text-purple-300"
-                      : "text-gray-400 hover:bg-white/5 hover:text-white"
-                  }
-                `}
-              >
-                <Icon size={20} />
-
-                <span className="text-sm font-medium">
-                  {item.name}
-                </span>
-              </motion.div>
-            </Link>
-          );
-        })}
-      </nav>
-
-
-      <div
-        className="
-          absolute
-          bottom-8
-          left-5
-          right-5
-          rounded-3xl
-          border
-          border-white/10
-          bg-white/5
-          p-5
-        "
-      >
-        <p className="text-sm font-semibold text-white">
-          DEVAI Pro
-        </p>
-
-        <p className="mt-2 text-xs text-gray-400">
-          Unlock advanced AI developer tools.
-        </p>
-
-        <button
-          className="
-            mt-4
-            w-full
-            rounded-xl
-            bg-gradient-to-r
-            from-purple-600
-            to-blue-600
-            py-2
-            text-sm
-            font-semibold
-            text-white
-          "
-        >
-          Upgrade
-        </button>
-      </div>
-    </aside>
-  );
-}
-                "use client";
-
-import type { ReactNode } from "react";
-import Sidebar from "./Sidebar";
-import Navbar from "./Navbar";
-import { motion } from "framer-motion";
-
-interface DashboardLayoutProps {
-  children: ReactNode;
-}
-
-export default function DashboardLayout({
-  children
-}: DashboardLayoutProps) {
-  return (
-    <div className="min-h-screen bg-devai-background text-white">
-      <Sidebar />
-
-      <Navbar />
-
-      <motion.main
-        initial={{
-          opacity: 0
-        }}
-        animate={{
-          opacity: 1
-        }}
-        transition={{
-          duration: 0.5
-        }}
-        className="
-          min-h-screen
-          pt-24
-          lg:ml-72
-        "
-      >
-        <div
-          className="
-            mx-auto
-            max-w-7xl
-            px-6
-            pb-10
-          "
-        >
-          {children}
-        </div>
-      </motion.main>
+          </section>
+        )}
+        {view === "login" && <Login onLogin={onLogin} />}
+        {view === "register" && <Register onLogin={onLogin} />}
+        {view === "chat" && <Chat token={token} />}
+        {view === "profile" && <Profile token={token} />}
+      </main>
+      <footer className="footer">© DEVAI</footer>
     </div>
   );
 }
+EOF
+
+############################
+# frontend/src/styles.css
+############################
+cat > "${ROOT_DIR}/frontend/src/styles.css" <<'EOF'
+:root{
+  --bg:#0b1020;
+  --panel:#0f1724;
+  --muted:#9aa4b2;
+  --accent:#00d4ff;
+  --glass: rgba(255,255,255,0.03);
+}
+*{box-sizing:border-box}
+body,html,#root{height:100%;margin:0;background:linear-gradient(180deg,#061025 0%, #071028 100%);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto, "Helvetica Neue", Arial;}
+.app{display:flex;flex-direction:column;min-height:100vh;color:#dbe7f5}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:transparent}
+.logo{height:42px;filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6))}
+nav button{background:transparent;border:1px solid transparent;color:var(--muted);padding:8px 12px;margin-left:8px;border-radius:8px;cursor:pointer}
+nav button:hover{color:white;border-color:rgba(255,255,255,0.04)}
+main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:28px}
+.hero{max-width:900px;padding:36px;background:var(--panel);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.6)}
+.hero h1{margin:0;color:var(--accent);font-size:28px}
+.hero p{color:var(--muted)}
+.cta button{margin-right:12px;padding:10px 14px;border-radius:8px;background:linear-gradient(90deg,var(--accent),#7ee7ff);border:none;color:#042634;font-weight:700;cursor:pointer}
+.footer{text-align:center;padding:16px;color:var(--muted);font-size:14px}
+
+/* Chat layout */
+.chat-container{width:100%;max-width:900px;background:var(--panel);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.messages{height:60vh;overflow:auto;padding:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border-radius:8px}
+.message{margin-bottom:12px;padding:10px;border-radius:8px;max-width:80%}
+.message.user{background:linear-gradient(90deg, rgba(0,212,255,0.06), rgba(0,212,255,0.02));align-self:flex-end}
+.message.assistant{background:var(--glass);align-self:flex-start}
+.input-row{display:flex;gap:8px}
+.input-row textarea{flex:1;border-radius:8px;padding:10px;background:#06101a;border:1px solid rgba(255,255,255,0.03);color:#dbe7f5}
+.input-row button{padding:10px 14px;border-radius:8px;background:var(--accent);border:none;color:#032023;cursor:pointer}
+@media(max-width:720px){
+  .hero{padding:18px}
+  .messages{height:50vh}
+}
+EOF
+
+############################
+# frontend/src/components/Login.jsx
+############################
+cat > "${ROOT_DIR}/frontend/src/components/Login.jsx" <<'EOF'
+import React, { useState } from "react";
+
+export default function Login({ onLogin }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+  const submit = async (e) => {
+    e.preventDefault();
+    const data = new URLSearchParams();
+    data.append("username", email);
+    data.append("password", password);
+    const res = await fetch(`${API}/auth/token`, { method: "POST", body: data });
+    if (res.ok) {
+      const j = await res.json();
+      onLogin(j.access_token);
+    } else {
+      alert("Error login");
+    }
+  };
+
+  return (
+    <div className="chat-container">
+      <h2>Iniciar sesión</h2>
+      <form onSubmit={submit}>
+        <label>Email</label>
+        <input value={email} onChange={(e) => setEmail(e.target.value)} />
+        <label>Password</label>
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <button type="submit">Entrar</button>
+      </form>
+    </div>
+  );
+}
+EOF
+
+############################
+# frontend/src/components/Register.jsx
+############################
+cat > "${ROOT_DIR}/frontend/src/components/Register.jsx" <<'EOF'
+import React, { useState } from "react";
+
+export default function Register({ onLogin }) {
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+  const submit = async (e) => {
+    e.preventDefault();
+    const res = await fetch(`${API}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, full_name: name })
+    });
+    if (res.ok) {
+      // auto-login
+      const data = new URLSearchParams();
+      data.append("username", email);
+      data.append("password", password);
+      const tok = await fetch(`${API}/auth/token`, { method: "POST", body: data });
+      const j = await tok.json();
+      onLogin(j.access_token);
+    } else {
+      const err = await res.json();
+      alert("Error: " + (err.detail || "Registro fallido"));
+    }
+  };
+
+  return (
+    <div className="chat-container">
+      <h2>Registro</h2>
+      <form onSubmit={submit}>
+        <label>Nombre</label>
+        <input value={name} onChange={(e) => setName(e.target.value)} />
+        <label>Email</label>
+        <input value={email} onChange={(e) => setEmail(e.target.value)} />
+        <label>Password</label>
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <button type="submit">Crear cuenta</button>
+      </form>
+    </div>
+  );
+}
+EOF
+
+############################
+# frontend/src/components/Chat.jsx
+############################
+cat > "${ROOT_DIR}/frontend/src/components/Chat.jsx" <<'EOF'
+import React, { useEffect, useState, useRef } from "react";
+
+export default function Chat({ token }) {
+  const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  const [chats, setChats] = useState([]);
+  const [active, setActive] = useState(null);
+  const [text, setText] = useState("");
+  const [messages, setMessages] = useState([]);
+  const messagesRef = useRef();
+
+  useEffect(() => {
+    if (!token) return;
+    fetchChats();
+  }, [token]);
+
+  const fetchChats = async () => {
+    const res = await fetch(`${API}/chat/list`, { headers: { Authorization: `Bearer ${token}` } });
+    if (res.ok) {
+      const j = await res.json();
+      setChats(j);
+      if (j.length) {
+        selectChat(j[0]);
+      }
+    }
+  };
+
+  const selectChat = (c) => {
+    setActive(c);
+    setMessages(c.messages || []);
+  };
+
+  const send = async () => {
+    if (!active) {
+      // create chat
+      const res = await fetch(`${API}/chat/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ title: "Conversación" })
+      });
+      const chat = await res.json();
+      setChats([chat, ...chats]);
+      setActive(chat);
+      setMessages(chat.messages || []);
+    }
+    if (!text) return;
+    // optimista
+    setMessages([...messages, { role: "user", content: text }]);
+    const res = await fetch(`${API}/chat/respond?chat_id=${active ? active.id :  (chats[0] && chats[0].id)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ role: "user", content: text })
+    });
+    const j = await res.json();
+    setMessages((m) => [...m, { role: "assistant", content: j.assistant }]);
+    setText("");
+    // refresh chat list
+    fetchChats();
+    messagesRef.current?.scrollTo(0, messagesRef.current.scrollHeight);
+  };
+
+  return (
+    <div className="chat-container">
+      <div style={{ display: "flex", gap: 12 }}>
+        <div style={{ width: 220 }}>
+          <h3>Historial</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {chats.map((c) => (
+              <button key={c.id} onClick={() => selectChat(c)} style={{ textAlign: "left", padding: 8, borderRadius: 8 }}>
+                {c.title || "Conversación"}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div style={{ flex: 1 }}>
+          <div className="messages" ref={messagesRef}>
+            {messages.map((m, i) => (
+              <div key={i} className={"message " + (m.role === "user" ? "user" : "assistant")}>
+                <div>{m.content}</div>
+              </div>
+            ))}
+          </div>
+          <div className="input-row">
+            <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} />
+            <button onClick={send}>Enviar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+EOF
+
+############################
+# frontend/src/components/Profile.jsx
+############################
+cat > "${ROOT_DIR}/frontend/src/components/Profile.jsx" <<'EOF'
+import React, { useEffect, useState } from "react";
+
+export default function Profile({ token }) {
+  const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    if (!token) return;
+    fetch(`${API}/users/me`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then((j) => setProfile(j));
+  }, [token]);
+
+  if (!profile) return <div className="chat-container">Cargando perfil...</div>;
+
+  return (
+    <div className="chat-container">
+      <h2>Perfil</h2>
+      <p><strong>Email:</strong> {profile.email}</p>
+      <p><strong>Nombre:</strong> {profile.full_name || "-"}</p>
+      <p><strong>Creado:</strong> {new Date(profile.created_at).toLocaleString()}</p>
+    </div>
+  );
+}
+EOF
+
+############################
+# Final notes
+############################
+echo "Proyecto creado en ./${ROOT_DIR}"
+echo
+echo "Siguientes pasos:"
+echo "1) Backend"
+echo "   cd ${ROOT_DIR}/backend"
+echo "   python -m venv .venv"
+echo "   source .venv/bin/activate"
+echo "   pip install -r ../requirements.txt"
+echo "   cp .env.example .env"
+echo "   # editar .env si quieres"
+echo "   uvicorn app.main:app --reload --port 8000"
+echo
+echo "2) Frontend"
+echo "   cd ../frontend"
+echo "   npm install"
+echo "   npm run dev"
+echo
+echo "3) Opcional: iniciar git y subir a GitHub"
+echo "   cd ../../${ROOT_DIR}"
+echo "   git init"
+echo "   git add ."
+echo "   git commit -m \"Init DEVAI\""
+echo "   # crea el repo en GitHub y agrega remote antes de push"
+echo
+echo "Si deseas, puedo preparar el repositorio en GitHub y hacer el push por ti: dime owner/repo o autoriza la creación."
+EOF
